@@ -1010,8 +1010,8 @@ function viewIdoceo(){
    <div class="row"><button class="btn primary" data-a="idoexport">CSV para iDoceo</button><button class="btn" data-a="idoexportx">Excel para iDoceo</button><button class="btn ghost" data-a="idocopy">Copiar</button></div>
    <details><summary class="small">Cómo importarlo en iDoceo</summary>
     <ol class="small" style="margin:6px 0 0;padding-left:20px;display:grid;gap:4px">
-     <li>Guarda el CSV en Archivos (o envíatelo por AirDrop al iPad).</li>
-     <li>En iDoceo, abre la clase de ${esc(g.name)} y usa la opción de importar archivo (XLS/CSV) sobre esa clase.</li>
+     <li>Lleva el archivo al MacBook: si lo has generado en el iPhone, pásalo por AirDrop o guárdalo en iCloud Drive.</li>
+     <li>En iDoceo, en el Mac, abre la clase de ${esc(g.name)} y usa la opción de importar archivo (XLS/CSV) sobre esa clase.</li>
      <li>Comprueba que todos los alumnos se han emparejado: solo se importan los nombres idénticos a los de la clase.</li></ol></details>
    <div class="row" style="border-top:1px solid var(--line);padding-top:10px"><span class="grow small muted">Informe completo con criterios, faltas y asistencia</span><button class="btn" data-a="export">Excel completo</button></div>
   </div>`;
@@ -1062,7 +1062,7 @@ function viewAjustes(){
   if(!g)return h;
   const st=students();
   h+=`<div class="card"><div class="section-t"><h2>Alumnado de ${esc(g.name)}</h2><span class="small muted">${st.length}</span></div>
-   <p class="small muted" style="margin:0">En iDoceo, exporta el cuaderno de la clase en CSV y súbelo aquí. Se toma la lista de alumnos en el mismo orden; las notas del archivo no se importan. También acepta otros CSV o Excel con columnas de nombre y apellidos.</p>
+   <p class="small muted" style="margin:0">En iDoceo, exporta el cuaderno de la clase en CSV y súbelo aquí (si usas la app en el iPhone, pásate antes el archivo desde el Mac por AirDrop o iCloud Drive). Se toma la lista de alumnos en el mismo orden; las notas del archivo no se importan. También acepta otros CSV o Excel con columnas de nombre y apellidos.</p>
    <label class="btn" for="fileIn" style="text-align:center">Importar archivo de iDoceo (CSV, XLS, XLSX)<input type="file" id="fileIn" accept=".csv,.xls,.xlsx,.txt,.tsv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label>
    <details><summary class="small">O pega la lista (un alumno por línea)</summary>
     <textarea id="pasteIn" rows="5" placeholder="García López, Ana&#10;Martín Ruiz, Pablo"></textarea>
