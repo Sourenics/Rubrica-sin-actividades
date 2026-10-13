@@ -361,11 +361,11 @@ const tc=(c,lang)=>lang==="va"&&VA[c.k]?{...c,...VA[c.k]}:c;
 const PDFT={
  es:{title:"Informe de evaluación del cuaderno",student:"Alumno/a",final:"Nota final",prov:"Nota provisional",crit:"Criterio",level:"Nivel",desc:"Descripción",
   notEval:"Sin evaluar",missing:"Nota provisional, calculada solo con los criterios ya evaluados. Falta por evaluar: ",auto:"Calculado con la atención diaria.",noFicha:"Sin ficha entregada, cuenta 0.",
-  yes:"Sí",no:"No",upTo:"hasta",extra:"de nota extra",att:"Atención en clase",obs:"Observaciones",generated:"Generado el",
+  yes:"Sí",no:"No",upTo:"hasta",extra:"de nota extra",att:"Atención en clase",obs:"Observaciones",generated:"Generado el",blank:"Página en blanco para imprimir a doble cara",
   attLine:(ok,n,ab)=>(n?"Atiende en "+ok+" de "+n+(n===1?" día":" días"):"Sin registros de atención")+" · "+ab+(ab===1?" falta":" faltas")},
  va:{title:"Informe d'avaluació del quadern",student:"Alumne/a",final:"Nota final",prov:"Nota provisional",crit:"Criteri",level:"Nivell",desc:"Descripció",
   notEval:"Sense avaluar",missing:"Nota provisional, calculada només amb els criteris ja avaluats. Falta per avaluar: ",auto:"Calculat amb l'atenció diària.",noFicha:"Sense fitxa lliurada, compta 0.",
-  yes:"Sí",no:"No",upTo:"fins a",extra:"de nota extra",att:"Atenció a classe",obs:"Observacions",generated:"Generat el",
+  yes:"Sí",no:"No",upTo:"fins a",extra:"de nota extra",att:"Atenció a classe",obs:"Observacions",generated:"Generat el",blank:"Pàgina en blanc per a imprimir a doble cara",
   attLine:(ok,n,ab)=>(n?"Atén en "+ok+" de "+n+(n===1?" dia":" dies"):"Sense registres d'atenció")+" · "+ab+(ab===1?" falta":" faltes")}
 };
 const PROFILE0={kind:"profile",name:"Carlos Camacho",subj:{es:"Geografía e Historia",va:"Geografia i Història"},pdfMissing:true,pdfTeacher:true,pdfDuplex:true};
@@ -851,9 +851,17 @@ async function makePDF(list,title){
   const doc=new J({unit:"mm",format:"a4"});doc.setLineHeightFactor(1.25);
   // dry-run each report on a scratch document to pick the density that keeps it on one page
   const fit=s=>{for(const K of [PDF_ROOMY,PDF_COMPACT]){const t=new J({unit:"mm",format:"a4"});t.setLineHeightFactor(1.25);pdfStudent(t,u,g,s,o,K);if(t.getNumberOfPages()===1)return K}return PDF_ROOMY};
-  list.forEach((s,i)=>{if(i){if(o.duplex&&doc.getNumberOfPages()%2)doc.addPage();doc.addPage()}pdfStudent(doc,u,g,s,o,fit(s))});
+  let blanks=0;
+  list.forEach((s,i)=>{
+    if(i){
+      if(o.duplex&&doc.getNumberOfPages()%2){doc.addPage();blanks++;
+        doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(...rgb("#8A93AB"));doc.text(pdfTxt(PDFT[o.lang].blank),105,148.5,{align:"center",baseline:"middle"})}
+      doc.addPage();
+    }
+    pdfStudent(doc,u,g,s,o,fit(s));
+  });
   doc.setProperties({title:pdfTxt(title),author:o.teacher?pdfTxt(o.tname):"",creator:"Rúbrica cuaderno"});
-  return doc.output("blob");
+  return {blob:doc.output("blob"),pages:doc.getNumberOfPages(),blanks};
 }
 async function saveFile(fname,blob,okMsg){
   let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
@@ -864,15 +872,16 @@ const fileSafe=t=>t.replace(/[\\/:*?"<>|]/g,"-");
 async function pdfOne(sid){
   const u=U(),g=G();const s=students().find(x=>x.id===sid);if(!u||!g||!s)return;
   toast("Generando PDF…");const t="Informe "+dispName(s,g)+" - "+u.name;
-  const blob=await makePDF([s],t);if(blob)saveFile(fileSafe(t)+".pdf",blob,"PDF guardado");
+  const r=await makePDF([s],t);if(r)saveFile(fileSafe(t)+".pdf",r.blob,"PDF guardado"+(r.pages>1?" ("+r.pages+" páginas)":""));
 }
 async function pdfAll(){
   const u=U(),g=G();if(!u||!g)return;const st=students();const list=st.filter(s=>grade(u,s.id).done>0);
   if(!list.length){toast("Todavía no hay ningún alumno evaluado en esta unidad");return}
   toast("Generando "+plural(list.length,"informe","informes")+"…");const t="Informes "+g.name+" - "+u.name;
-  const blob=await makePDF(list,t);if(!blob)return;
+  const r=await makePDF(list,t);if(!r)return;
   const skip=st.length-list.length;
-  saveFile(fileSafe(t)+".pdf",blob,"PDF guardado: "+plural(list.length,"alumno","alumnos")+(skip?" ("+skip+" sin evaluar no incluidos)":""));
+  saveFile(fileSafe(t)+".pdf",r.blob,"PDF guardado: "+plural(list.length,"alumno","alumnos")+", "+plural(r.pages,"página","páginas")
+    +(r.blanks?" ("+r.blanks+" en blanco para la doble cara)":"")+(skip?". "+plural(skip,"alumno sin evaluar no incluido","alumnos sin evaluar no incluidos"):""));
 }
 
 // ---------- rendering ----------
@@ -972,7 +981,7 @@ function viewPdf(){
    <div class="toggles">
     <button class="tog" data-a="pmiss" aria-pressed="${miss}"><span class="sw"></span><span class="t"><b>Aviso de nota incompleta</b><br><span class="small muted">${miss?"Indica qué criterios faltan":"No se muestra"}</span></span></button>
     <button class="tog" data-a="pteach" aria-pressed="${teach}"><span class="sw"></span><span class="t"><b>Datos del profesor</b><br><span class="small muted">${teach?"Se muestran arriba":"No se muestran"}</span></span></button>
-    <button class="tog" data-a="pduplex" aria-pressed="${duplex}"><span class="sw"></span><span class="t"><b>Imprimir a doble cara</b><br><span class="small muted">${duplex?"Cada alumno empieza en una hoja nueva":"Sin páginas en blanco"}</span></span></button>
+    <button class="tog" data-a="pduplex" aria-pressed="${duplex}"><span class="sw"></span><span class="t"><b>Imprimir a doble cara</b><br><span class="small muted">${duplex?"Cada alumno en su hoja; añade reversos en blanco":"Sin páginas en blanco"}</span></span></button>
    </div>
    ${teach?`<div class="mapgrid"><label for="profName">Profesor/a<input type="text" id="profName" value="${esc(p.name)}" placeholder="Nombre y apellidos"></label>
      <label for="profSubj">Materia (${lang==="va"?"valenciano":"castellano"})<input type="text" id="profSubj" value="${esc(p.subj[lang]||"")}" placeholder="${lang==="va"?"Geografia i Història":"Geografía e Historia"}"></label></div>
