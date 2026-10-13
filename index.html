@@ -361,11 +361,11 @@ const tc=(c,lang)=>lang==="va"&&VA[c.k]?{...c,...VA[c.k]}:c;
 const PDFT={
  es:{title:"Informe de evaluación del cuaderno",student:"Alumno/a",final:"Nota final",prov:"Nota provisional",crit:"Criterio",level:"Nivel",desc:"Descripción",
   notEval:"Sin evaluar",missing:"Nota provisional, calculada solo con los criterios ya evaluados. Falta por evaluar: ",auto:"Calculado con la atención diaria.",noFicha:"Sin ficha entregada, cuenta 0.",
-  yes:"Sí",no:"No",upTo:"hasta",extra:"de nota extra",att:"Atención en clase",obs:"Observaciones",generated:"Generado el",blank:"Página en blanco para imprimir a doble cara",
+  yes:"Sí",no:"No",upTo:"hasta",extra:"de nota extra",att:"Atención en clase",obs:"Observaciones",generated:"Generado el",
   attLine:(ok,n,ab)=>(n?"Atiende en "+ok+" de "+n+(n===1?" día":" días"):"Sin registros de atención")+" · "+ab+(ab===1?" falta":" faltas")},
  va:{title:"Informe d'avaluació del quadern",student:"Alumne/a",final:"Nota final",prov:"Nota provisional",crit:"Criteri",level:"Nivell",desc:"Descripció",
   notEval:"Sense avaluar",missing:"Nota provisional, calculada només amb els criteris ja avaluats. Falta per avaluar: ",auto:"Calculat amb l'atenció diària.",noFicha:"Sense fitxa lliurada, compta 0.",
-  yes:"Sí",no:"No",upTo:"fins a",extra:"de nota extra",att:"Atenció a classe",obs:"Observacions",generated:"Generat el",blank:"Pàgina en blanc per a imprimir a doble cara",
+  yes:"Sí",no:"No",upTo:"fins a",extra:"de nota extra",att:"Atenció a classe",obs:"Observacions",generated:"Generat el",
   attLine:(ok,n,ab)=>(n?"Atén en "+ok+" de "+n+(n===1?" dia":" dies"):"Sense registres d'atenció")+" · "+ab+(ab===1?" falta":" faltes")}
 };
 const PROFILE0={kind:"profile",name:"Carlos Camacho",subj:{es:"Geografía e Historia",va:"Geografia i Història"},pdfMissing:true,pdfTeacher:true,pdfDuplex:true};
@@ -854,8 +854,7 @@ async function makePDF(list,title){
   let blanks=0;
   list.forEach((s,i)=>{
     if(i){
-      if(o.duplex&&doc.getNumberOfPages()%2){doc.addPage();blanks++;
-        doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(...rgb("#8A93AB"));doc.text(pdfTxt(PDFT[o.lang].blank),105,148.5,{align:"center",baseline:"middle"})}
+      if(o.duplex&&doc.getNumberOfPages()%2){doc.addPage();blanks++}
       doc.addPage();
     }
     pdfStudent(doc,u,g,s,o,fit(s));
