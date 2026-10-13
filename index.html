@@ -7,7 +7,7 @@
 <style>html,body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>Rúbrica cuaderno 3º ESO</title>
+<title>Rúbrica del cuaderno</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
@@ -186,7 +186,12 @@ td.auto-v{font-style:italic;color:var(--muted)}
 .mapgrid label{display:flex;flex-direction:column;gap:2px;font-size:.78rem;color:var(--muted);min-width:0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:.9rem;z-index:20;width:max-content;max-width:calc(100% - 32px);text-align:center;box-shadow:var(--shadow-lg);animation:pop .2s ease-out}
 @keyframes pop{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
-.datebar{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.datebar{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
+.datebar .dlabel{grid-column:1/-1;text-align:center;margin:0}
+.datebar input[type=date]{height:40px;padding:0 10px;text-align:center;min-width:0}
+/* iOS Safari gives date fields their own width and alignment: make it fill the column and centre the date */
+@supports (-webkit-touch-callout:none){.datebar input[type=date]{-webkit-appearance:none;appearance:none;display:block;line-height:38px}
+ .datebar input[type=date]::-webkit-date-and-time-value{text-align:center}}
 .iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;flex:0 0 auto;transition:transform .08s,background .15s}
 .iconbtn:hover{background:var(--paper)}
 details > summary{cursor:pointer;color:var(--pen);font-weight:700}
@@ -698,14 +703,20 @@ async function readBackup(file){
 }
 function applyRestore(){
   const r=S.restore;if(!r)return;
+  const restored={};
   Object.entries(r.data.groups).forEach(([gid,g])=>{
     const {units,...doc}=g;doc.kind="group";
-    S.groups[gid]=doc;store.put(gid,doc);
-    Object.entries(units||{}).forEach(([uid,u])=>{store.put(gid+"/units/"+uid,u);if(gid===S.gid)S.units[uid]=u});
+    S.groups[gid]=doc;store.put(gid,doc);restored[gid]=units||{};
+    Object.entries(units||{}).forEach(([uid,u])=>store.put(gid+"/units/"+uid,u));
   });
   if(r.data.profile&&typeof r.data.profile==="object"){S.profile={...r.data.profile,kind:"profile"};store.put("profile",S.profile)}
   if(!S.gid||!S.groups[S.gid])S.gid=Object.keys(r.data.groups)[0];
+  lsSet("rc.gid",S.gid);
   unitsFor=null;S.uid=null;subscribeUnits();
+  // saves are queued, so the store does not have the restored units yet: show them now (pending writes keep them)
+  Object.entries(restored[S.gid]||{}).forEach(([uid,u])=>{S.units[uid]=clone(u)});
+  const us=sortedUnits();S.uid=us.length?us[us.length-1].id:null;lsSet("rc.unit",S.uid);
+  store.q.flushAll();
   S.restore=null;toast("Copia restaurada");
 }
 function attendanceRows(){
@@ -905,7 +916,7 @@ function render(){
 }
 function emptyNoGroup(){
   return `<div class="card empty"><span class="logo">${ICON.logo}</span><h2>Empieza creando un grupo</h2>
-  <p class="muted">Crea tu grupo de 3º ESO e importa la lista de alumnos exportada desde iDoceo (CSV o Excel), o pégala a mano.</p>
+  <p class="muted">Crea un grupo por cada clase (2º, 3º, 4º de ESO o lo que necesites) e importa su lista de alumnos exportada desde iDoceo (CSV o Excel), o pégala a mano.</p>
   <button class="btn primary" data-a="goto" data-tab="ajustes">Crear grupo</button>
   <button class="btn ghost" data-a="demo">Probar con un grupo de ejemplo</button>
   <button class="btn ghost" data-a="goto" data-tab="ajustes">Cargar una copia de seguridad</button>
@@ -915,7 +926,7 @@ function renderTop(){
   const t=$("#top");const gs=sortedGroups(),us=sortedUnits();const u=U();
   t.innerHTML=`<div class="brand"><h1><span class="logo">${ICON.logo}</span>Rúbrica cuaderno</h1><small>${u?esc(u.name):""}</small></div>
   <div class="pickers">
-   <label for="selG">Grupo<select id="selG" ${gs.length?"":"disabled"}>${gs.length?gs.map(g=>`<option value="${g.id}" ${g.id===S.gid?"selected":""}>${esc(g.name)}</option>`).join(""):"<option>Sin grupos</option>"}</select></label>
+   <label for="selG">Grupo<select id="selG" ${gs.length?"":"disabled"}>${gs.length?gs.map(g=>`<option value="${g.id}" ${g.id===S.gid?"selected":""}>${esc(g.name)}</option>`).join("")+'<option value="__new">＋ Nuevo grupo…</option>':"<option>Sin grupos</option>"}</select></label>
    <label for="selU">Unidad<select id="selU" ${us.length?"":"disabled"}>${us.length?us.map(x=>`<option value="${x.id}" ${x.id===S.uid?"selected":""}>${esc(x.name)}</option>`).join(""):"<option>Sin unidades</option>"}</select></label>
   </div>`;
 }
@@ -929,8 +940,9 @@ function viewHoy(){
   const d=new Date(S.date+"T12:00:00");const label=d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
   const recorded=Object.keys(u.att||{}).length;
   return `<div class="card">
-   <div class="datebar"><button class="iconbtn" data-a="day" data-d="-1" aria-label="Día anterior">${ICON.left}</button>
-    <label for="dateIn" class="small muted" style="text-align:center"><span class="dlabel">${esc(label)}</span><input type="date" id="dateIn" value="${S.date}"></label>
+   <div class="datebar"><label for="dateIn" class="dlabel">${esc(label)}</label>
+    <button class="iconbtn" data-a="day" data-d="-1" aria-label="Día anterior">${ICON.left}</button>
+    <input type="date" id="dateIn" value="${S.date}">
     <button class="iconbtn" data-a="day" data-d="1" aria-label="Día siguiente">${ICON.right}</button></div>
    <div class="stats"><div class="lv4"><b>${ok}</b><span>atienden</span></div><div class="lv0"><b>${no}</b><span>no atienden</span></div><div class="lvn"><b>${ab}</b><span>faltan</span></div><div class="lvn"><b>${st.length-ok-no-ab}</b><span>sin marcar</span></div></div>
    <div class="row"><button class="btn primary grow" data-a="allok" ${st.length?"":"disabled"}>Marcar sin marcar como «atiende»</button></div>
@@ -1054,9 +1066,10 @@ function viewAjustes(){
    <div class="seg opt" role="group" aria-label="Tema">${[["auto","Automático"],["light","Claro"],["dark","Oscuro"]].map(([k,l])=>`<button data-a="theme" data-v="${k}" aria-pressed="${th===k}">${l}</button>`).join("")}</div>
    <span class="small muted">«Automático» sigue el modo claro u oscuro del dispositivo. Se recuerda en este navegador.</span></div>
   <div class="card"><div class="section-t"><h2>Grupos</h2></div>
-   ${gs.map(x=>`<div class="row"><span class="grow">${esc(x.name)} <span class="small muted">· ${plural((x.students||[]).length,"alumno","alumnos")}</span></span>
-     ${x.id===S.gid?'<span class="tag">Actual</span>':`<button class="btn" data-a="pickg" data-g="${x.id}">Abrir</button>`}</div>`).join("")||'<p class="muted small" style="margin:0">Todavía no hay grupos.</p>'}
-   <div class="row"><input type="text" id="newG" placeholder="Nombre del grupo (p. ej. 3º ESO A)" class="grow" style="flex:1 1 180px"><button class="btn primary" data-a="newgroup">Crear grupo</button></div>
+   <p class="small muted" style="margin:0">Crea un grupo por cada clase: cada uno tiene sus alumnos, sus unidades y el idioma de sus informes. Cambia de grupo desde el selector de arriba.</p>
+   ${gs.map(x=>x.id===S.gid?`<div class="row"><input type="text" id="gName" class="grow" style="flex:1 1 150px" value="${esc(x.name)}" aria-label="Nombre del grupo actual"><span class="small muted">${plural((x.students||[]).length,"alumno","alumnos")}</span><span class="tag">Actual</span></div>`
+     :`<div class="row"><span class="grow">${esc(x.name)} <span class="small muted">· ${plural((x.students||[]).length,"alumno","alumnos")}</span></span><button class="btn" data-a="pickg" data-g="${x.id}">Abrir</button></div>`).join("")||'<p class="muted small" style="margin:0">Todavía no hay grupos.</p>'}
+   <div class="row"><input type="text" id="newG" placeholder="Nuevo grupo (p. ej. 2º ESO B)" class="grow" style="flex:1 1 180px"><button class="btn primary" data-a="newgroup">Crear grupo</button></div>
    ${gs.length?"":'<button class="btn ghost" data-a="demo">Crear un grupo de ejemplo</button>'}
   </div>`;
   if(!g)return h;
@@ -1177,7 +1190,7 @@ document.addEventListener("click",e=>{
    case "newgroup":{const n=$("#newG").value.trim();if(!n){toast("Escribe un nombre para el grupo");return}createGroup(n);toast("Grupo creado");break}
    case "pickg":S.gid=b.dataset.g;lsSet("rc.gid",S.gid);S.uid=null;subscribeUnits();break;
    case "demo":{const names=[["Lucía","Benítez Soler"],["Marcos","Carrasco Vidal"],["Irene","Domínguez Ortega"],["Hugo","Ferrer Lozano"],["Nerea","Gallardo Pons"],["Adrián","Herrera Molina"],["Carla","Iglesias Rey"],["Óscar","Jiménez Navas"]];
-     createGroup("Ejemplo 3º ESO",names.map(([n,a])=>({id:newId("s"),nombre:n,apellidos:a})));S.tab="hoy";lsSet("rc.tab","hoy");toast("Grupo de ejemplo creado");break}
+     createGroup("Grupo de ejemplo",names.map(([n,a])=>({id:newId("s"),nombre:n,apellidos:a})));S.tab="hoy";lsSet("rc.tab","hoy");toast("Grupo de ejemplo creado");break}
    case "newunit":{const n=$("#newU").value.trim()||("Unidad "+(sortedUnits().length+1));createUnit(n);toast("Unidad añadida");break}
    case "newunit-quick":createUnit("Unidad 1");break;
    case "delunit":{const id=b.dataset.u;if(S.confirm!=="du"+id){S.confirm="du"+id;break}S.confirm=null;store.del(S.gid+"/units/"+id);delete S.units[id];if(S.uid===id){const us=sortedUnits();S.uid=us.length?us[us.length-1].id:null}toast("Unidad borrada");break}
@@ -1194,6 +1207,8 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("change",async e=>{
   const t=e.target;const g=G();
+  if(t.id==="selG"&&t.value==="__new"){S.tab="ajustes";lsSet("rc.tab",S.tab);render();const n=$("#newG");if(n){n.scrollIntoView({block:"center"});n.focus({preventScroll:true})}return}
+  if(t.id==="gName"&&g){const v=t.value.trim();if(v){g.name=v;saveGroup(S.gid)}render();return}
   if(t.id==="selG"){S.gid=t.value;lsSet("rc.gid",S.gid);S.uid=null;S.evalSid=null;subscribeUnits();render();return}
   if(t.id==="selU"){S.uid=t.value;lsSet("rc.unit",S.uid);S.evalSid=null;render();return}
   if(t.id==="dateIn"&&t.value){S.date=t.value;render();return}

@@ -1,6 +1,6 @@
-# Rúbrica del cuaderno · 3º ESO
+# Rúbrica del cuaderno
 
-Aplicación web para evaluar el cuaderno del alumnado con una rúbrica de 8 criterios. Sirve para:
+Aplicación web para evaluar el cuaderno del alumnado con una rúbrica de 8 criterios. Sirve para cualquier curso: se crea un grupo por cada clase (2º, 3º, 4º de ESO o lo que haga falta). Permite:
 
 - registrar cada día la atención en clase;
 - calcular la nota de cada unidad;
@@ -21,7 +21,8 @@ Toda la app está en un único archivo, `index.html`. No hay que instalar nada n
   - los informes en PDF;
   - la exportación a iDoceo y a Excel.
 - **Ajustes:**
-  - grupos y alumnado: importar la lista desde iDoceo, pegarla o añadir alumnos a mano;
+  - grupos: crear y renombrar. También se crean desde el selector de grupo de arriba, con «＋ Nuevo grupo…»;
+  - alumnado de cada grupo: importar la lista desde iDoceo, pegarla o añadir alumnos a mano;
   - unidades, con o sin ficha de repaso y actividades voluntarias;
   - copia de seguridad;
   - tema claro u oscuro.
@@ -79,10 +80,18 @@ El grupo aparece con el nombre que tiene en la app. Para que salga «3º C», el
 
 ## Dónde se guardan los datos
 
+- **En GitHub Pages (sourenics.github.io) o abriendo `index.html` directamente:** los datos se guardan solo en ese navegador y en ese dispositivo (`localStorage`). La app muestra un aviso en este modo.
+  - El PC y el iPhone **no comparten datos**: cada uno tiene los suyos.
+  - Si se borran los datos del navegador, se pierden.
 - **Dentro de Claude (publicada como artifact):** los datos se guardan en tu cuenta, son privados y se ven desde cualquier dispositivo con la misma cuenta. La app usa las capacidades `db`, `user` y `downloads`.
-- **Abriendo `index.html` directamente en el navegador:** los datos se guardan solo en ese navegador y en ese dispositivo (`localStorage`). Si se borran los datos del navegador, se pierden. La app muestra un aviso en este modo.
 
-En los dos casos conviene descargar de vez en cuando una **copia de seguridad** (*Ajustes → Copia de seguridad*). Es un archivo JSON con todos los grupos, unidades, notas, asistencia, observaciones y datos del profesor. También sirve para pasar los datos a otro dispositivo.
+En los dos casos conviene descargar de vez en cuando una **copia de seguridad** (*Ajustes → Copia de seguridad*). Es un archivo JSON con todos los grupos, unidades, notas, asistencia, observaciones y datos del profesor.
+
+Para **pasar los datos de un dispositivo a otro**:
+1. En el primero, descarga la copia de seguridad.
+2. En el segundo, cárgala con «Cargar copia».
+
+Los grupos de la copia sustituyen a los mismos grupos si ya existen; el resto no se toca.
 
 ## Dispositivos
 
