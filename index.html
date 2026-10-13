@@ -190,11 +190,30 @@ details > summary{cursor:pointer;color:var(--pen);font-weight:700}
 .iconbtn svg{width:20px;height:20px}
 @media (max-width:380px){.seg button{padding:8px 7px}.lvls button span{font-size:.6rem}}
 @media (max-width:360px){.stats b{font-size:1.2rem}.av{display:none}}
+input[type=checkbox]{accent-color:var(--pen);width:18px;height:18px;margin:0;flex:0 0 auto}
+.check{display:flex;align-items:flex-start;gap:8px;cursor:pointer}.check input{margin-top:2px}
+.seg.opt{grid-template-columns:repeat(3,1fr);width:100%}
+.seg.opt button[aria-pressed="true"]{background:var(--pen-soft);color:var(--pen)}
+.danger-zone{border-color:color-mix(in srgb,var(--l0f) 35%,var(--line))}
+.thr{display:flex;flex-wrap:wrap;gap:6px}
+.thr span{font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:999px}
+.legend{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 14px;box-shadow:var(--shadow)}
+.legend span{display:flex;gap:8px;align-items:baseline}
+.legend .num{flex:0 0 auto;min-width:22px;height:20px;padding:0 5px;border-radius:6px;background:var(--pen-soft);color:var(--pen);font-weight:700;font-size:.72rem;display:inline-grid;place-items:center}
+.legend em{font-style:normal;color:var(--muted);margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.legend .note{grid-column:1/-1;font-size:.76rem;display:block;border-top:1px solid var(--line);padding-top:6px;margin-top:2px}
+.tablewrap td.c4,.tablewrap td.c3,.tablewrap td.c2,.tablewrap td.c1,.tablewrap td.c0{font-weight:700}
+.tablewrap td.c4{background:var(--l4b);color:var(--l4f)}.tablewrap td.c3{background:var(--l3b);color:var(--l3f)}.tablewrap td.c2{background:var(--l2b);color:var(--l2f)}
+.tablewrap td.c1{background:var(--l1b);color:var(--l1f)}.tablewrap td.c0{background:var(--l0b);color:var(--l0f)}
+td.dot{color:var(--line)}
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 16px}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--pen-soft);border-top-color:var(--pen);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <header class="top" id="top"></header>
-<main id="main"><div class="empty"><p class="muted">Cargando tus grupos…</p></div></main>
+<main id="main"><div class="loading"><span class="spin"></span><p class="muted">Cargando tus grupos…</p></div></main>
 <nav class="nav" id="nav" aria-label="Secciones"></nav>
 <div id="sheet" hidden></div>
 <div id="toast" class="toast" hidden></div>
@@ -294,7 +313,12 @@ const ICON={
 };
 
 // ---------- state ----------
-const S={mode:"loading",groups:{},units:{},gid:lsGet("rc.gid",null),uid:lsGet("rc.unit",null),tab:lsGet("rc.tab","hoy"),
+function applyTheme(t){
+  const r=document.documentElement;if(t==="light"||t==="dark")r.dataset.theme=t;else delete r.dataset.theme;
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=getComputedStyle(r).getPropertyValue("--surface").trim()||"#FFFFFF";
+}
+const plural=(n,one,many)=>n+" "+(n===1?one:many);
+const S={mode:"loading",theme:lsGet("rc.theme","auto"),groups:{},units:{},gid:lsGet("rc.gid",null),uid:lsGet("rc.unit",null),tab:lsGet("rc.tab","hoy"),
   date:todayISO(),idoDec:lsGet("rc.idoDec","comma"),evalSid:null,imp:null,confirm:null,fallbackShown:false};
 let store=null, unsubUnits=null, unitsFor=null;
 
@@ -339,6 +363,8 @@ function localStore(){
   };
 }
 async function init(){
+  applyTheme(S.theme);
+  try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>applyTheme(S.theme))}catch(e){}
   render();
   let db=null,user=null,id=null;
   if(window.claude&&typeof window.claude.use==="function"){
@@ -507,7 +533,7 @@ function applyImport(replace){
     const mx=Math.max(0,...(g.students||[]).map(s=>typeof s.order==="number"?s.order:0));
     g.students=[...(g.students||[]),...list.filter(s=>!have.has(norm(s.apellidos+"|"+s.nombre))).map((s,i)=>({id:newId("s"),...s,order:mx+i+1}))];
   }
-  saveGroup(S.gid);toast(list.length+" alumnos procesados");S.imp=null;render();
+  saveGroup(S.gid);toast(plural(list.length,"alumno procesado","alumnos procesados"));S.imp=null;render();
 }
 
 // ---------- export ----------
@@ -622,7 +648,7 @@ async function copyTSV(data){
 function render(){
   renderTop();renderNav();
   const m=$("#main");
-  if(S.mode==="loading"){m.innerHTML='<div class="empty"><p class="muted">Cargando tus grupos…</p></div>';return}
+  if(S.mode==="loading"){m.innerHTML='<div class="loading"><span class="spin"></span><p class="muted">Cargando tus grupos…</p></div>';return}
   let html="";
   if(S.mode==="local")html+='<div class="banner">Los datos se guardan solo en este navegador y en este dispositivo. Si borras los datos del navegador, se pierden.</div>';
   if(!G()&&S.tab!=="ajustes")html+=emptyNoGroup();
@@ -665,7 +691,7 @@ function viewHoy(){
    <p class="small muted" style="margin:0">Toca «No» en quien se distraiga (habla, se maquilla, móvil…). Las faltas no cuentan para la actitud. ${recorded} ${recorded===1?"día registrado":"días registrados"} en esta unidad.</p>
   </div>
   ${st.length?`<div class="list">${st.map(s=>{const v=day[s.id];const a=attStats(u,s.id);
-    return `<div class="item att">${avatar(s)}<div class="nm">${esc(dispName(s))}<div class="sub">${a.ok+a.no?`Atento ${a.ok} de ${a.ok+a.no} días`:"Sin registros"}${a.ab?` · ${a.ab} ${a.ab===1?"falta":"faltas"}`:""}</div></div>
+    return `<div class="item att">${avatar(s)}<div class="nm">${esc(dispName(s))}<div class="sub">${a.ok+a.no?`Atento ${a.ok} de ${plural(a.ok+a.no,"día","días")}`:"Sin registros"}${a.ab?` · ${a.ab} ${a.ab===1?"falta":"faltas"}`:""}</div></div>
     <div class="seg" role="group" aria-label="Atención de ${esc(dispName(s))}">
      <button class="ok" data-a="att" data-s="${s.id}" data-v="ok" aria-pressed="${v==="ok"}">Atiende</button>
      <button class="no" data-a="att" data-s="${s.id}" data-v="no" aria-pressed="${v==="no"}">No</button>
@@ -691,10 +717,10 @@ function viewEval(){
 function viewNotas(){
   const u=U(),st=students();const cl=critList(u);
   const heads=cl.map((c,i)=>i<8?String(i+1):(c.k==="f1"?"Ent.":"Ficha"));
-  return `<div class="section-t"><h2>${esc(u.name)}</h2><span class="small muted">${st.length} alumnos</span></div>
+  return `<div class="section-t"><h2>${esc(u.name)}</h2><span class="small muted">${plural(st.length,"alumno","alumnos")}</span></div>
   <div class="tablewrap"><table><thead><tr><th>Alumno/a</th>${heads.map(h=>`<th>${h}</th>`).join("")}${u.vol?"<th>Vol.</th>":""}<th>Faltas</th><th>Nota</th></tr></thead>
-  <tbody>${st.map(s=>{const g=grade(u,s.id);return `<tr><td>${esc(dispName(s))}</td>${cl.map(c=>{const r=raw(u,s.id,c.k),v=val(u,s.id,c.k);const auto=r==null&&v!=null;return `<td class="${auto?"auto-v":""}">${v==null?"·":v}</td>`}).join("")}${u.vol?`<td>${g.bonus?"+"+fmt(g.bonus,2):"·"}</td>`:""}<td>${attStats(u,s.id).ab||"·"}</td><td><span class="pill ${lvClass(g.final)}">${fmt(g.final)}</span></td></tr>`}).join("")}</tbody></table></div>
-  <div class="legend">${cl.map((c,i)=>`<span>${i<8?i+1:(c.k==="f1"?"Ent.":"Ficha")}: ${esc(c.n)} (${fmt(c.w,0)} %)</span>`).join("")}${u.vol?`<span>Vol.: extra por actividades voluntarias (hasta +${fmt(u.volMax||1,1)})</span>`:""}<span>Faltas: días que ha faltado en esta unidad.</span><span>Cursiva: actitud calculada desde la atención diaria.</span></div>
+  <tbody>${st.map(s=>{const g=grade(u,s.id);return `<tr><td>${esc(dispName(s))}</td>${cl.map(c=>{const r=raw(u,s.id,c.k),v=val(u,s.id,c.k);const auto=r==null&&v!=null;return `<td class="${auto?"auto-v ":""}${v==null?"dot":"c"+v}">${v==null?"·":v}</td>`}).join("")}${u.vol?`<td>${g.bonus?"+"+fmt(g.bonus,2):"·"}</td>`:""}<td>${attStats(u,s.id).ab||"·"}</td><td><span class="pill ${lvClass(g.final)}">${fmt(g.final)}</span></td></tr>`}).join("")}</tbody></table></div>
+  <div class="legend small">${cl.map((c,i)=>`<span><b class="num">${i<8?i+1:(c.k==="f1"?"Ent.":"Ficha")}</b>${esc(c.n)}<em>${fmt(c.w,0)} %</em></span>`).join("")}${u.vol?`<span><b class="num">Vol.</b>Actividades voluntarias<em>hasta +${fmt(u.volMax||1,1)}</em></span>`:""}<span class="note muted">Faltas: días que ha faltado en esta unidad. En cursiva, la actitud calculada desde la atención diaria. Los colores siguen el nivel: verde 4, rojo 0.</span></div>
   ${viewAsistencia()}
   ${viewIdoceo()}`;
 }
@@ -708,9 +734,9 @@ function viewIdoceo(){
    <label for="idoCol" class="small muted">Nombre de la columna en iDoceo<input type="text" id="idoCol" value="${esc(colName)}"></label>
    <label for="idoDec" class="small muted">Separador decimal<select id="idoDec"><option value="comma" ${(S.idoDec||"comma")==="comma"?"selected":""}>Coma (7,50), como guarda iDoceo las notas</option><option value="dot" ${S.idoDec==="dot"?"selected":""}>Punto (7.50)</option></select></label>
    ${inc?`<div class="banner">${inc} ${inc===1?"alumno tiene":"alumnos tienen"} la rúbrica incompleta.
-     <label class="row" style="margin-top:6px"><input type="checkbox" id="idoBlank" ${S.idoBlank!==false?"checked":""}> Dejar su nota en blanco (si no, se exporta la nota provisional)</label></div>`
+     <label class="check" style="margin-top:8px"><input type="checkbox" id="idoBlank" ${S.idoBlank!==false?"checked":""}><span>Dejar su nota en blanco (si no, se exporta la nota provisional)</span></label></div>`
     :`<span class="small" style="color:var(--l4f)">Todas las rúbricas de esta unidad están completas.</span>`}
-   <div class="${withN?"":"banner"} small" style="${withN?"color:var(--l4f)":""}">${withN?`El archivo llevará la nota de <b>${withN}</b> de ${st.length} alumnos.`:`<b>El archivo saldría sin ninguna nota.</b> Completa la rúbrica de los alumnos o desmarca «Dejar su nota en blanco».`}</div>
+   <div class="${withN?"":"banner"} small" style="${withN?"color:var(--l4f)":""}">${withN?`El archivo llevará la nota de <b>${withN}</b> de ${plural(st.length,"alumno","alumnos")}.`:`<b>El archivo saldría sin ninguna nota.</b> Completa la rúbrica de los alumnos o desmarca «Dejar su nota en blanco».`}</div>
    <div class="row"><button class="btn primary" data-a="idoexport">CSV para iDoceo</button><button class="btn" data-a="idoexportx">Excel para iDoceo</button><button class="btn ghost" data-a="idocopy">Copiar</button></div>
    <details><summary class="small">Cómo importarlo en iDoceo</summary>
     <ol class="small" style="margin:6px 0 0;padding-left:20px;display:grid;gap:4px">
@@ -726,8 +752,8 @@ function viewAsistencia(){
   let rows=st.map(s=>({s,a:groupAtt(s.id)}));
   if(S.attSort)rows=rows.sort((x,y)=>y.a.ab-x.a.ab||y.a.no-x.a.no);
   const tot=rows.reduce((t,r)=>t+r.a.ab,0);
-  return `<div class="card"><div class="section-t"><h2>Asistencia de ${esc(g.name)}</h2><span class="small muted">${days.size} ${days.size===1?"día":"días"} de clase · todas las unidades</span></div>
-   <div class="row"><span class="small muted grow">${tot} faltas en total. Toca un alumno para ver las fechas.</span>
+  return `<div class="card"><div class="section-t"><h2>Asistencia de ${esc(g.name)}</h2><span class="small muted">${plural(days.size,"día","días")} de clase · todas las unidades</span></div>
+   <div class="row"><span class="small muted grow">${plural(tot,"falta","faltas")} en total. Toca un alumno para ver las fechas.</span>
     <button class="btn ghost small" data-a="attsort" aria-pressed="${!!S.attSort}">${S.attSort?"Orden de lista":"Más faltas primero"}</button></div>
    <div class="list">${rows.map(({s,a})=>`<details class="item" style="display:block">
      <summary style="display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;color:inherit;font-weight:inherit">
@@ -745,7 +771,7 @@ function viewBackup(){
    <div class="row"><button class="btn primary" data-a="backup">Descargar copia</button>
     <label class="btn" for="restoreIn">Cargar copia<input type="file" id="restoreIn" accept=".json,application/json" hidden></label></div>
    ${r?`<div class="crit"><b>Restaurar copia del ${esc(new Date(r.date).toLocaleDateString("es-ES"))}</b>
-     <span class="small">${r.groups} ${r.groups===1?"grupo":"grupos"}, ${r.students} alumnos y ${r.units} ${r.units===1?"unidad":"unidades"}.</span>
+     <span class="small">${r.groups} ${r.groups===1?"grupo":"grupos"}, ${plural(r.students,"alumno","alumnos")} y ${r.units} ${r.units===1?"unidad":"unidades"}.</span>
      <span class="small muted">Los grupos de la copia sustituyen a los mismos grupos si ya existen aquí. El resto de grupos no se toca.</span>
      <div class="row"><button class="btn ${S.confirm==="rs"?"confirm":"primary"}" data-a="restore">${S.confirm==="rs"?"Sí, restaurar":"Restaurar"}</button><button class="btn ghost" data-a="restorecancel">Cancelar</button></div></div>`:""}
   </div>`;
@@ -753,8 +779,12 @@ function viewBackup(){
 function viewAjustes(){
   const g=G(),gs=sortedGroups(),us=sortedUnits();
   const conf=k=>S.confirm===k;
-  let h=viewBackup()+`<div class="card"><div class="section-t"><h2>Grupos</h2></div>
-   ${gs.map(x=>`<div class="row"><span class="grow">${esc(x.name)} <span class="small muted">· ${(x.students||[]).length} alumnos</span></span>
+  const th=S.theme||"auto";
+  let h=viewBackup()+`<div class="card"><div class="section-t"><h2>Apariencia</h2></div>
+   <div class="seg opt" role="group" aria-label="Tema">${[["auto","Automático"],["light","Claro"],["dark","Oscuro"]].map(([k,l])=>`<button data-a="theme" data-v="${k}" aria-pressed="${th===k}">${l}</button>`).join("")}</div>
+   <span class="small muted">«Automático» sigue el modo claro u oscuro del dispositivo. Se recuerda en este navegador.</span></div>
+  <div class="card"><div class="section-t"><h2>Grupos</h2></div>
+   ${gs.map(x=>`<div class="row"><span class="grow">${esc(x.name)} <span class="small muted">· ${plural((x.students||[]).length,"alumno","alumnos")}</span></span>
      ${x.id===S.gid?'<span class="tag">Actual</span>':`<button class="btn" data-a="pickg" data-g="${x.id}">Abrir</button>`}</div>`).join("")||'<p class="muted small" style="margin:0">Todavía no hay grupos.</p>'}
    <div class="row"><input type="text" id="newG" placeholder="Nombre del grupo (p. ej. 3º ESO A)" class="grow" style="flex:1 1 180px"><button class="btn primary" data-a="newgroup">Crear grupo</button></div>
    ${gs.length?"":'<button class="btn ghost" data-a="demo">Crear un grupo de ejemplo</button>'}
@@ -785,9 +815,10 @@ function viewAjustes(){
   </div>
   <div class="card"><h2 style="font-size:1rem">Cómo se calcula la nota</h2>
    <p class="small" style="margin:0">Cada criterio puntúa de 0 a 4 y pesa su porcentaje. Si la unidad tiene ficha de repaso, se añaden «Entrega de la ficha» (5 %) y «Actividades de la ficha» (15 %) y los 8 criterios se reducen al 80 % de su peso. Si no entrega la ficha, sus actividades cuentan 0. Las voluntarias solo suman, con la nota limitada a 10.</p>
-   <p class="small" style="margin:0">Actitud automática según el % de días atento: 90 % o más → Excelente; 75 % → Bueno; 50 % → Regular; 25 % → Deficiente; menos → Nulo.</p>
+   <p class="small" style="margin:0">Actitud automática según el % de días atento:</p>
+   <div class="thr"><span class="lv4">≥ 90 % · Excelente</span><span class="lv3">≥ 75 % · Bueno</span><span class="lv2">≥ 50 % · Regular</span><span class="lv1">≥ 25 % · Deficiente</span><span class="lv0">&lt; 25 % · Nulo</span></div>
   </div>
-  <div class="card"><div class="row"><span class="grow small">Borrar el grupo «${esc(g.name)}» con todas sus unidades y notas</span>
+  <div class="card danger-zone"><div class="row"><span class="grow small">Borrar el grupo «${esc(g.name)}» con todas sus unidades y notas</span>
    <button class="btn ${conf("dg")?"confirm":"ghost danger"}" data-a="delgroup">${conf("dg")?"Sí, borrar el grupo":"Borrar grupo"}</button></div></div>`;
   return h;
 }
@@ -814,7 +845,7 @@ function renderSheet(){
     const disabled=c.k==="f2"&&raw(u,s.id,"f1")===0;
     const d=c.binary?(v==null?null:c.d[v]):(v==null?null:c.d[4-v]);
     let note="";
-    if(c.k==="c8"){const a=attStats(u,s.id);note=`<div class="auto">Atención registrada: ${a.ok} de ${a.ok+a.no} días${a.ab?` · ${a.ab} faltas`:""}${auto?' · <span class="tag">automático</span>':r!=null&&suggest8(u,s.id)!=null?` · sugerido ${suggest8(u,s.id)} <button class="btn ghost small" data-a="score" data-s="${s.id}" data-k="c8" data-v="${r}" style="padding:2px 8px">usar sugerido</button>`:""}</div>`}
+    if(c.k==="c8"){const a=attStats(u,s.id);note=`<div class="auto">Atención registrada: ${a.ok} de ${plural(a.ok+a.no,"día","días")}${a.ab?` · ${plural(a.ab,"falta","faltas")}`:""}${auto?' · <span class="tag">automático</span>':r!=null&&suggest8(u,s.id)!=null?` · sugerido ${suggest8(u,s.id)} <button class="btn ghost small" data-a="score" data-s="${s.id}" data-k="c8" data-v="${r}" style="padding:2px 8px">usar sugerido</button>`:""}</div>`}
     if(disabled)note=`<div class="auto">Sin ficha entregada, las actividades cuentan 0.</div>`;
     const btns=c.binary?[[4,"Sí","Entrega"],[0,"No","No entrega"]].map(([n,a,b])=>`<button class="lv${n}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${n}" aria-pressed="${v===n}"><b>${a}</b><span>${b}</span></button>`).join("")
       :[4,3,2,1,0].map(n=>`<button class="lv${n}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${n}" aria-pressed="${v===n}" ${disabled?"disabled":""}><b>${n}</b><span>${SHORT[n]}</span></button>`).join("");
@@ -853,6 +884,7 @@ document.addEventListener("click",e=>{
    case "close":S.evalSid=null;break;
    case "nav":{const st=students();const i=st.findIndex(s=>s.id===S.evalSid)+Number(b.dataset.d);if(st[i]){S.evalSid=st[i].id;const sb=$("#sheet .sheet-b");if(sb)sb.scrollTop=0}break}
    case "score":setScore(b.dataset.s,b.dataset.k,Number(b.dataset.v));break;
+   case "theme":S.theme=b.dataset.v;lsSet("rc.theme",S.theme);applyTheme(S.theme);break;
    case "attsort":S.attSort=!S.attSort;break;
    case "backup":doBackup();return;
    case "restore":if(S.confirm!=="rs"){S.confirm="rs";break}S.confirm=null;applyRestore();break;
