@@ -209,6 +209,10 @@ td.dot{color:var(--line)}
 .loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 16px}
 .spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--pen-soft);border-top-color:var(--pen);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.field{display:flex;flex-direction:column;gap:4px}
+.pdfprev{align-self:flex-end;text-align:right;display:flex;flex-direction:column;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-size:.85rem;max-width:100%}
+.pdfprev span{color:var(--muted);font-size:.8rem}
+textarea{resize:vertical;min-height:72px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -288,6 +292,83 @@ const VOL={k:"vol",n:"Actividades voluntarias",d:[
   "Realiza aproximadamente la mitad de las actividades voluntarias.",
   "Realiza alguna actividad voluntaria aislada.",
   "No realiza las actividades voluntarias."]};
+// Valencian version of the rubric, used only in the PDF reports of groups set to «Valencià»
+const LEVELS_VA=["Nul","Deficient","Regular","Bo","Excel·lent"];
+const VA={
+ c1:{n:"Còpia completa de l'esquema",d:[
+  "Copia tots els esquemes complets i sense errors: no falta cap apartat, concepte ni exemple.",
+  "Copia els esquemes quasi complets; falta algun detall menor o hi ha algun error puntual.",
+  "Falten parts dels esquemes o hi ha diversos errors de còpia que canvien el contingut.",
+  "Copia només fragments solts; els esquemes estan molt incomplets o abreuja tant que no s'entenen.",
+  "No copia els esquemes."]},
+ c2:{n:"Estructura i jerarquia de l'esquema",d:[
+  "Respecta l'estructura de l'esquema de la pissarra: nivells, sagnats, numeració, claus i fletxes. Es distingix clarament què és idea principal i què és secundària.",
+  "Respecta l'estructura general, encara que en algun punt es perd la jerarquia o les connexions (fletxes, claus).",
+  "Copia el contingut però com a text seguit o amb la jerarquia confusa; costa veure què depén de què.",
+  "L'estructura a penes es reconeix: idees mesclades, sense nivells ni connexions.",
+  "No hi ha cap estructura recognoscible o no hi ha esquema."]},
+ c3:{n:"Anotacions de l'explicació",d:[
+  "Afig a l'esquema anotacions pròpies preses durant l'explicació (aclariments, exemples, definicions, dubtes resolts) en quasi totes les sessions.",
+  "Afig anotacions rellevants en bastants sessions, encara que són breus o no sempre aporten informació nova.",
+  "Afig alguna anotació aïllada o es limita a repetir el que ja posa l'esquema.",
+  "Pràcticament no afig anotacions; només copia el que hi ha escrit en la pissarra.",
+  "No hi ha cap anotació de l'explicació."]},
+ c4:{n:"Quadern al dia",d:[
+  "Hi són totes les sessions. Si ha faltat algun dia, ha recuperat l'esquema i ho indica.",
+  "Falta una sessió o algun esquema recuperat està incomplet.",
+  "Falten diverses sessions sense recuperar.",
+  "Falten la majoria de les sessions.",
+  "El quadern no arreplega les sessions de classe."]},
+ c5:{n:"Identificació: data i títol",d:[
+  "Totes les sessions tenen la data i el títol del tema/apartat correctament anotats.",
+  "La majoria de les sessions tenen data i títol, encara que en falta en alguna.",
+  "Poques sessions tenen data i títol, cosa que dificulta localitzar els continguts.",
+  "Apareix la data o el títol de manera molt ocasional.",
+  "No s'inclou cap element d'identificació."]},
+ c6:{n:"Lletra i llegibilitat",d:[
+  "La lletra és clara i llegible en tots els fulls i respecta la quadrícula o les línies.",
+  "La lletra és majoritàriament clara, amb algunes zones difícils de llegir.",
+  "La lletra és poc llegible en bastants parts.",
+  "La lletra és difícil de llegir i/o en la majoria dels fulls no respecta la quadrícula.",
+  "La lletra és molt difícil de llegir i/o no respecta la quadrícula en cap full."]},
+ c7:{n:"Netedat i ressaltat",d:[
+  "Quadern net, sense ratllades ni dibuixos aliens a l'assignatura. Usa subratllat o colors amb criteri per a destacar conceptes clau.",
+  "Quadern net, amb alguna ratllada o dibuix alié puntual. Ressalta conceptes clau, encara que no sempre amb criteri.",
+  "Presenta algunes taques o ratllades; a penes ressalta els conceptes clau o ho subratlla quasi tot.",
+  "Taques, ratllades o abús del corrector freqüents; no ressalta res.",
+  "El quadern està brut i descurat."]},
+ c8:{n:"Actitud durant l'explicació",d:[
+  "Atén en silenci durant tota l'explicació, seguix l'esquema i participa de manera adequada (pregunta dubtes, respon quan se li demana).",
+  "Atén la major part del temps; alguna distracció puntual que corregix tan prompte com se li indica.",
+  "Es distrau amb certa freqüència (parla amb companys, es dedica a altres coses) i necessita diverses cridades d'atenció.",
+  "Es distrau de manera habitual durant l'explicació (xarrada, maquillatge, mòbil, altres tasques) i interromp el ritme de la classe.",
+  "No atén en cap explicació i la seua conducta impedix seguir la classe amb normalitat."]},
+ f1:{n:"Lliurament de la fitxa de repàs",d:{4:"Lliura la fitxa de repàs junt amb el quadern.",0:"No lliura la fitxa de repàs amb el quadern."}},
+ f2:{n:"Activitats de la fitxa de repàs",d:[
+  "Realitza totes les activitats de la fitxa, completes i ben desenvolupades.",
+  "Realitza quasi totes les activitats; alguna està incompleta o té errors.",
+  "Realitza aproximadament la meitat de les activitats o diverses estan incompletes.",
+  "Realitza molt poques activitats o estan quasi totes sense acabar.",
+  "No realitza cap activitat de la fitxa."]},
+ vol:{n:"Activitats voluntàries",d:[
+  "Realitza totes les activitats voluntàries, completes i ben fetes.",
+  "Realitza quasi totes les activitats voluntàries, amb algun error o apartat incomplet.",
+  "Realitza aproximadament la meitat de les activitats voluntàries.",
+  "Realitza alguna activitat voluntària aïllada.",
+  "No realitza les activitats voluntàries."]}
+};
+const tc=(c,lang)=>lang==="va"&&VA[c.k]?{...c,...VA[c.k]}:c;
+const PDFT={
+ es:{title:"Informe de evaluación del cuaderno",student:"Alumno/a",final:"Nota final",prov:"Nota provisional",crit:"Criterio",level:"Nivel",desc:"Descripción",
+  notEval:"Sin evaluar",missing:"Nota provisional, calculada solo con los criterios ya evaluados. Falta por evaluar: ",auto:"Calculado con la atención diaria.",noFicha:"Sin ficha entregada, cuenta 0.",
+  yes:"Sí",no:"No",upTo:"hasta",extra:"de nota extra",att:"Atención en clase",obs:"Observaciones",generated:"Generado el",
+  attLine:(ok,n,ab)=>(n?"Atiende en "+ok+" de "+n+(n===1?" día":" días"):"Sin registros de atención")+" · "+ab+(ab===1?" falta":" faltas")},
+ va:{title:"Informe d'avaluació del quadern",student:"Alumne/a",final:"Nota final",prov:"Nota provisional",crit:"Criteri",level:"Nivell",desc:"Descripció",
+  notEval:"Sense avaluar",missing:"Nota provisional, calculada només amb els criteris ja avaluats. Falta per avaluar: ",auto:"Calculat amb l'atenció diària.",noFicha:"Sense fitxa lliurada, compta 0.",
+  yes:"Sí",no:"No",upTo:"fins a",extra:"de nota extra",att:"Atenció a classe",obs:"Observacions",generated:"Generat el",
+  attLine:(ok,n,ab)=>(n?"Atén en "+ok+" de "+n+(n===1?" dia":" dies"):"Sense registres d'atenció")+" · "+ab+(ab===1?" falta":" faltes")}
+};
+const PROFILE0={kind:"profile",name:"Carlos Camacho",subj:{es:"Geografía e Historia",va:"Geografia i Història"},pdfMissing:true,pdfTeacher:true};
 const ATT_THRESHOLDS=[[0.9,4],[0.75,3],[0.5,2],[0.25,1],[0,0]];
 
 // ---------- helpers ----------
@@ -343,7 +424,7 @@ function dbStore(db,userId){
   const q=makeQueue((path,data)=>db.doc(base+"/"+path).set(data));
   return {
     kind:"db",q,
-    onGroups(cb){return db.collection(base).onSnapshot(s=>{const o={};s.docs.forEach(d=>{const v=d.data();if(v&&v.kind==="group")o[d.id]=clone(v)});cb(o)},e=>{console.warn(e);toast("Se ha perdido la conexión con tus datos. Recarga la página.")})},
+    onGroups(cb){return db.collection(base).onSnapshot(s=>{const o={};let pr=null;s.docs.forEach(d=>{const v=d.data();if(v&&v.kind==="group")o[d.id]=clone(v);else if(v&&v.kind==="profile"&&d.id==="profile")pr=clone(v)});cb(o,pr)},e=>{console.warn(e);toast("Se ha perdido la conexión con tus datos. Recarga la página.")})},
     onUnits(gid,cb){return db.collection(base+"/"+gid+"/units").onSnapshot(s=>{const o={};s.docs.forEach(d=>{const v=d.data();if(v)o[d.id]=clone(v)});cb(o)},e=>console.warn(e))},
     put(path,data){q.schedule(path,data)},
     async getUnits(gid){const s=await db.collection(base+"/"+gid+"/units").get();const o={};s.docs.forEach(d=>{const v=d.data();if(v)o[d.id]=clone(v)});return o},
@@ -353,9 +434,9 @@ function dbStore(db,userId){
 function localStore(){
   const KEY="rc.localdata";let data=lsGet(KEY,{groups:{},units:{}});let gcb=null;const ucbs={};
   const save=()=>lsSet(KEY,data);
-  const q=makeQueue((path,doc)=>{const p=path.split("/");if(p.length===1){data.groups[p[0]]=clone(doc)}else{(data.units[p[0]]=data.units[p[0]]||{})[p[2]]=clone(doc)}save()});
+  const q=makeQueue((path,doc)=>{const p=path.split("/");if(path==="profile"){data.profile=clone(doc)}else if(p.length===1){data.groups[p[0]]=clone(doc)}else{(data.units[p[0]]=data.units[p[0]]||{})[p[2]]=clone(doc)}save()});
   return {kind:"local",q,
-    onGroups(cb){gcb=cb;cb(clone(data.groups));return()=>{gcb=null}},
+    onGroups(cb){gcb=cb;cb(clone(data.groups),data.profile?clone(data.profile):null);return()=>{gcb=null}},
     onUnits(gid,cb){ucbs[gid]=cb;cb(clone(data.units[gid]||{}));return()=>{delete ucbs[gid]}},
     put(path,doc){q.schedule(path,doc)},
     async getUnits(gid){return clone(data.units[gid]||{})},
@@ -372,7 +453,8 @@ async function init(){
     if(db&&user){try{id=await user.id()}catch(e){}}
   }
   if(db&&id){store=dbStore(db,id);S.mode="db"}else{store=localStore();S.mode="local"}
-  store.onGroups(g=>{
+  store.onGroups((g,pr)=>{
+    if(!store.q.isDirty("profile"))S.profile=pr||null;
     const merged={};
     Object.keys(g).forEach(k=>{merged[k]=store.q.isDirty(k)&&S.groups[k]?S.groups[k]:g[k]});
     Object.keys(S.groups).forEach(k=>{if(store.q.isDirty(k)&&!merged[k])merged[k]=S.groups[k]});
@@ -400,6 +482,8 @@ function subscribeUnits(){
   });
 }
 const saveGroup=gid=>store.put(gid,S.groups[gid]);
+const prof=()=>{const p=S.profile||{};return {...PROFILE0,...p,subj:{...PROFILE0.subj,...(p.subj||{})}}};
+function setProf(patch){S.profile={...prof(),...patch,kind:"profile"};store.put("profile",S.profile)}
 const saveUnit=uid=>store.put(S.gid+"/units/"+uid,S.units[uid]);
 
 // ---------- domain ----------
@@ -539,10 +623,10 @@ function applyImport(replace){
 // ---------- export ----------
 function exportRows(){
   const u=U(),g=G();const cl=critList(u);
-  const head=["Alumno/a",...cl.map(c=>c.n),...(u.vol?["Actividades voluntarias (0-4)","Extra voluntarias"]:[]),"Días atento","Días sin atender","Faltas","Nota"];
+  const head=["Alumno/a",...cl.map(c=>c.n),...(u.vol?["Actividades voluntarias (0-4)","Extra voluntarias"]:[]),"Días atento","Días sin atender","Faltas","Nota","Observaciones"];
   const rows=students().map(s=>{const gr=grade(u,s.id);const a=attStats(u,s.id);
     return [dispName(s,g),...cl.map(c=>{const v=val(u,s.id,c.k);return v==null?"":v}),
-      ...(u.vol?[raw(u,s.id,"vol")??"",Math.round(gr.bonus*100)/100]:[]),a.ok,a.no,a.ab,gr.final==null?"":Math.round(gr.final*100)/100]});
+      ...(u.vol?[raw(u,s.id,"vol")??"",Math.round(gr.bonus*100)/100]:[]),a.ok,a.no,a.ab,gr.final==null?"":Math.round(gr.final*100)/100,(u.notes||{})[s.id]||""]});
   return [head,...rows];
 }
 function idoceoRows(withDate){
@@ -584,7 +668,7 @@ function browserSave(filename,data){
 }
 async function makeBackup(){
   store.q.flushAll();
-  const out={app:"rubrica-cuaderno",version:1,exportedAt:new Date().toISOString(),groups:{}};
+  const out={app:"rubrica-cuaderno",version:1,exportedAt:new Date().toISOString(),groups:{},profile:S.profile?clone(S.profile):null};
   for(const g of sortedGroups()){const {id,...doc}=g;
     let units=g.id===S.gid?clone(S.units):null;
     if(!units){try{units=await store.getUnits(g.id)}catch(e){throw new Error("units")}}
@@ -615,6 +699,7 @@ function applyRestore(){
     S.groups[gid]=doc;store.put(gid,doc);
     Object.entries(units||{}).forEach(([uid,u])=>{store.put(gid+"/units/"+uid,u);if(gid===S.gid)S.units[uid]=u});
   });
+  if(r.data.profile&&typeof r.data.profile==="object"){S.profile={...r.data.profile,kind:"profile"};store.put("profile",S.profile)}
   if(!S.gid||!S.groups[S.gid])S.gid=Object.keys(r.data.groups)[0];
   unitsFor=null;S.uid=null;subscribeUnits();
   S.restore=null;toast("Copia restaurada");
@@ -644,8 +729,149 @@ async function copyTSV(data){
   try{await navigator.clipboard.writeText(tsv);toast("Tabla copiada: pégala en Excel o Numbers")}catch(e){toast("No se ha podido copiar en este dispositivo")}
 }
 
+// ---------- PDF reports ----------
+let pdfP=null;
+function loadPDF(){
+  if(window.jspdf&&window.jspdf.jsPDF)return Promise.resolve(window.jspdf.jsPDF);
+  if(!pdfP)pdfP=new Promise((res,rej)=>{const sc=document.createElement("script");
+    sc.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    sc.onload=()=>window.jspdf&&window.jspdf.jsPDF?res(window.jspdf.jsPDF):rej(new Error("nopdf"));
+    sc.onerror=()=>rej(new Error("nopdf"));document.head.appendChild(sc)}).catch(e=>{pdfP=null;throw e});
+  return pdfP;
+}
+// the built-in PDF fonts only cover Latin-1: simplify anything else (ș → s) instead of printing garbage
+const pdfTxt=t=>String(t==null?"":t).replace(/[\u2013\u2014]/g,"-").replace(/[\u201C\u201D]/g,'"').replace(/[\u2018\u2019]/g,"'").replace(/\u2026/g,"...")
+  .replace(/[^\x00-\xFF]/g,c=>{const b=c.normalize("NFD")[0];return b&&b.charCodeAt(0)<256?b:""});
+const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const PCOL={lv4:["#D8EED5","#1D6528"],lv3:["#ECF1CB","#545E0C"],lv2:["#FBE8BE","#744E00"],lv1:["#F8D5BF","#863611"],lv0:["#F6CDD4","#961A31"],lvn:["#E3EAFA","#58637F"]};
+function pdfOpts(){
+  const p=prof(),g=G();const lang=g&&g.lang==="va"?"va":"es";const subj=p.subj[lang]||"";
+  return {lang,missing:p.pdfMissing!==false,teacher:p.pdfTeacher!==false&&!!(p.name||subj),tname:p.name||"",subj};
+}
+function pdfStudent(doc,u,g,s,o){
+  const L=PDFT[o.lang],LV=o.lang==="va"?LEVELS_VA:LEVELS;
+  const W=210,H=297,M=16,CW=W-2*M,BOT=H-M-8;
+  const name=dispName(s,g),gr=grade(u,s.id),cl=critList(u),date=todayISO().split("-").reverse().join("/");
+  const lh=sz=>sz*0.3528*1.25;
+  const F=(sz,st,col)=>{doc.setFont("helvetica",st||"normal");doc.setFontSize(sz);doc.setTextColor(...rgb(col||"#16203A"))};
+  const T=(t,x,yy,op)=>doc.text(Array.isArray(t)?t:pdfTxt(t),x,yy,{baseline:"top",...(op||{})});
+  const wrap=(t,w)=>doc.splitTextToSize(pdfTxt(t),w);
+  const line=(yy,col,w)=>{doc.setDrawColor(...rgb(col||"#D9DFEB"));doc.setLineWidth(w||.3);doc.line(M,yy,W-M,yy)};
+  let y=M;
+  const footer=()=>{F(7.5,"normal","#8A93AB");T(L.generated+" "+date,M,H-M-3);T(name,W-M,H-M-3,{align:"right"})};
+  const header=cont=>{
+    F(cont?12:15,"bold",cont?"#16203A":"#1F4FB8");T(cont?name:L.title,M,y);
+    F(9,"normal","#58637F");T([u.name,o.teacher?"":g.name,date].filter(Boolean).join("  ·  "),M,y+7.5);
+    if(o.teacher){F(10.5,"bold");T(o.tname,W-M,y+0.5,{align:"right"});F(9,"normal","#58637F");T([o.subj,g.name].filter(Boolean).join(" · "),W-M,y+6.5,{align:"right"})}
+    y+=13;line(y);y+=5;
+  };
+  const newPage=()=>{doc.addPage();y=M;footer();header(true)};
+  footer();header(false);
+  // student + grade
+  F(8,"bold","#58637F");T(L.student.toUpperCase(),M,y);
+  F(17,"bold");const nl=wrap(name,CW-48);T(nl,M,y+4.5);
+  const [gb,gf]=PCOL[lvClass(gr.final)].map(rgb),bw=40,bh=21,bx=W-M-bw;
+  doc.setFillColor(...gb);doc.roundedRect(bx,y-2,bw,bh,3,3,"F");
+  doc.setFont("helvetica","bold");doc.setTextColor(...gf);doc.setFontSize(26);T(fmt(gr.final),bx+bw/2,y+1.5,{align:"center"});
+  doc.setFontSize(7.5);T((gr.partial?L.prov:L.final).toUpperCase(),bx+bw/2,y+13,{align:"center"});
+  y+=Math.max(4.5+nl.length*lh(17),bh-2)+5;
+  // what is missing
+  if(o.missing&&gr.partial){
+    const miss=cl.map((c,i)=>({c,i})).filter(x=>val(u,s.id,x.c.k)==null).map(x=>(x.i<8?(x.i+1)+". ":"")+tc(x.c,o.lang).n);
+    F(9.5,"normal","#744E00");const ml=wrap(L.missing+miss.join("; ")+".",CW-10);const mh=ml.length*lh(9.5)+6;
+    doc.setFillColor(...rgb("#FBE8BE"));doc.roundedRect(M,y,CW,mh,2.5,2.5,"F");T(ml,M+5,y+3);y+=mh+5;
+  }
+  // criteria table
+  const c1=54,c2=31,c3=CW-c1-c2,pad=2.2;
+  const thead=()=>{doc.setFillColor(...rgb("#F5F7FB"));doc.rect(M,y,CW,7,"F");F(7.5,"bold","#58637F");
+    T(L.crit.toUpperCase(),M+pad+1.5,y+2.2);T(L.level.toUpperCase(),M+c1+pad,y+2.2);T(L.desc.toUpperCase(),M+c1+c2+pad,y+2.2);y+=7};
+  thead();
+  const rows=cl.map((c,i)=>({c,num:i<8?i+1:0,v:val(u,s.id,c.k),r:raw(u,s.id,c.k),w:fmt(c.w,0)+" %"}));
+  if(u.vol)rows.push({c:VOL,num:0,v:raw(u,s.id,"vol"),r:raw(u,s.id,"vol"),w:L.upTo+" +"+fmt(u.volMax||1,1),vol:true});
+  rows.forEach(row=>{
+    const t=tc(row.c,o.lang),v=row.v;
+    const nw=c1-pad*2-1.5;F(9.5,"bold");const nm=wrap((row.num?row.num+". ":"")+t.n,nw);
+    const lastW=doc.getTextWidth(nm[nm.length-1]);F(8,"normal");const wInline=lastW+1.5+doc.getTextWidth(pdfTxt(row.w))<=nw;
+    const nh=nm.length*lh(9.5)+(wInline?0:lh(8));
+    const badge=v==null?null:row.c.binary?(v===4?L.yes:L.no):v+" · "+LV[v];
+    const notes=[];
+    if(row.c.k==="c8"&&row.r==null&&v!=null)notes.push(L.auto);
+    if(row.c.k==="f2"&&raw(u,s.id,"f1")===0)notes.push(L.noFicha);
+    if(row.vol&&v!=null)notes.push("+"+fmt(gr.bonus,2)+" "+L.extra);
+    F(7.5,"italic");const nt=notes.length?wrap(notes.join(" "),c2-pad*2):[];
+    const lvh=(badge?6:lh(9))+(nt.length?1.5+nt.length*lh(7.5):0);
+    const d=v==null?null:(row.c.binary?t.d[v]:t.d[4-v]);
+    F(9,"normal");const dl=wrap(d||L.notEval,c3-pad*2);
+    const rh=Math.max(nh,lvh,dl.length*lh(9))+pad*2;
+    if(y+rh>BOT){newPage();thead()}
+    const [bg,fg]=PCOL[v==null?"lvn":"lv"+v].map(rgb);
+    doc.setFillColor(...(v==null?rgb("#D9DFEB"):fg));doc.rect(M,y,1.2,rh,"F");
+    F(9.5,"bold");T(nm,M+pad+1.5,y+pad);F(8,"normal","#58637F");
+    if(wInline)T(row.w,M+pad+1.5+lastW+1.5,y+pad+(nm.length-1)*lh(9.5)+0.35);else T(row.w,M+pad+1.5,y+pad+nm.length*lh(9.5));
+    let by=y+pad;
+    if(badge){F(8.5,"bold");doc.setTextColor(...fg);const tw=doc.getTextWidth(pdfTxt(badge))+5;
+      doc.setFillColor(...bg);doc.roundedRect(M+c1+pad-0.5,by-0.5,tw,6,1.5,1.5,"F");T(badge,M+c1+pad+2,by+1.3);by+=6}
+    else{F(9,"normal","#8A93AB");T("-",M+c1+pad,by);by+=lh(9)}
+    if(nt.length){F(7.5,"italic","#58637F");T(nt,M+c1+pad,by+1.5)}
+    F(9,"normal",v==null?"#8A93AB":"#16203A");T(dl,M+c1+c2+pad,y+pad);
+    y+=rh;line(y,"#E3E7F0",.25);
+  });
+  // attendance in this unit
+  y+=5;if(y+lh(9.5)>BOT)newPage();
+  const a=attStats(u,s.id);
+  F(9.5,"bold");const al=pdfTxt(L.att+": ");T(al,M,y);const aw=doc.getTextWidth(al);
+  F(9.5,"normal");T(L.attLine(a.ok,a.ok+a.no,a.ab),M+aw,y);y+=lh(9.5)+6;
+  // observations: the teacher's text, or a ruled box to write by hand
+  const note=((u.notes||{})[s.id]||"").trim();
+  F(9.5,"normal");let ol=note?wrap(note,CW-8):[];
+  if(!note){let oh=34;if(y+6+oh>BOT){if(BOT-y-6>=16)oh=BOT-y-6;else newPage()}
+    if(y+6+oh>BOT)oh=BOT-y-6;
+    F(9.5,"bold");T(L.obs,M,y);y+=6;doc.setDrawColor(...rgb("#D9DFEB"));doc.setLineWidth(.35);doc.roundedRect(M,y,CW,oh,2,2,"S");
+    doc.setDrawColor(...rgb("#E6EAF2"));doc.setLineWidth(.25);for(let ly=y+9;ly<y+oh-3;ly+=8)doc.line(M+4,ly,W-M-4,ly);
+  }else{let first=true;
+    while(ol.length){
+      if(y+6+lh(9.5)+8>BOT)newPage();
+      const fit=Math.max(1,Math.floor((BOT-y-6-8)/lh(9.5)));const chunk=ol.slice(0,fit);ol=ol.slice(fit);
+      F(9.5,"bold");T(first?L.obs:L.obs+" (cont.)",M,y);y+=6;first=false;
+      const oh=Math.max(16,chunk.length*lh(9.5)+8);
+      doc.setDrawColor(...rgb("#D9DFEB"));doc.setLineWidth(.35);doc.roundedRect(M,y,CW,oh,2,2,"S");
+      F(9.5,"normal");T(chunk,M+4,y+4);y+=oh+6;
+      if(ol.length)newPage();
+    }
+  }
+}
+async function makePDF(list,title){
+  let J;try{J=await loadPDF()}catch(e){toast("No se ha podido cargar el generador de PDF. Revisa la conexión.");return null}
+  const u=U(),g=G(),o=pdfOpts();
+  const doc=new J({unit:"mm",format:"a4"});doc.setLineHeightFactor(1.25);
+  list.forEach((s,i)=>{if(i)doc.addPage();pdfStudent(doc,u,g,s,o)});
+  doc.setProperties({title:pdfTxt(title),author:o.teacher?pdfTxt(o.tname):"",creator:"Rúbrica cuaderno"});
+  return doc.output("blob");
+}
+async function saveFile(fname,blob,okMsg){
+  let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+  if(!dl){if(browserSave(fname,blob)){toast(okMsg);return true}toast("La descarga no está disponible aquí");return false}
+  try{await dl.save({filename:fname,data:blob});toast(okMsg);return true}catch(e){if(!(e&&e.code==="declined"))toast("No se ha podido guardar el archivo");return false}
+}
+const fileSafe=t=>t.replace(/[\\/:*?"<>|]/g,"-");
+async function pdfOne(sid){
+  const u=U(),g=G();const s=students().find(x=>x.id===sid);if(!u||!g||!s)return;
+  toast("Generando PDF…");const t="Informe "+dispName(s,g)+" - "+u.name;
+  const blob=await makePDF([s],t);if(blob)saveFile(fileSafe(t)+".pdf",blob,"PDF guardado");
+}
+async function pdfAll(){
+  const u=U(),g=G();if(!u||!g)return;const st=students();const list=st.filter(s=>grade(u,s.id).done>0);
+  if(!list.length){toast("Todavía no hay ningún alumno evaluado en esta unidad");return}
+  toast("Generando "+plural(list.length,"informe","informes")+"…");const t="Informes "+g.name+" - "+u.name;
+  const blob=await makePDF(list,t);if(!blob)return;
+  const skip=st.length-list.length;
+  saveFile(fileSafe(t)+".pdf",blob,"PDF guardado: "+plural(list.length,"alumno","alumnos")+(skip?" ("+skip+" sin evaluar no incluidos)":""));
+}
+
 // ---------- rendering ----------
 function render(){
+  const ae=document.activeElement;
+  const keep=ae&&ae.dataset&&ae.dataset.keep&&ae.id?{id:ae.id,v:ae.value,a:ae.selectionStart,b:ae.selectionEnd}:null;
   renderTop();renderNav();
   const m=$("#main");
   if(S.mode==="loading"){m.innerHTML='<div class="loading"><span class="spin"></span><p class="muted">Cargando tus grupos…</p></div>';return}
@@ -656,6 +882,7 @@ function render(){
   else html+=({hoy:viewHoy,eval:viewEval,notas:viewNotas,ajustes:viewAjustes}[S.tab]||viewHoy)();
   m.innerHTML=html;
   renderSheet();
+  if(keep){const el=document.getElementById(keep.id);if(el&&el!==ae){el.value=keep.v;try{el.focus({preventScroll:true});el.setSelectionRange(keep.a,keep.b)}catch(e){}}}
 }
 function emptyNoGroup(){
   return `<div class="card empty"><span class="logo">${ICON.logo}</span><h2>Empieza creando un grupo</h2>
@@ -721,8 +948,31 @@ function viewNotas(){
   <div class="tablewrap"><table><thead><tr><th>Alumno/a</th>${heads.map(h=>`<th>${h}</th>`).join("")}${u.vol?"<th>Vol.</th>":""}<th>Faltas</th><th>Nota</th></tr></thead>
   <tbody>${st.map(s=>{const g=grade(u,s.id);return `<tr><td>${esc(dispName(s))}</td>${cl.map(c=>{const r=raw(u,s.id,c.k),v=val(u,s.id,c.k);const auto=r==null&&v!=null;return `<td class="${auto?"auto-v ":""}${v==null?"dot":"c"+v}">${v==null?"·":v}</td>`}).join("")}${u.vol?`<td>${g.bonus?"+"+fmt(g.bonus,2):"·"}</td>`:""}<td>${attStats(u,s.id).ab||"·"}</td><td><span class="pill ${lvClass(g.final)}">${fmt(g.final)}</span></td></tr>`}).join("")}</tbody></table></div>
   <div class="legend small">${cl.map((c,i)=>`<span><b class="num">${i<8?i+1:(c.k==="f1"?"Ent.":"Ficha")}</b>${esc(c.n)}<em>${fmt(c.w,0)} %</em></span>`).join("")}${u.vol?`<span><b class="num">Vol.</b>Actividades voluntarias<em>hasta +${fmt(u.volMax||1,1)}</em></span>`:""}<span class="note muted">Faltas: días que ha faltado en esta unidad. En cursiva, la actitud calculada desde la atención diaria. Los colores siguen el nivel: verde 4, rojo 0.</span></div>
+  ${viewPdf()}
   ${viewAsistencia()}
   ${viewIdoceo()}`;
+}
+function viewPdf(){
+  const u=U(),g=G(),st=students(),p=prof();const lang=g.lang==="va"?"va":"es";
+  const miss=p.pdfMissing!==false,teach=p.pdfTeacher!==false;
+  const inc=st.filter(x=>{const r=grade(u,x.id);return r.done>0&&r.partial}).length;
+  const none=st.filter(x=>grade(u,x.id).done===0).length;
+  return `<div class="card"><div class="section-t"><h2>Informes en PDF</h2><span class="small muted">una página por alumno</span></div>
+   <p class="small muted" style="margin:0">Cada informe recoge la nota, el nivel de cada criterio con su descripción, la atención en clase y tus observaciones. Las observaciones se escriben al final de la ficha de cada alumno, en «Evaluar».</p>
+   <div class="field"><span class="small muted">Idioma de los informes de ${esc(g.name)}</span>
+    <div class="seg opt" style="grid-template-columns:1fr 1fr" role="group" aria-label="Idioma de los informes">
+     <button data-a="plang" data-v="es" aria-pressed="${lang==="es"}">Castellano</button><button data-a="plang" data-v="va" aria-pressed="${lang==="va"}">Valencià</button></div></div>
+   <div class="toggles">
+    <button class="tog" data-a="pmiss" aria-pressed="${miss}"><span class="sw"></span><span class="t"><b>Aviso de nota incompleta</b><br><span class="small muted">${miss?"Indica qué criterios faltan":"No se muestra"}</span></span></button>
+    <button class="tog" data-a="pteach" aria-pressed="${teach}"><span class="sw"></span><span class="t"><b>Datos del profesor</b><br><span class="small muted">${teach?"Se muestran arriba":"No se muestran"}</span></span></button>
+   </div>
+   ${teach?`<div class="mapgrid"><label for="profName">Profesor/a<input type="text" id="profName" value="${esc(p.name)}" placeholder="Nombre y apellidos"></label>
+     <label for="profSubj">Materia (${lang==="va"?"valenciano":"castellano"})<input type="text" id="profSubj" value="${esc(p.subj[lang]||"")}" placeholder="${lang==="va"?"Geografia i Història":"Geografía e Historia"}"></label></div>
+    <div class="pdfprev"><b>${esc(p.name)||"&nbsp;"}</b><span>${esc([p.subj[lang],g.name].filter(Boolean).join(" · "))}</span></div>`:""}
+   ${inc?`<span class="small muted">${plural(inc,"alumno tiene","alumnos tienen")} la rúbrica incompleta: su informe sale como «nota provisional»${miss?" e indica qué criterios faltan":""}.</span>`:""}
+   <div class="row"><button class="btn primary" data-a="pdfall" ${st.length>none?"":"disabled"}>PDF de todo el grupo</button>
+    <span class="small muted grow">${none?plural(none,"alumno sin evaluar no se incluye","alumnos sin evaluar no se incluyen"):""}</span></div>
+  </div>`;
 }
 function viewIdoceo(){
   const u=U(),st=students();const g=G();
@@ -862,7 +1112,11 @@ function renderSheet(){
      <button class="btn" data-a="nav" data-d="1" ${idx<st.length-1?"":"disabled"}>Siguiente ›</button></div>
      <div class="prog" role="progressbar" aria-label="Criterios puntuados" aria-valuemin="0" aria-valuemax="${g.total}" aria-valuenow="${g.done}"><i style="width:${Math.round(g.done/g.total*100)}%"></i></div></div>
    <div class="sheet-b">${cl.map((c,i)=>card(c,"",i<8?i+1:"")).join("")}${u.vol?card(VOL,"extra hasta +"+fmt(u.volMax||1,1)):""}
-   ${g.partial?`<p class="small muted">Faltan ${g.total-g.done} criterios: la nota mostrada es provisional y se calcula con los criterios ya puntuados.</p>`:""}</div></div>`;
+   ${g.partial?`<p class="small muted">Faltan ${g.total-g.done} criterios: la nota mostrada es provisional y se calcula con los criterios ya puntuados.</p>`:""}
+   <section class="crit"><div class="ch"><b><label for="obs-${s.id}">Observaciones para el informe</label></b><span class="w">PDF</span></div>
+    <textarea id="obs-${s.id}" data-keep="1" data-obs="${s.id}" rows="3" placeholder="Aclaraciones sobre la nota o posibles malentendidos">${esc((u.notes||{})[s.id]||"")}</textarea>
+    <span class="auto">Salen en su informe. Si lo dejas vacío, el PDF lleva un recuadro en blanco para escribir a mano.</span>
+    <button class="btn primary" data-a="pdf1" data-s="${s.id}">PDF de este alumno</button></section></div></div>`;
   el.hidden=false;document.body.style.overflow="hidden";
   const nb=el.querySelector(".sheet-b");if(nb)nb.scrollTop=scroll;
 }
@@ -885,6 +1139,11 @@ document.addEventListener("click",e=>{
    case "nav":{const st=students();const i=st.findIndex(s=>s.id===S.evalSid)+Number(b.dataset.d);if(st[i]){S.evalSid=st[i].id;const sb=$("#sheet .sheet-b");if(sb)sb.scrollTop=0}break}
    case "score":setScore(b.dataset.s,b.dataset.k,Number(b.dataset.v));break;
    case "theme":S.theme=b.dataset.v;lsSet("rc.theme",S.theme);applyTheme(S.theme);break;
+   case "plang":if(g){g.lang=b.dataset.v==="va"?"va":"es";saveGroup(S.gid)}break;
+   case "pmiss":setProf({pdfMissing:!(prof().pdfMissing!==false)});break;
+   case "pteach":setProf({pdfTeacher:!(prof().pdfTeacher!==false)});break;
+   case "pdf1":pdfOne(b.dataset.s);return;
+   case "pdfall":pdfAll();return;
    case "attsort":S.attSort=!S.attSort;break;
    case "backup":doBackup();return;
    case "restore":if(S.confirm!=="rs"){S.confirm="rs";break}S.confirm=null;applyRestore();break;
@@ -917,6 +1176,8 @@ document.addEventListener("change",async e=>{
   if(t.id==="selG"){S.gid=t.value;lsSet("rc.gid",S.gid);S.uid=null;S.evalSid=null;subscribeUnits();render();return}
   if(t.id==="selU"){S.uid=t.value;lsSet("rc.unit",S.uid);S.evalSid=null;render();return}
   if(t.id==="dateIn"&&t.value){S.date=t.value;render();return}
+  if(t.id==="profName"){setProf({name:t.value.trim()});render();return}
+  if(t.id==="profSubj"){const lang=g&&g.lang==="va"?"va":"es";setProf({subj:{...prof().subj,[lang]:t.value.trim()}});render();return}
   if(t.id==="idoCol"){const u=U();if(u){u.idoceoCol=t.value.trim();saveUnit(S.uid)}return}
   if(t.id==="idoDec"){S.idoDec=t.value;lsSet("rc.idoDec",t.value);return}
   if(t.id==="idoBlank"){S.idoBlank=t.checked;render();return}
@@ -931,6 +1192,12 @@ document.addEventListener("change",async e=>{
     if(f==="uname"){u.name=t.value.trim()||u.name}
     else if(f==="uficha")u.ficha=t.checked;else if(f==="uvol")u.vol=t.checked;else if(f==="uvolmax")u.volMax=Number(t.value);
     store.put(S.gid+"/units/"+t.dataset.u,u);render()}
+});
+document.addEventListener("input",e=>{
+  const t=e.target;const sid=t.dataset&&t.dataset.obs;if(!sid)return;
+  const u=U();if(!u)return;u.notes=u.notes||{};
+  if(t.value.trim())u.notes[sid]=t.value;else delete u.notes[sid];
+  saveUnit(S.uid);
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.evalSid){S.evalSid=null;render()}});
 init();
