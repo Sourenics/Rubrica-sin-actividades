@@ -1,0 +1,1229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1F4FB8">
+<style>html,body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Rúbrica cuaderno 3º ESO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* Layout: mobile-first single column, sticky header with group/unit pickers, bottom tab bar; notebook-grid paper as ground */
+:root{
+  --paper:#F5F7FB; --surface:#FFFFFF; --ink:#16203A; --muted:#58637F; --line:#D9DFEB;
+  --grid:rgba(31,79,184,.07); --pen:#1F4FB8; --pen-ink:#FFFFFF; --pen-soft:#E3EAFA;
+  --l4b:#D8EED5; --l4f:#1D6528; --l3b:#ECF1CB; --l3f:#545E0C; --l2b:#FBE8BE; --l2f:#744E00;
+  --l1b:#F8D5BF; --l1f:#863611; --l0b:#F6CDD4; --l0f:#961A31; --warn:#9A5B00;
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --r:14px; --shadow:0 1px 2px rgba(22,32,58,.05),0 2px 8px rgba(22,32,58,.05); --shadow-lg:0 8px 28px rgba(22,32,58,.14);
+  --pen-grad:linear-gradient(135deg,#2A5FD6,#1F4FB8 60%,#1A43A0);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F1424; --surface:#171E33; --ink:#E5E9F4; --muted:#9AA4C0; --line:#2A3352;
+  --grid:rgba(126,162,255,.06); --pen:#7EA2FF; --pen-ink:#0F1424; --pen-soft:#1F2B4D;
+  --l4b:#1C3823; --l4f:#9EDCA8; --l3b:#30351A; --l3f:#D5DD8C; --l2b:#3B2F16; --l2f:#F0C56C;
+  --l1b:#40261A; --l1f:#F2AA84; --l0b:#43202A; --l0f:#F49AAB; --warn:#F0C56C; --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 10px 30px rgba(0,0,0,.45); --pen-grad:linear-gradient(135deg,#97B5FF,#7EA2FF); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0F1424; --surface:#171E33; --ink:#E5E9F4; --muted:#9AA4C0; --line:#2A3352;
+  --grid:rgba(126,162,255,.06); --pen:#7EA2FF; --pen-ink:#0F1424; --pen-soft:#1F2B4D;
+  --l4b:#1C3823; --l4f:#9EDCA8; --l3b:#30351A; --l3f:#D5DD8C; --l2b:#3B2F16; --l2f:#F0C56C;
+  --l1b:#40261A; --l1f:#F2AA84; --l0b:#43202A; --l0f:#F49AAB; --warn:#F0C56C; --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 10px 30px rgba(0,0,0,.45); --pen-grad:linear-gradient(135deg,#97B5FF,#7EA2FF); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--surface) 88%,transparent);
+  -webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);
+  padding:10px 16px 12px;display:flex;flex-direction:column;gap:10px}
+.top > *{max-width:760px;width:100%;margin:0 auto}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand h1{font-size:1.15rem;display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
+.logo{width:32px;height:32px;border-radius:10px;background:var(--pen-grad);color:var(--pen-ink);display:grid;place-items:center;flex:0 0 auto;box-shadow:0 2px 6px rgba(31,79,184,.3)}
+.logo svg{width:18px;height:18px}
+.brand small{color:var(--pen);background:var(--pen-soft);font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:999px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand small:empty{display:none}
+.pickers{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pickers label{display:flex;flex-direction:column;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);gap:2px;min-width:0}
+select,input[type=text],input[type=date],textarea{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;width:100%;transition:border-color .15s,box-shadow .15s}
+select,input[type=text],input[type=date],textarea{font-size:.95rem}
+/* iPhone Safari zooms the page into any field under 16px: keep them at 16px on touch screens */
+@media (pointer:coarse){select,input[type=text],input[type=date],textarea{font-size:16px}}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--pen);box-shadow:0 0 0 3px var(--pen-soft)}
+select:disabled{opacity:.6}
+main{padding:16px 16px 96px;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:color-mix(in srgb,var(--surface) 90%,transparent);
+  -webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(4,1fr);padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px))}
+.nav button{background:none;border:0;padding:6px 2px 8px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.75rem;color:var(--muted);transition:color .15s}
+.nav button svg{width:24px;height:24px;padding:2px 14px;box-sizing:content-box;border-radius:999px;transition:background .2s}
+.nav button[aria-current="page"]{color:var(--pen);font-weight:700}
+.nav button[aria-current="page"] svg{background:var(--pen-soft)}
+@media (min-width:760px){.nav{left:50%;right:auto;transform:translateX(-50%);width:440px;bottom:12px;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-lg);padding:4px}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grow{flex:1 1 auto;min-width:0}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;font-weight:700;transition:transform .08s,background .15s,box-shadow .15s}
+.btn:not(:disabled):hover{border-color:color-mix(in srgb,var(--pen) 35%,var(--line))}
+.btn:not(:disabled):active,.iconbtn:active,.seg button:active,.lvls button:not(:disabled):active,.item[data-a]:active{transform:scale(.97)}
+.btn.primary{background:var(--pen-grad);border-color:transparent;color:var(--pen-ink);box-shadow:0 2px 8px rgba(31,79,184,.25)}
+.btn.primary:not(:disabled):hover{box-shadow:0 4px 14px rgba(31,79,184,.32)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--l0f)}
+.btn.confirm{background:var(--l0b);color:var(--l0f);border-color:var(--l0f)}
+.btn:disabled{opacity:.5;cursor:default}
+.banner{background:var(--l2b);color:var(--l2f);border-radius:12px;padding:10px 12px 10px 40px;font-size:.88rem;position:relative}
+.banner::before{content:"!";position:absolute;left:12px;top:10px;width:20px;height:20px;border-radius:50%;background:var(--l2f);color:var(--l2b);font-weight:700;font-size:.8rem;display:grid;place-items:center;line-height:1}
+.card .banner{padding-left:12px}.card .banner::before{display:none}
+.empty{text-align:center;padding:28px 16px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.empty h2{font-size:1.25rem}
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.card .list{box-shadow:none}
+.item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line);min-height:56px}
+.item:first-child{border-top:0}
+button.item{transition:background .15s}button.item:hover{background:var(--paper)}
+.av{width:38px;height:38px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:.85rem;letter-spacing:.02em;background:hsl(var(--h) 70% 92%);color:hsl(var(--h) 55% 32%)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .av{background:hsl(var(--h) 35% 24%);color:hsl(var(--h) 80% 82%)}}
+:root[data-theme="dark"] .av{background:hsl(var(--h) 35% 24%);color:hsl(var(--h) 80% 82%)}
+.mini{display:block;height:4px;border-radius:99px;background:var(--line);margin-top:5px;max-width:160px;overflow:hidden}.mini i{display:block;height:100%;background:var(--pen);border-radius:inherit}
+.item .nm{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;font-weight:700;line-height:1.25}
+.item .sub{font-size:.78rem;color:var(--muted);font-weight:400}
+.seg{display:inline-grid;grid-template-columns:repeat(3,auto);gap:2px;padding:3px;background:var(--paper);border:1px solid var(--line);border-radius:12px;flex:0 0 auto}
+.seg button{border:0;background:transparent;padding:7px 10px;font-size:.85rem;font-weight:700;color:var(--muted);border-radius:9px;transition:background .15s,color .15s,transform .08s}
+.seg button[aria-pressed="true"]{box-shadow:0 1px 3px rgba(22,32,58,.12)}
+.seg button[aria-pressed="true"].ok{background:var(--l4b);color:var(--l4f)}
+.seg button[aria-pressed="true"].no{background:var(--l0b);color:var(--l0f)}
+.seg button[aria-pressed="true"].abs{background:var(--surface);color:var(--ink)}
+.pill{font-family:var(--f-display);font-weight:700;font-variant-numeric:tabular-nums;border-radius:999px;padding:4px 11px;font-size:.95rem;flex:0 0 auto;min-width:3.4em;text-align:center}
+.lv4{background:var(--l4b);color:var(--l4f)} .lv3{background:var(--l3b);color:var(--l3f)} .lv2{background:var(--l2b);color:var(--l2f)}
+.lv1{background:var(--l1b);color:var(--l1f)} .lv0{background:var(--l0b);color:var(--l0f)} .lvn{background:var(--pen-soft);color:var(--muted)}
+.chev{color:var(--muted);flex:0 0 auto}
+.toggles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tog{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:var(--r);padding:12px;background:var(--surface);text-align:left;box-shadow:var(--shadow);transition:border-color .15s}
+.tog[aria-pressed="true"]{border-color:var(--pen)}
+.tog .sw{width:38px;height:22px;border-radius:999px;background:var(--line);position:relative;flex:0 0 auto;transition:background .15s}
+.tog .sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.tog[aria-pressed="true"] .sw{background:var(--pen)}
+.tog[aria-pressed="true"] .sw::after{transform:translateX(16px)}
+.tog span.t{font-size:.88rem;line-height:1.2;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stats div{border-radius:12px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;line-height:1.1}
+.stats b{font-family:var(--f-display);font-size:1.45rem;font-variant-numeric:tabular-nums}
+.stats span{font-size:.72rem;margin-top:2px}
+.stats .lvn{color:var(--ink)}.stats .lvn span{color:var(--muted)}
+.dlabel{font-family:var(--f-display);font-weight:700;font-size:1.05rem;color:var(--ink);display:block;margin-bottom:4px}
+.dlabel::first-letter{text-transform:uppercase}
+/* narrow phones: attendance buttons go under the name, full width, so names stay on one line */
+@media (max-width:440px){.item.att{flex-wrap:wrap;row-gap:8px}.item.att .nm{flex:1 1 0}.item.att .seg{flex:1 1 100%;grid-template-columns:repeat(3,1fr)}.item.att .seg button{padding:9px 6px}}
+/* evaluation sheet */
+.sheet{position:fixed;inset:0;z-index:10;background:var(--paper);display:flex;flex-direction:column}
+.sheet.anim{animation:up .22s ease-out}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.sheet-h{background:var(--surface);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 12px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.sheet-h > *{max-width:760px;width:100%;margin:0 auto}
+.prog{height:6px;border-radius:99px;background:var(--line);overflow:hidden}.prog i{display:block;height:100%;background:var(--pen-grad);border-radius:inherit;transition:width .25s}
+.sheet-h .row{flex-wrap:nowrap}
+.sheet-h h2{font-size:1.1rem;overflow-wrap:anywhere}
+.big{font-family:var(--f-display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;border-radius:14px;padding:2px 14px;min-width:2.8em;text-align:center}
+.sheet-b{flex:1;overflow-y:auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
+.sheet-b > *{max-width:760px;width:100%;margin:0 auto}
+.crit{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);border-left:4px solid var(--line);transition:border-color .2s}
+.crit.done{border-left-color:var(--pen)}
+.card .crit{box-shadow:none;border-left-width:1px}
+.crit.extra{border-style:dashed}
+.ch{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.ch b{font-family:var(--f-display);font-size:1rem}
+.ch .w{font-size:.75rem;font-weight:700;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;background:var(--paper);padding:2px 8px;border-radius:999px}
+.ch .num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;background:var(--pen-soft);color:var(--pen);font-size:.78rem;margin-right:8px;vertical-align:1px}
+.lvls{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.lvls.two{grid-template-columns:1fr 1fr}
+.lvls button{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;line-height:1.1;position:relative;overflow:hidden;transition:background .15s,color .15s,transform .08s}
+.lvls button::after{content:"";position:absolute;left:30%;right:30%;bottom:3px;height:3px;border-radius:99px;opacity:.55}
+.lvls button.lv4::after{background:var(--l4f)}.lvls button.lv3::after{background:var(--l3f)}.lvls button.lv2::after{background:var(--l2f)}.lvls button.lv1::after{background:var(--l1f)}.lvls button.lv0::after{background:var(--l0f)}
+.lvls button[aria-pressed="true"]::after{opacity:0}
+.lvls button b{font-family:var(--f-display);font-size:1.15rem}
+.lvls button span{font-size:.68rem;color:var(--muted)}
+.lvls button[aria-pressed="true"]{border-color:currentColor;box-shadow:inset 0 0 0 1px currentColor}
+.lvls button[aria-pressed="true"] span{color:inherit}
+.lvls button.lv4[aria-pressed="true"]{background:var(--l4b);color:var(--l4f)}
+.lvls button.lv3[aria-pressed="true"]{background:var(--l3b);color:var(--l3f)}
+.lvls button.lv2[aria-pressed="true"]{background:var(--l2b);color:var(--l2f)}
+.lvls button.lv1[aria-pressed="true"]{background:var(--l1b);color:var(--l1f)}
+.lvls button.lv0[aria-pressed="true"]{background:var(--l0b);color:var(--l0f)}
+.lvls button[aria-pressed="false"]{color:var(--ink)}
+.sheet-h .btn{white-space:nowrap;padding:8px 10px}
+.lvls button:disabled{opacity:.45}
+.desc{margin:0;font-size:.9rem;color:var(--ink);background:var(--paper);border-radius:10px;padding:9px 12px}
+.desc.none{color:var(--muted)}
+.auto{font-size:.82rem;color:var(--muted)}
+.tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--pen-soft);color:var(--pen)}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--paper) 60%,var(--surface))}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--pen-soft)}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.88rem;min-width:100%}
+th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface);min-width:9em;max-width:46vw;white-space:normal;overflow-wrap:break-word;z-index:1}
+td:first-child{font-weight:700}
+td.auto-v{font-style:italic;color:var(--muted)}
+.legend{font-size:.8rem;color:var(--muted);display:grid;gap:2px}
+.section-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.section-t h2{font-size:1.1rem;letter-spacing:-.01em}
+.preview{font-size:.85rem;background:var(--paper);border-radius:8px;padding:8px 10px;max-height:180px;overflow:auto}
+.mapgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mapgrid label{display:flex;flex-direction:column;gap:2px;font-size:.78rem;color:var(--muted);min-width:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:.9rem;z-index:20;width:max-content;max-width:calc(100% - 32px);text-align:center;box-shadow:var(--shadow-lg);animation:pop .2s ease-out}
+@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+.datebar{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;flex:0 0 auto;transition:transform .08s,background .15s}
+.iconbtn:hover{background:var(--paper)}
+details > summary{cursor:pointer;color:var(--pen);font-weight:700}
+.empty .logo{width:56px;height:56px;border-radius:16px}.empty .logo svg{width:30px;height:30px}
+.iconbtn svg{width:20px;height:20px}
+@media (max-width:380px){.seg button{padding:8px 7px}.lvls button span{font-size:.6rem}}
+@media (max-width:360px){.stats b{font-size:1.2rem}.av{display:none}}
+input[type=checkbox]{accent-color:var(--pen);width:18px;height:18px;margin:0;flex:0 0 auto}
+.check{display:flex;align-items:flex-start;gap:8px;cursor:pointer}.check input{margin-top:2px}
+.seg.opt{grid-template-columns:repeat(3,1fr);width:100%}
+.seg.opt button[aria-pressed="true"]{background:var(--pen-soft);color:var(--pen)}
+.danger-zone{border-color:color-mix(in srgb,var(--l0f) 35%,var(--line))}
+.thr{display:flex;flex-wrap:wrap;gap:6px}
+.thr span{font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:999px}
+.legend{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 14px;box-shadow:var(--shadow)}
+.legend span{display:flex;gap:8px;align-items:baseline}
+.legend .num{flex:0 0 auto;min-width:22px;height:20px;padding:0 5px;border-radius:6px;background:var(--pen-soft);color:var(--pen);font-weight:700;font-size:.72rem;display:inline-grid;place-items:center}
+.legend em{font-style:normal;color:var(--muted);margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.legend .note{grid-column:1/-1;font-size:.76rem;display:block;border-top:1px solid var(--line);padding-top:6px;margin-top:2px}
+.tablewrap td.c4,.tablewrap td.c3,.tablewrap td.c2,.tablewrap td.c1,.tablewrap td.c0{font-weight:700}
+.tablewrap td.c4{background:var(--l4b);color:var(--l4f)}.tablewrap td.c3{background:var(--l3b);color:var(--l3f)}.tablewrap td.c2{background:var(--l2b);color:var(--l2f)}
+.tablewrap td.c1{background:var(--l1b);color:var(--l1f)}.tablewrap td.c0{background:var(--l0b);color:var(--l0f)}
+td.dot{color:var(--line)}
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 16px}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--pen-soft);border-top-color:var(--pen);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.field{display:flex;flex-direction:column;gap:4px}
+.pdfprev{align-self:flex-end;text-align:right;display:flex;flex-direction:column;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-size:.85rem;max-width:100%}
+.pdfprev span{color:var(--muted);font-size:.8rem}
+textarea{resize:vertical;min-height:72px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top" id="top"></header>
+<main id="main"><div class="loading"><span class="spin"></span><p class="muted">Cargando tus grupos…</p></div></main>
+<nav class="nav" id="nav" aria-label="Secciones"></nav>
+<div id="sheet" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+// ---------- Rubric definition ----------
+const LEVELS=["Nulo","Deficiente","Regular","Bueno","Excelente"];
+const SHORT=["Nulo","Defic.","Regular","Bueno","Excel."];
+// d: descriptors from Excelente (4) to Nulo (0)
+const CRIT=[
+ {k:"c1",n:"Copia completa del esquema",w:20,d:[
+  "Copia todos los esquemas completos y sin errores: no falta ningún apartado, concepto ni ejemplo.",
+  "Copia los esquemas casi completos; falta algún detalle menor o hay algún error puntual.",
+  "Faltan partes de los esquemas o hay varios errores de copia que cambian el contenido.",
+  "Copia solo fragmentos sueltos; los esquemas están muy incompletos o abrevia tanto que no se entienden.",
+  "No copia los esquemas."]},
+ {k:"c2",n:"Estructura y jerarquía del esquema",w:10,d:[
+  "Respeta la estructura del esquema de la pizarra: niveles, sangrías, numeración, llaves y flechas. Se distingue claramente qué es idea principal y qué es secundaria.",
+  "Respeta la estructura general, aunque en algún punto se pierde la jerarquía o las conexiones (flechas, llaves).",
+  "Copia el contenido pero como texto seguido o con la jerarquía confusa; cuesta ver qué depende de qué.",
+  "La estructura apenas se reconoce: ideas mezcladas, sin niveles ni conexiones.",
+  "No hay ninguna estructura reconocible o no hay esquema."]},
+ {k:"c3",n:"Anotaciones de la explicación",w:15,d:[
+  "Añade al esquema anotaciones propias tomadas durante la explicación (aclaraciones, ejemplos, definiciones, dudas resueltas) en casi todas las sesiones.",
+  "Añade anotaciones relevantes en bastantes sesiones, aunque son breves o no siempre aportan información nueva.",
+  "Añade alguna anotación aislada o se limita a repetir lo que ya pone el esquema.",
+  "Prácticamente no añade anotaciones; solo copia lo escrito en la pizarra.",
+  "No hay ninguna anotación de la explicación."]},
+ {k:"c4",n:"Cuaderno al día",w:15,d:[
+  "Están todas las sesiones. Si ha faltado algún día, ha recuperado el esquema y lo indica.",
+  "Falta una sesión o algún esquema recuperado está incompleto.",
+  "Faltan varias sesiones sin recuperar.",
+  "Faltan la mayoría de las sesiones.",
+  "El cuaderno no recoge las sesiones de clase."]},
+ {k:"c5",n:"Identificación: fecha y título",w:10,d:[
+  "Todas las sesiones tienen la fecha y el título del tema/apartado correctamente anotados.",
+  "La mayoría de las sesiones tienen fecha y título, aunque falta en alguna.",
+  "Pocas sesiones tienen fecha y título, lo que dificulta localizar los contenidos.",
+  "Aparece la fecha o el título de forma muy ocasional.",
+  "No se incluye ningún elemento de identificación."]},
+ {k:"c6",n:"Letra y legibilidad",w:10,d:[
+  "La letra es clara y legible en todas las hojas y respeta la cuadrícula/renglones.",
+  "La letra es mayormente clara, con algunas zonas difíciles de leer.",
+  "La letra es poco legible en bastantes partes.",
+  "La letra es difícil de leer y/o en la mayoría de las hojas no respeta la cuadrícula.",
+  "La letra es muy difícil de leer y/o en ninguna hoja respeta la cuadrícula."]},
+ {k:"c7",n:"Limpieza y resaltado",w:10,d:[
+  "Cuaderno limpio, sin tachones ni dibujos ajenos a la asignatura. Usa subrayado o colores con criterio para destacar conceptos clave.",
+  "Cuaderno limpio, con algún tachón o dibujo ajeno puntual. Resalta conceptos clave, aunque no siempre con criterio.",
+  "Presenta algunas manchas o tachones; apenas resalta los conceptos clave o lo subraya casi todo.",
+  "Manchas, tachones o abuso del corrector frecuentes; no resalta nada.",
+  "El cuaderno está sucio y descuidado."]},
+ {k:"c8",n:"Actitud durante la explicación",w:10,d:[
+  "Atiende en silencio durante toda la explicación, sigue el esquema y participa de forma adecuada (pregunta dudas, responde cuando se le pide).",
+  "Atiende la mayor parte del tiempo; alguna distracción puntual que corrige en cuanto se le indica.",
+  "Se distrae con cierta frecuencia (habla con compañeros, se dedica a otras cosas) y necesita varias llamadas de atención.",
+  "Se distrae de forma habitual durante la explicación (charla, maquillaje, móvil, otras tareas) e interrumpe el ritmo de la clase.",
+  "No atiende en ninguna explicación y su conducta impide seguir la clase con normalidad."]},
+];
+const F1={k:"f1",n:"Entrega de la ficha de repaso",w:5,binary:true,d:{4:"Entrega la ficha de repaso junto al cuaderno.",0:"No entrega la ficha de repaso con el cuaderno."}};
+const F2={k:"f2",n:"Actividades de la ficha de repaso",w:15,d:[
+  "Realiza todas las actividades de la ficha, completas y bien desarrolladas.",
+  "Realiza casi todas las actividades; alguna está incompleta o con errores.",
+  "Realiza aproximadamente la mitad de las actividades o varias están incompletas.",
+  "Realiza muy pocas actividades o están casi todas sin terminar.",
+  "No realiza ninguna actividad de la ficha."]};
+const VOL={k:"vol",n:"Actividades voluntarias",d:[
+  "Realiza todas las actividades voluntarias, completas y bien hechas.",
+  "Realiza casi todas las actividades voluntarias, con algún error o apartado incompleto.",
+  "Realiza aproximadamente la mitad de las actividades voluntarias.",
+  "Realiza alguna actividad voluntaria aislada.",
+  "No realiza las actividades voluntarias."]};
+// Valencian version of the rubric, used only in the PDF reports of groups set to «Valencià»
+const LEVELS_VA=["Nul","Deficient","Regular","Bo","Excel·lent"];
+const VA={
+ c1:{n:"Còpia completa de l'esquema",d:[
+  "Copia tots els esquemes complets i sense errors: no falta cap apartat, concepte ni exemple.",
+  "Copia els esquemes quasi complets; falta algun detall menor o hi ha algun error puntual.",
+  "Falten parts dels esquemes o hi ha diversos errors de còpia que canvien el contingut.",
+  "Copia només fragments solts; els esquemes estan molt incomplets o abreuja tant que no s'entenen.",
+  "No copia els esquemes."]},
+ c2:{n:"Estructura i jerarquia de l'esquema",d:[
+  "Respecta l'estructura de l'esquema de la pissarra: nivells, sagnats, numeració, claus i fletxes. Es distingix clarament què és idea principal i què és secundària.",
+  "Respecta l'estructura general, encara que en algun punt es perd la jerarquia o les connexions (fletxes, claus).",
+  "Copia el contingut però com a text seguit o amb la jerarquia confusa; costa veure què depén de què.",
+  "L'estructura a penes es reconeix: idees mesclades, sense nivells ni connexions.",
+  "No hi ha cap estructura recognoscible o no hi ha esquema."]},
+ c3:{n:"Anotacions de l'explicació",d:[
+  "Afig a l'esquema anotacions pròpies preses durant l'explicació (aclariments, exemples, definicions, dubtes resolts) en quasi totes les sessions.",
+  "Afig anotacions rellevants en bastants sessions, encara que són breus o no sempre aporten informació nova.",
+  "Afig alguna anotació aïllada o es limita a repetir el que ja posa l'esquema.",
+  "Pràcticament no afig anotacions; només copia el que hi ha escrit en la pissarra.",
+  "No hi ha cap anotació de l'explicació."]},
+ c4:{n:"Quadern al dia",d:[
+  "Hi són totes les sessions. Si ha faltat algun dia, ha recuperat l'esquema i ho indica.",
+  "Falta una sessió o algun esquema recuperat està incomplet.",
+  "Falten diverses sessions sense recuperar.",
+  "Falten la majoria de les sessions.",
+  "El quadern no arreplega les sessions de classe."]},
+ c5:{n:"Identificació: data i títol",d:[
+  "Totes les sessions tenen la data i el títol del tema/apartat correctament anotats.",
+  "La majoria de les sessions tenen data i títol, encara que en falta en alguna.",
+  "Poques sessions tenen data i títol, cosa que dificulta localitzar els continguts.",
+  "Apareix la data o el títol de manera molt ocasional.",
+  "No s'inclou cap element d'identificació."]},
+ c6:{n:"Lletra i llegibilitat",d:[
+  "La lletra és clara i llegible en tots els fulls i respecta la quadrícula o les línies.",
+  "La lletra és majoritàriament clara, amb algunes zones difícils de llegir.",
+  "La lletra és poc llegible en bastants parts.",
+  "La lletra és difícil de llegir i/o en la majoria dels fulls no respecta la quadrícula.",
+  "La lletra és molt difícil de llegir i/o no respecta la quadrícula en cap full."]},
+ c7:{n:"Netedat i ressaltat",d:[
+  "Quadern net, sense ratllades ni dibuixos aliens a l'assignatura. Usa subratllat o colors amb criteri per a destacar conceptes clau.",
+  "Quadern net, amb alguna ratllada o dibuix alié puntual. Ressalta conceptes clau, encara que no sempre amb criteri.",
+  "Presenta algunes taques o ratllades; a penes ressalta els conceptes clau o ho subratlla quasi tot.",
+  "Taques, ratllades o abús del corrector freqüents; no ressalta res.",
+  "El quadern està brut i descurat."]},
+ c8:{n:"Actitud durant l'explicació",d:[
+  "Atén en silenci durant tota l'explicació, seguix l'esquema i participa de manera adequada (pregunta dubtes, respon quan se li demana).",
+  "Atén la major part del temps; alguna distracció puntual que corregix tan prompte com se li indica.",
+  "Es distrau amb certa freqüència (parla amb companys, es dedica a altres coses) i necessita diverses cridades d'atenció.",
+  "Es distrau de manera habitual durant l'explicació (xarrada, maquillatge, mòbil, altres tasques) i interromp el ritme de la classe.",
+  "No atén en cap explicació i la seua conducta impedix seguir la classe amb normalitat."]},
+ f1:{n:"Lliurament de la fitxa de repàs",d:{4:"Lliura la fitxa de repàs junt amb el quadern.",0:"No lliura la fitxa de repàs amb el quadern."}},
+ f2:{n:"Activitats de la fitxa de repàs",d:[
+  "Realitza totes les activitats de la fitxa, completes i ben desenvolupades.",
+  "Realitza quasi totes les activitats; alguna està incompleta o té errors.",
+  "Realitza aproximadament la meitat de les activitats o diverses estan incompletes.",
+  "Realitza molt poques activitats o estan quasi totes sense acabar.",
+  "No realitza cap activitat de la fitxa."]},
+ vol:{n:"Activitats voluntàries",d:[
+  "Realitza totes les activitats voluntàries, completes i ben fetes.",
+  "Realitza quasi totes les activitats voluntàries, amb algun error o apartat incomplet.",
+  "Realitza aproximadament la meitat de les activitats voluntàries.",
+  "Realitza alguna activitat voluntària aïllada.",
+  "No realitza les activitats voluntàries."]}
+};
+const tc=(c,lang)=>lang==="va"&&VA[c.k]?{...c,...VA[c.k]}:c;
+const PDFT={
+ es:{title:"Informe de evaluación del cuaderno",student:"Alumno/a",final:"Nota final",prov:"Nota provisional",crit:"Criterio",level:"Nivel",desc:"Descripción",
+  notEval:"Sin evaluar",missing:"Nota provisional, calculada solo con los criterios ya evaluados. Falta por evaluar: ",auto:"Calculado con la atención diaria.",noFicha:"Sin ficha entregada, cuenta 0.",
+  yes:"Sí",no:"No",upTo:"hasta",extra:"de nota extra",att:"Atención en clase",obs:"Observaciones",generated:"Generado el",
+  attLine:(ok,n,ab)=>(n?"Atiende en "+ok+" de "+n+(n===1?" día":" días"):"Sin registros de atención")+" · "+ab+(ab===1?" falta":" faltas")},
+ va:{title:"Informe d'avaluació del quadern",student:"Alumne/a",final:"Nota final",prov:"Nota provisional",crit:"Criteri",level:"Nivell",desc:"Descripció",
+  notEval:"Sense avaluar",missing:"Nota provisional, calculada només amb els criteris ja avaluats. Falta per avaluar: ",auto:"Calculat amb l'atenció diària.",noFicha:"Sense fitxa lliurada, compta 0.",
+  yes:"Sí",no:"No",upTo:"fins a",extra:"de nota extra",att:"Atenció a classe",obs:"Observacions",generated:"Generat el",
+  attLine:(ok,n,ab)=>(n?"Atén en "+ok+" de "+n+(n===1?" dia":" dies"):"Sense registres d'atenció")+" · "+ab+(ab===1?" falta":" faltes")}
+};
+const PROFILE0={kind:"profile",name:"Carlos Camacho",subj:{es:"Geografía e Historia",va:"Geografia i Història"},pdfMissing:true,pdfTeacher:true,pdfDuplex:true};
+const ATT_THRESHOLDS=[[0.9,4],[0.75,3],[0.5,2],[0.25,1],[0,0]];
+
+// ---------- helpers ----------
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const newId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const todayISO=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const fmt=(n,d=1)=>n==null?"—":n.toLocaleString("es-ES",{minimumFractionDigits:d,maximumFractionDigits:d});
+const lsGet=(k,def)=>{try{const v=localStorage.getItem(k);return v==null?def:JSON.parse(v)}catch(e){return def}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const clone=o=>JSON.parse(JSON.stringify(o));
+let toastT;
+function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
+const ICON={
+ hoy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/></svg>',
+ eval:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5M8 8h4"/></svg>',
+ notas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>',
+ ajustes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+ left:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+ right:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
+ logo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11a3 3 0 0 1 3 3v15H8a3 3 0 0 1-3-3z"/><path d="M5 18a3 3 0 0 1 3-3h11"/><path d="M9 8l1.5 1.5L13.5 6.5"/></svg>',
+ close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+};
+
+// ---------- state ----------
+function applyTheme(t){
+  const r=document.documentElement;if(t==="light"||t==="dark")r.dataset.theme=t;else delete r.dataset.theme;
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=getComputedStyle(r).getPropertyValue("--surface").trim()||"#FFFFFF";
+}
+const plural=(n,one,many)=>n+" "+(n===1?one:many);
+const S={mode:"loading",theme:lsGet("rc.theme","auto"),groups:{},units:{},gid:lsGet("rc.gid",null),uid:lsGet("rc.unit",null),tab:lsGet("rc.tab","hoy"),
+  date:todayISO(),idoDec:lsGet("rc.idoDec","comma"),evalSid:null,imp:null,confirm:null,fallbackShown:false};
+let store=null, unsubUnits=null, unitsFor=null;
+
+// ---------- storage adapters ----------
+function makeQueue(writer){
+  const pend=new Map(), timers=new Map(), chains=new Map(), dirty=new Set();
+  function schedule(path,data){pend.set(path,data);dirty.add(path);clearTimeout(timers.get(path));timers.set(path,setTimeout(()=>flush(path),500))}
+  function flush(path){
+    clearTimeout(timers.get(path));timers.delete(path);
+    if(!pend.has(path))return;
+    const data=pend.get(path);pend.delete(path);
+    const prev=chains.get(path)||Promise.resolve();
+    const p=prev.then(()=>writer(path,data)).catch(e=>{console.warn("save",path,e);toast(e&&e.code==="quota_exceeded"?"No hay espacio para guardar más datos.":"No se ha podido guardar. Revisa la conexión.")})
+      .then(()=>{if(!pend.has(path))dirty.delete(path)});
+    chains.set(path,p);
+  }
+  function flushAll(){[...pend.keys()].forEach(flush)}
+  return {schedule,flushAll,isDirty:p=>dirty.has(p),cancel:p=>{clearTimeout(timers.get(p));pend.delete(p);dirty.delete(p)}};
+}
+function dbStore(db,userId){
+  const base="data/users/"+userId;
+  const q=makeQueue((path,data)=>db.doc(base+"/"+path).set(data));
+  return {
+    kind:"db",q,
+    onGroups(cb){return db.collection(base).onSnapshot(s=>{const o={};let pr=null;s.docs.forEach(d=>{const v=d.data();if(v&&v.kind==="group")o[d.id]=clone(v);else if(v&&v.kind==="profile"&&d.id==="profile")pr=clone(v)});cb(o,pr)},e=>{console.warn(e);toast("Se ha perdido la conexión con tus datos. Recarga la página.")})},
+    onUnits(gid,cb){return db.collection(base+"/"+gid+"/units").onSnapshot(s=>{const o={};s.docs.forEach(d=>{const v=d.data();if(v)o[d.id]=clone(v)});cb(o)},e=>console.warn(e))},
+    put(path,data){q.schedule(path,data)},
+    async getUnits(gid){const s=await db.collection(base+"/"+gid+"/units").get();const o={};s.docs.forEach(d=>{const v=d.data();if(v)o[d.id]=clone(v)});return o},
+    async del(path){q.cancel(path);try{await db.doc(base+"/"+path).delete()}catch(e){toast("No se ha podido borrar.")}}
+  };
+}
+function localStore(){
+  const KEY="rc.localdata";let data=lsGet(KEY,{groups:{},units:{}});let gcb=null;const ucbs={};
+  const save=()=>lsSet(KEY,data);
+  const q=makeQueue((path,doc)=>{const p=path.split("/");if(path==="profile"){data.profile=clone(doc)}else if(p.length===1){data.groups[p[0]]=clone(doc)}else{(data.units[p[0]]=data.units[p[0]]||{})[p[2]]=clone(doc)}save()});
+  return {kind:"local",q,
+    onGroups(cb){gcb=cb;cb(clone(data.groups),data.profile?clone(data.profile):null);return()=>{gcb=null}},
+    onUnits(gid,cb){ucbs[gid]=cb;cb(clone(data.units[gid]||{}));return()=>{delete ucbs[gid]}},
+    put(path,doc){q.schedule(path,doc)},
+    async getUnits(gid){return clone(data.units[gid]||{})},
+    async del(path){q.cancel(path);const p=path.split("/");if(p.length===1){delete data.groups[p[0]];delete data.units[p[0]]}else if(data.units[p[0]])delete data.units[p[0]][p[2]];save()}
+  };
+}
+async function init(){
+  applyTheme(S.theme);
+  try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>applyTheme(S.theme))}catch(e){}
+  render();
+  let db=null,user=null,id=null;
+  if(window.claude&&typeof window.claude.use==="function"){
+    try{[db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")])}catch(e){}
+    if(db&&user){try{id=await user.id()}catch(e){}}
+  }
+  if(db&&id){store=dbStore(db,id);S.mode="db"}else{store=localStore();S.mode="local"}
+  store.onGroups((g,pr)=>{
+    if(!store.q.isDirty("profile"))S.profile=pr||null;
+    const merged={};
+    Object.keys(g).forEach(k=>{merged[k]=store.q.isDirty(k)&&S.groups[k]?S.groups[k]:g[k]});
+    Object.keys(S.groups).forEach(k=>{if(store.q.isDirty(k)&&!merged[k])merged[k]=S.groups[k]});
+    S.groups=merged;
+    if(!S.gid||!S.groups[S.gid])S.gid=sortedGroups()[0]?.id||null;
+    subscribeUnits();render();
+  });
+  addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")store.q.flushAll()});
+  addEventListener("pagehide",()=>store.q.flushAll());
+}
+function subscribeUnits(){
+  if(unitsFor===S.gid)return;
+  if(unsubUnits){unsubUnits();unsubUnits=null}
+  unitsFor=S.gid;S.units={};
+  if(!S.gid)return;
+  const gid=S.gid;
+  unsubUnits=store.onUnits(gid,u=>{
+    if(gid!==S.gid)return;
+    const merged={};
+    Object.keys(u).forEach(k=>{const p=gid+"/units/"+k;merged[k]=store.q.isDirty(p)&&S.units[k]?S.units[k]:u[k]});
+    Object.keys(S.units).forEach(k=>{if(store.q.isDirty(gid+"/units/"+k)&&!merged[k])merged[k]=S.units[k]});
+    S.units=merged;
+    if(!S.uid||!S.units[S.uid]){const us=sortedUnits();S.uid=us.length?us[us.length-1].id:null}
+    render();
+  });
+}
+const saveGroup=gid=>store.put(gid,S.groups[gid]);
+const prof=()=>{const p=S.profile||{};return {...PROFILE0,...p,subj:{...PROFILE0.subj,...(p.subj||{})}}};
+function setProf(patch){S.profile={...prof(),...patch,kind:"profile"};store.put("profile",S.profile)}
+const saveUnit=uid=>store.put(S.gid+"/units/"+uid,S.units[uid]);
+
+// ---------- domain ----------
+const G=()=>S.groups[S.gid]||null;
+const U=()=>S.units[S.uid]||null;
+const sortedGroups=()=>Object.entries(S.groups).map(([id,g])=>({id,...g})).sort((a,b)=>(a.order||0)-(b.order||0)||a.name.localeCompare(b.name,"es"));
+const sortedUnits=()=>Object.entries(S.units).map(([id,u])=>({id,...u})).sort((a,b)=>(a.order||0)-(b.order||0));
+function dispName(st,g){g=g||G();const ap=(st.apellidos||"").trim(),no=(st.nombre||"").trim();if(!ap)return no;if(!no)return ap;return (g&&g.nameFormat==="no")?no+" "+ap:ap+", "+no}
+function students(){const g=G();if(!g)return[];const l=[...(g.students||[])];
+  if(l.length&&l.every(s=>typeof s.order==="number"))return l.sort((a,b)=>a.order-b.order);
+  return l.sort((a,b)=>dispName(a,g).localeCompare(dispName(b,g),"es"))}
+function critList(u){
+  const f=u&&u.ficha;const out=CRIT.map(c=>({...c,w:f?c.w*0.8:c.w}));
+  if(f){out.push(F1,F2)}return out;
+}
+function attStats(u,sid){let ok=0,no=0,ab=0;Object.values(u.att||{}).forEach(day=>{const v=day&&day[sid];if(v==="ok")ok++;else if(v==="no")no++;else if(v==="abs")ab++});return{ok,no,ab}}
+function groupAtt(sid){
+  const r={ok:0,no:0,ab:0,absDates:[],noDates:[]};
+  Object.values(S.units).forEach(u=>Object.entries(u.att||{}).forEach(([d,day])=>{const v=day&&day[sid];
+    if(v==="ok")r.ok++;else if(v==="no"){r.no++;r.noDates.push(d)}else if(v==="abs"){r.ab++;r.absDates.push(d)}}));
+  r.absDates.sort();r.noDates.sort();const n=r.ok+r.no+r.ab;r.pct=n?(r.ok+r.no)/n:null;return r;
+}
+const shortDate=d=>{const [y,m,dd]=d.split("-");return dd+"/"+m};
+function suggest8(u,sid){const a=attStats(u,sid);const n=a.ok+a.no;if(!n)return null;const p=a.ok/n;for(const [t,l] of ATT_THRESHOLDS)if(p>=t)return l;return 0}
+function raw(u,sid,k){const s=(u.scores||{})[sid]||{};return s[k]==null?null:s[k]}
+function val(u,sid,k){
+  const r=raw(u,sid,k);
+  if(k==="c8"&&r==null)return suggest8(u,sid);
+  if(k==="f2"&&raw(u,sid,"f1")===0)return 0;
+  return r;
+}
+function grade(u,sid){
+  const cl=critList(u);let sum=0,ws=0,done=0;
+  cl.forEach(c=>{const v=val(u,sid,c.k);if(v!=null){sum+=v/4*c.w;ws+=c.w;done++}});
+  const base=ws?sum/ws*10:null;
+  const vv=u.vol?raw(u,sid,"vol"):null;const bonus=vv!=null?vv/4*(u.volMax||1):0;
+  const final=base==null?null:Math.min(10,base+bonus);
+  return {final,base,bonus,done,total:cl.length,partial:done<cl.length};
+}
+function avatar(s){const nm=((s.nombre||"").trim()[0]||"")+((s.apellidos||"").trim()[0]||"");let h=0;for(const c of String(s.id||nm))h=(h*31+c.charCodeAt(0))%360;
+  return `<span class="av" style="--h:${h}" aria-hidden="true">${esc(nm.toUpperCase()||"?")}</span>`}
+const lvClass=n=>n==null?"lvn":n>=8.5?"lv4":n>=7?"lv3":n>=5?"lv2":n>=3?"lv1":"lv0";
+
+// ---------- mutations ----------
+function setScore(sid,k,v){
+  const u=U();if(!u)return;u.scores=u.scores||{};const s=u.scores[sid]=u.scores[sid]||{};
+  s[k]=(s[k]===v)?null:v;saveUnit(S.uid);
+}
+function setAtt(sid,v){
+  const u=U();if(!u)return;u.att=u.att||{};const d=u.att[S.date]=u.att[S.date]||{};
+  if(d[sid]===v)delete d[sid];else d[sid]=v;
+  if(!Object.keys(d).length)delete u.att[S.date];
+  saveUnit(S.uid);
+}
+function createGroup(name,studs){
+  const id=newId("g");const order=Math.max(0,...sortedGroups().map(g=>g.order||0))+1;
+  S.groups[id]={kind:"group",name,order,nameFormat:"ap",students:studs||[]};saveGroup(id);
+  S.gid=id;lsSet("rc.gid",id);subscribeUnits();createUnit("Unidad 1");return id;
+}
+function createUnit(name){
+  if(!S.gid)return;const id=newId("u");const order=Math.max(0,...sortedUnits().map(u=>u.order||0))+1;
+  S.units[id]={name,order,ficha:false,vol:false,volMax:1,scores:{},att:{}};saveUnit(id);S.uid=id;lsSet("rc.unit",id);
+}
+
+// ---------- import (iDoceo CSV/XLS/XLSX or pasted list) ----------
+const norm=s=>String(s==null?"":s).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+function parseDelimited(text){
+  text=text.replace(/^﻿/,"");
+  const first=text.split(/\r?\n/).find(l=>l.trim())||"";
+  const cands=["\t",";",","];let delim=cands.map(d=>[d,first.split(d).length]).sort((a,b)=>b[1]-a[1])[0];
+  delim=delim[1]>1?delim[0]:"\u0000";
+  const rows=[];let row=[],cell="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){cell+='"';i++}else q=false}else cell+=c}
+    else if(c==='"')q=true;
+    else if(c===delim){row.push(cell);cell=""}
+    else if(c==="\n"||c==="\r"){if(c==="\r"&&text[i+1]==="\n")i++;row.push(cell);rows.push(row);row=[];cell=""}
+    else cell+=c}
+  row.push(cell);rows.push(row);
+  return rows.filter(r=>r.some(c=>String(c).trim()));
+}
+function analyse(rows){
+  rows=rows.map(r=>r.map(c=>c==null?"":String(c).trim())).filter(r=>r.some(c=>c));
+  const isName=/^(nombre|name|first ?name|nombres?|apellidos?|surnames?|last ?name|alumn[oa]s?|alumno\/a|estudiantes?|students?|nombre completo|full ?name|apellidos,? nombre|apellidos y nombre)$/;
+  // iDoceo gradebook CSV: first header cell empty, other headers are grade columns, names in column A ("Nombre Apellidos")
+  if(rows.length>1&&rows[0][0]===""&&rows[0].slice(1).some(c=>c)&&rows.slice(1).some(r=>r[0])){
+    const ncols=Math.max(...rows.map(r=>r.length));
+    const cols=[...Array(ncols)].map((_,i)=>i===0?"Alumno/a (columna A)":(rows[0][i]||"Columna "+String.fromCharCode(65+(i%26))));
+    return {rows:rows.slice(1),cols,mode:"full",nom:0,ape:Math.min(1,ncols-1),full:0,header:true,idoceo:true};
+  }
+  let h=-1;for(let i=0;i<Math.min(10,rows.length);i++){if(rows[i].some(c=>isName.test(norm(c)))){h=i;break}}
+  const head=h>=0?rows[h]:null;const ncols=Math.max(...rows.map(r=>r.length));
+  const cols=[...Array(ncols)].map((_,i)=>head&&head[i]?head[i]:"Columna "+String.fromCharCode(65+(i%26)));
+  let nom=-1,ape=-1,full=-1;
+  if(head){head.forEach((c,i)=>{const n=norm(c);
+    if(nom<0&&/^(nombre|nombres|name|first ?name)$/.test(n))nom=i;
+    else if(ape<0&&/^(apellidos?|surnames?|last ?name|primer apellido)$/.test(n))ape=i;
+    else if(full<0&&/(alumn|estudiante|student|completo|full ?name|apellidos,? nombre|apellidos y nombre)/.test(n))full=i;})}
+  let mode;if(nom>=0&&ape>=0)mode="split";else{mode="full";if(full<0)full=nom>=0?nom:(ape>=0?ape:0)}
+  if(full<0)full=0;if(nom<0)nom=0;if(ape<0)ape=Math.min(1,ncols-1);
+  return {rows:rows.slice(h+1),cols,mode,nom,ape,full,header:!!head};
+}
+function impStudents(imp){
+  const out=[];const seen=new Set();
+  imp.rows.forEach(r=>{
+    let nombre="",apellidos="";
+    if(imp.mode==="split"){nombre=r[imp.nom]||"";apellidos=r[imp.ape]||""}
+    else{const v=(r[imp.full]||"").trim();if(v.includes(",")){apellidos=v.split(",")[0].trim();nombre=v.split(",").slice(1).join(",").trim()}else nombre=v}
+    nombre=nombre.trim();apellidos=apellidos.trim();
+    if(!nombre&&!apellidos)return;
+    if(/^(media|promedio|total|average)$/i.test(nombre))return;
+    const key=norm(apellidos+"|"+nombre);if(seen.has(key))return;seen.add(key);
+    out.push({nombre,apellidos,order:out.length+1});
+  });
+  return out;
+}
+async function readFile(file){
+  const name=file.name.toLowerCase();
+  if(/\.(csv|txt|tsv)$/.test(name))return parseDelimited(await file.text());
+  if(!window.XLSX)throw new Error("noxlsx");
+  const wb=XLSX.read(await file.arrayBuffer(),{type:"array"});
+  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:"",raw:false});
+}
+function applyImport(replace){
+  const g=G();if(!g||!S.imp)return;const list=impStudents(S.imp);
+  if(replace){
+    const old=new Map((g.students||[]).map(s=>[norm(s.apellidos+"|"+s.nombre),s.id]));
+    g.students=list.map(s=>({id:old.get(norm(s.apellidos+"|"+s.nombre))||newId("s"),...s}));
+  }else{
+    const have=new Set((g.students||[]).map(s=>norm(s.apellidos+"|"+s.nombre)));
+    const mx=Math.max(0,...(g.students||[]).map(s=>typeof s.order==="number"?s.order:0));
+    g.students=[...(g.students||[]),...list.filter(s=>!have.has(norm(s.apellidos+"|"+s.nombre))).map((s,i)=>({id:newId("s"),...s,order:mx+i+1}))];
+  }
+  saveGroup(S.gid);toast(plural(list.length,"alumno procesado","alumnos procesados"));S.imp=null;render();
+}
+
+// ---------- export ----------
+function exportRows(){
+  const u=U(),g=G();const cl=critList(u);
+  const head=["Alumno/a",...cl.map(c=>c.n),...(u.vol?["Actividades voluntarias (0-4)","Extra voluntarias"]:[]),"Días atento","Días sin atender","Faltas","Nota","Observaciones"];
+  const rows=students().map(s=>{const gr=grade(u,s.id);const a=attStats(u,s.id);
+    return [dispName(s,g),...cl.map(c=>{const v=val(u,s.id,c.k);return v==null?"":v}),
+      ...(u.vol?[raw(u,s.id,"vol")??"",Math.round(gr.bonus*100)/100]:[]),a.ok,a.no,a.ab,gr.final==null?"":Math.round(gr.final*100)/100,(u.notes||{})[s.id]||""]});
+  return [head,...rows];
+}
+function idoceoRows(withDate){
+  const u=U(),g=G();const cl=critList(u);
+  const col=(u.idoceoCol||("Rúbrica cuaderno "+u.name)).trim()||"Rúbrica cuaderno";
+  const blank=S.idoBlank!==false;
+  const dec=S.idoDec||"comma";const num=x=>{const t=x.toFixed(2);return dec==="comma"?t.replace(".",","):t};
+  const dd=S.date.split("-").reverse().join("/");
+  const head=["",withDate?col+"\n"+dd:col,...(S.idoCrit?[...cl.map((c,i)=>(i<8?(i+1)+". ":"")+c.n),...(u.vol?["Voluntarias"]:[])]:[])];
+  const rows=students().map(st=>{const gr=grade(u,st.id);
+    const n=gr.final==null||(blank&&gr.partial)?"":num(gr.final);
+    return [dispName(st,g),n,...(S.idoCrit?[...cl.map(c=>{const v=val(u,st.id,c.k);return v==null?"":String(v)}),...(u.vol?[raw(u,st.id,"vol")==null?"":String(raw(u,st.id,"vol"))]:[])]:[])]});
+  return [head,...rows];
+}
+const toCSV=rows=>rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",")+",").join("\n")+"\n";
+async function idoExportX(){
+  const u=U(),g=G();if(!window.XLSX){toast("No se ha podido cargar el generador de Excel");return}
+  const rows=idoceoRows(true);
+  const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Notas");
+  const buf=XLSX.write(wb,{type:"array",bookType:"xlsx"});
+  const fname=("iDoceo "+g.name+" - "+u.name).replace(/[\\/:*?"<>|]/g,"-")+".xlsx";
+  let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+  if(!dl){if(browserSave(fname,new Blob([buf])))toast("Excel descargado");else toast("La descarga no está disponible aquí");return}
+  try{await dl.save({filename:fname,data:new Blob([buf])});toast("Excel guardado")}catch(e){if(!(e&&e.code==="declined"))toast("No se ha podido guardar el archivo")}
+}
+async function idoExport(){
+  const u=U(),g=G();const csv=toCSV(idoceoRows());
+  const fname=("iDoceo "+g.name+" - "+u.name).replace(/[\\/:*?"<>|]/g,"-")+".csv";
+  let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+  if(dl){try{await dl.save({filename:fname,data:csv});toast("CSV guardado");return}catch(e){if(e&&e.code==="declined")return;console.warn(e)}}
+  if(!dl&&browserSave(fname,csv)){toast("CSV descargado");return}
+  try{await navigator.clipboard.writeText(csv);toast("No se pudo descargar: CSV copiado al portapapeles")}catch(e){toast("No se ha podido exportar en este dispositivo")}
+}
+function browserSave(filename,data){
+  try{const blob=data instanceof Blob?data:new Blob([data],{type:"text/csv;charset=utf-8"});
+    const safe=filename.replace(/º/g,"o").replace(/ª/g,"a").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\w .()-]/g,"_");
+    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=safe;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);return true}catch(e){return false}
+}
+async function makeBackup(){
+  store.q.flushAll();
+  const out={app:"rubrica-cuaderno",version:1,exportedAt:new Date().toISOString(),groups:{},profile:S.profile?clone(S.profile):null};
+  for(const g of sortedGroups()){const {id,...doc}=g;
+    let units=g.id===S.gid?clone(S.units):null;
+    if(!units){try{units=await store.getUnits(g.id)}catch(e){throw new Error("units")}}
+    out.groups[id]={...clone(doc),units};}
+  return out;
+}
+async function doBackup(){
+  let data;try{data=await makeBackup()}catch(e){toast("No se han podido leer todos los datos. Inténtalo de nuevo.");return}
+  const n=Object.keys(data.groups).length;if(!n){toast("Todavía no hay datos que guardar");return}
+  const d=todayISO();const fname="copia-rubrica-cuaderno-"+d+".json";const json=JSON.stringify(data,null,1);
+  let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+  let ok=false;
+  if(dl){try{await dl.save({filename:fname,data:json});ok=true}catch(e){if(e&&e.code==="declined")return}}
+  if(!ok)ok=browserSave(fname,new Blob([json],{type:"application/json"}));
+  if(ok){lsSet("rc.lastBackup",d);toast("Copia de seguridad descargada");render()}else toast("No se ha podido descargar la copia");
+}
+async function readBackup(file){
+  let data;try{data=JSON.parse(await file.text())}catch(e){toast("El archivo no es una copia válida");return}
+  if(!data||data.app!=="rubrica-cuaderno"||typeof data.groups!=="object"){toast("Este archivo no es una copia de esta app");return}
+  const gs=Object.values(data.groups);
+  S.restore={data,groups:gs.length,units:gs.reduce((t,g)=>t+Object.keys(g.units||{}).length,0),students:gs.reduce((t,g)=>t+(g.students||[]).length,0),date:data.exportedAt};
+  render();
+}
+function applyRestore(){
+  const r=S.restore;if(!r)return;
+  Object.entries(r.data.groups).forEach(([gid,g])=>{
+    const {units,...doc}=g;doc.kind="group";
+    S.groups[gid]=doc;store.put(gid,doc);
+    Object.entries(units||{}).forEach(([uid,u])=>{store.put(gid+"/units/"+uid,u);if(gid===S.gid)S.units[uid]=u});
+  });
+  if(r.data.profile&&typeof r.data.profile==="object"){S.profile={...r.data.profile,kind:"profile"};store.put("profile",S.profile)}
+  if(!S.gid||!S.groups[S.gid])S.gid=Object.keys(r.data.groups)[0];
+  unitsFor=null;S.uid=null;subscribeUnits();
+  S.restore=null;toast("Copia restaurada");
+}
+function attendanceRows(){
+  return [["Alumno/a","Faltas","Días atento","Días sin atender","% asistencia","Fechas de las faltas","Fechas sin atender"],
+   ...students().map(s=>{const a=groupAtt(s.id);return [dispName(s),a.ab,a.ok,a.no,a.pct==null?"":Math.round(a.pct*100),a.absDates.map(shortDate).join(", "),a.noDates.map(shortDate).join(", ")]})];
+}
+async function doExport(){
+  const u=U(),g=G();if(!u||!g)return;const data=exportRows();
+  const fname=("Notas "+g.name+" - "+u.name).replace(/[\\/:*?"<>|]/g,"-")+".xlsx";
+  let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+  if(!dl&&window.XLSX){try{const ws=XLSX.utils.aoa_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Notas");
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(attendanceRows()),"Asistencia");
+    if(browserSave(fname,new Blob([XLSX.write(wb,{type:"array",bookType:"xlsx"})]))){toast("Excel descargado");return}}catch(e){console.warn(e)}}
+  if(dl&&window.XLSX){
+    try{const ws=XLSX.utils.aoa_to_sheet(data);ws["!cols"]=data[0].map((h,i)=>({wch:i<1?34:12}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Notas");
+      const att=attendanceRows();const ws2=XLSX.utils.aoa_to_sheet(att);ws2["!cols"]=[{wch:34},{wch:10},{wch:12},{wch:14},{wch:12},{wch:40},{wch:40}];XLSX.utils.book_append_sheet(wb,ws2,"Asistencia");
+      const buf=XLSX.write(wb,{type:"array",bookType:"xlsx"});
+      await dl.save({filename:fname,data:new Blob([buf])});toast("Archivo guardado");return}
+    catch(e){if(e&&e.code==="declined")return;console.warn(e)}
+  }
+  copyTSV(data);
+}
+async function copyTSV(data){
+  const tsv=data.map(r=>r.map(c=>typeof c==="number"?String(c).replace(".",","):String(c)).join("\t")).join("\n");
+  try{await navigator.clipboard.writeText(tsv);toast("Tabla copiada: pégala en Excel o Numbers")}catch(e){toast("No se ha podido copiar en este dispositivo")}
+}
+
+// ---------- PDF reports ----------
+let pdfP=null;
+function loadPDF(){
+  if(window.jspdf&&window.jspdf.jsPDF)return Promise.resolve(window.jspdf.jsPDF);
+  if(!pdfP)pdfP=new Promise((res,rej)=>{const sc=document.createElement("script");
+    sc.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    sc.onload=()=>window.jspdf&&window.jspdf.jsPDF?res(window.jspdf.jsPDF):rej(new Error("nopdf"));
+    sc.onerror=()=>rej(new Error("nopdf"));document.head.appendChild(sc)}).catch(e=>{pdfP=null;throw e});
+  return pdfP;
+}
+// the built-in PDF fonts only cover Latin-1: simplify anything else (ș → s) instead of printing garbage
+const pdfTxt=t=>String(t==null?"":t).replace(/[\u2013\u2014]/g,"-").replace(/[\u201C\u201D]/g,'"').replace(/[\u2018\u2019]/g,"'").replace(/\u2026/g,"...")
+  .replace(/[^\x00-\xFF]/g,c=>{const b=c.normalize("NFD")[0];return b&&b.charCodeAt(0)<256?b:""});
+const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const PCOL={lv4:["#D8EED5","#1D6528"],lv3:["#ECF1CB","#545E0C"],lv2:["#FBE8BE","#744E00"],lv1:["#F8D5BF","#863611"],lv0:["#F6CDD4","#961A31"],lvn:["#E3EAFA","#58637F"]};
+function pdfOpts(){
+  const p=prof(),g=G();const lang=g&&g.lang==="va"?"va":"es";const subj=p.subj[lang]||"";
+  return {lang,missing:p.pdfMissing!==false,duplex:p.pdfDuplex!==false,teacher:p.pdfTeacher!==false&&!!(p.name||subj),tname:p.name||"",subj};
+}
+// two densities: roomy when the report fits on one page, compact to keep it on one page; a 2nd page only if even that overflows
+const PDF_ROOMY={hdr:14,hdrGap:7,bh:24,gradeY:2.5,lblY:15,afterStudent:7,missPad:7,missText:3.5,missGap:7,pad:3.4,FN:10,FD:9.5,th:8,thY:2.6,attGap:7,attAfter:8,obsMin:40,obsMax:80,noteMin:24,notePad:5};
+const PDF_COMPACT={hdr:13,hdrGap:5,bh:21,gradeY:1.5,lblY:13,afterStudent:5,missPad:6,missText:3,missGap:5,pad:2.2,FN:9.5,FD:9,th:7,thY:2.2,attGap:5,attAfter:6,obsMin:16,obsMax:50,noteMin:16,notePad:4};
+function pdfStudent(doc,u,g,s,o,K){
+  const L=PDFT[o.lang],LV=o.lang==="va"?LEVELS_VA:LEVELS;
+  const W=210,H=297,M=16,CW=W-2*M,BOT=H-M-8;
+  const name=dispName(s,g),gr=grade(u,s.id),cl=critList(u),date=todayISO().split("-").reverse().join("/");
+  const lh=sz=>sz*0.3528*1.25;
+  const F=(sz,st,col)=>{doc.setFont("helvetica",st||"normal");doc.setFontSize(sz);doc.setTextColor(...rgb(col||"#16203A"))};
+  const T=(t,x,yy,op)=>doc.text(Array.isArray(t)?t:pdfTxt(t),x,yy,{baseline:"top",...(op||{})});
+  const wrap=(t,w)=>doc.splitTextToSize(pdfTxt(t),w);
+  const line=(yy,col,w)=>{doc.setDrawColor(...rgb(col||"#D9DFEB"));doc.setLineWidth(w||.3);doc.line(M,yy,W-M,yy)};
+  let y=M;
+  const first=doc.getNumberOfPages();
+  const footer=(i,n)=>{F(7.5,"normal","#8A93AB");T(L.generated+" "+date,M,H-M-3);T(name+(n>1?"  ·  "+i+"/"+n:""),W-M,H-M-3,{align:"right"})};
+  const header=cont=>{
+    F(cont?12:15,"bold",cont?"#16203A":"#1F4FB8");T(cont?name:L.title,M,y);
+    F(9,"normal","#58637F");T([u.name,o.teacher?"":g.name,date].filter(Boolean).join("  ·  "),M,y+7.5);
+    if(o.teacher){F(10.5,"bold");T(o.tname,W-M,y+0.5,{align:"right"});F(9,"normal","#58637F");T([o.subj,g.name].filter(Boolean).join(" · "),W-M,y+6.5,{align:"right"})}
+    y+=K.hdr;line(y);y+=K.hdrGap;
+  };
+  const newPage=()=>{doc.addPage();y=M;header(true)};
+  header(false);
+  // student + grade
+  F(8,"bold","#58637F");T(L.student.toUpperCase(),M,y);
+  F(17,"bold");const nl=wrap(name,CW-48);T(nl,M,y+4.5);
+  const [gb,gf]=PCOL[lvClass(gr.final)].map(rgb),bw=40,bh=K.bh,bx=W-M-bw;
+  doc.setFillColor(...gb);doc.roundedRect(bx,y-2,bw,bh,3,3,"F");
+  doc.setFont("helvetica","bold");doc.setTextColor(...gf);doc.setFontSize(26);T(fmt(gr.final),bx+bw/2,y+K.gradeY,{align:"center"});
+  doc.setFontSize(7.5);T((gr.partial?L.prov:L.final).toUpperCase(),bx+bw/2,y+K.lblY,{align:"center"});
+  y+=Math.max(4.5+nl.length*lh(17),bh-2)+K.afterStudent;
+  // what is missing
+  if(o.missing&&gr.partial){
+    const miss=cl.map((c,i)=>({c,i})).filter(x=>val(u,s.id,x.c.k)==null).map(x=>(x.i<8?(x.i+1)+". ":"")+tc(x.c,o.lang).n);
+    F(9.5,"normal","#744E00");const ml=wrap(L.missing+miss.join("; ")+".",CW-10);const mh=ml.length*lh(9.5)+K.missPad;
+    doc.setFillColor(...rgb("#FBE8BE"));doc.roundedRect(M,y,CW,mh,2.5,2.5,"F");T(ml,M+5,y+K.missText);y+=mh+K.missGap;
+  }
+  // criteria table
+  const c1=56,c2=33,c3=CW-c1-c2,pad=K.pad,FN=K.FN,FD=K.FD;
+  const thead=()=>{doc.setFillColor(...rgb("#F5F7FB"));doc.rect(M,y,CW,K.th,"F");F(7.5,"bold","#58637F");
+    T(L.crit.toUpperCase(),M+pad+1.5,y+K.thY);T(L.level.toUpperCase(),M+c1+pad,y+K.thY);T(L.desc.toUpperCase(),M+c1+c2+pad,y+K.thY);y+=K.th};
+  thead();
+  const rows=cl.map((c,i)=>({c,num:i<8?i+1:0,v:val(u,s.id,c.k),r:raw(u,s.id,c.k),w:fmt(c.w,0)+" %"}));
+  if(u.vol)rows.push({c:VOL,num:0,v:raw(u,s.id,"vol"),r:raw(u,s.id,"vol"),w:L.upTo+" +"+fmt(u.volMax||1,1),vol:true});
+  rows.forEach(row=>{
+    const t=tc(row.c,o.lang),v=row.v;
+    const nw=c1-pad*2-1.5;F(FN,"bold");const nm=wrap((row.num?row.num+". ":"")+t.n,nw);
+    const lastW=doc.getTextWidth(nm[nm.length-1]);F(8,"normal");const wInline=lastW+1.5+doc.getTextWidth(pdfTxt(row.w))<=nw;
+    const nh=nm.length*lh(FN)+(wInline?0:lh(8));
+    const badge=v==null?null:row.c.binary?(v===4?L.yes:L.no):v+" · "+LV[v];
+    const notes=[];
+    if(row.c.k==="c8"&&row.r==null&&v!=null)notes.push(L.auto);
+    if(row.c.k==="f2"&&raw(u,s.id,"f1")===0)notes.push(L.noFicha);
+    if(row.vol&&v!=null)notes.push("+"+fmt(gr.bonus,2)+" "+L.extra);
+    F(7.5,"italic");const nt=notes.length?wrap(notes.join(" "),c2-pad*2):[];
+    const lvh=(badge?6:lh(9))+(nt.length?1.5+nt.length*lh(7.5):0);
+    const d=v==null?null:(row.c.binary?t.d[v]:t.d[4-v]);
+    F(FD,"normal");const dl=wrap(d||L.notEval,c3-pad*2);
+    const rh=Math.max(nh,lvh,dl.length*lh(FD))+pad*2;
+    if(y+rh>BOT){newPage();thead()}
+    const [bg,fg]=PCOL[v==null?"lvn":"lv"+v].map(rgb);
+    doc.setFillColor(...(v==null?rgb("#D9DFEB"):fg));doc.rect(M,y,1.2,rh,"F");
+    F(FN,"bold");T(nm,M+pad+1.5,y+pad);F(8,"normal","#58637F");
+    if(wInline)T(row.w,M+pad+1.5+lastW+1.5,y+pad+(nm.length-1)*lh(FN)+0.5);else T(row.w,M+pad+1.5,y+pad+nm.length*lh(FN));
+    let by=y+pad;
+    if(badge){F(8.5,"bold");doc.setTextColor(...fg);const tw=doc.getTextWidth(pdfTxt(badge))+5;
+      doc.setFillColor(...bg);doc.roundedRect(M+c1+pad-0.5,by-0.5,tw,6,1.5,1.5,"F");T(badge,M+c1+pad+2,by+1.3);by+=6}
+    else{F(9,"normal","#8A93AB");T("-",M+c1+pad,by);by+=lh(9)}
+    if(nt.length){F(7.5,"italic","#58637F");T(nt,M+c1+pad,by+1.5)}
+    F(FD,"normal",v==null?"#8A93AB":"#16203A");T(dl,M+c1+c2+pad,y+pad);
+    y+=rh;line(y,"#E3E7F0",.25);
+  });
+  // attendance in this unit
+  y+=K.attGap;if(y+lh(9.5)>BOT)newPage();
+  const a=attStats(u,s.id);
+  F(9.5,"bold");const al=pdfTxt(L.att+": ");T(al,M,y);const aw=doc.getTextWidth(al);
+  F(9.5,"normal");T(L.attLine(a.ok,a.ok+a.no,a.ab),M+aw,y);y+=lh(9.5)+K.attAfter;
+  // observations: the teacher's text, or a ruled box to write by hand
+  const note=((u.notes||{})[s.id]||"").trim();
+  F(9.5,"normal");let ol=note?wrap(note,CW-8):[];
+  if(!note){if(BOT-y-7<K.obsMin)newPage();const oh=Math.min(BOT-y-7,K.obsMax);
+    F(9.5,"bold");T(L.obs,M,y);y+=7;doc.setDrawColor(...rgb("#D9DFEB"));doc.setLineWidth(.35);doc.roundedRect(M,y,CW,oh,2,2,"S");
+    doc.setDrawColor(...rgb("#E6EAF2"));doc.setLineWidth(.25);for(let ly=y+9;ly<y+oh-3;ly+=8)doc.line(M+4,ly,W-M-4,ly);
+  }else{let first=true;
+    while(ol.length){
+      if(y+7+lh(9.5)+10>BOT)newPage();
+      const fit=Math.max(1,Math.floor((BOT-y-7-10)/lh(9.5)));const chunk=ol.slice(0,fit);ol=ol.slice(fit);
+      F(9.5,"bold");T(first?L.obs:L.obs+" (cont.)",M,y);y+=7;first=false;
+      const oh=Math.max(K.noteMin,chunk.length*lh(9.5)+K.notePad*2);
+      doc.setDrawColor(...rgb("#D9DFEB"));doc.setLineWidth(.35);doc.roundedRect(M,y,CW,oh,2,2,"S");
+      F(9.5,"normal");T(chunk,M+K.notePad,y+K.notePad);y+=oh+6;
+      if(ol.length)newPage();
+    }
+  }
+  const last=doc.getNumberOfPages();
+  for(let pg=first;pg<=last;pg++){doc.setPage(pg);footer(pg-first+1,last-first+1)}
+}
+async function makePDF(list,title){
+  let J;try{J=await loadPDF()}catch(e){toast("No se ha podido cargar el generador de PDF. Revisa la conexión.");return null}
+  const u=U(),g=G(),o=pdfOpts();
+  const doc=new J({unit:"mm",format:"a4"});doc.setLineHeightFactor(1.25);
+  // dry-run each report on a scratch document to pick the density that keeps it on one page
+  const fit=s=>{for(const K of [PDF_ROOMY,PDF_COMPACT]){const t=new J({unit:"mm",format:"a4"});t.setLineHeightFactor(1.25);pdfStudent(t,u,g,s,o,K);if(t.getNumberOfPages()===1)return K}return PDF_ROOMY};
+  let blanks=0;
+  list.forEach((s,i)=>{
+    if(i){
+      if(o.duplex&&doc.getNumberOfPages()%2){doc.addPage();blanks++}
+      doc.addPage();
+    }
+    pdfStudent(doc,u,g,s,o,fit(s));
+  });
+  doc.setProperties({title:pdfTxt(title),author:o.teacher?pdfTxt(o.tname):"",creator:"Rúbrica cuaderno"});
+  return {blob:doc.output("blob"),pages:doc.getNumberOfPages(),blanks};
+}
+async function saveFile(fname,blob,okMsg){
+  let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+  if(!dl){if(browserSave(fname,blob)){toast(okMsg);return true}toast("La descarga no está disponible aquí");return false}
+  try{await dl.save({filename:fname,data:blob});toast(okMsg);return true}catch(e){if(!(e&&e.code==="declined"))toast("No se ha podido guardar el archivo");return false}
+}
+const fileSafe=t=>t.replace(/[\\/:*?"<>|]/g,"-");
+async function pdfOne(sid){
+  const u=U(),g=G();const s=students().find(x=>x.id===sid);if(!u||!g||!s)return;
+  toast("Generando PDF…");const t="Informe "+dispName(s,g)+" - "+u.name;
+  const r=await makePDF([s],t);if(r)saveFile(fileSafe(t)+".pdf",r.blob,"PDF guardado"+(r.pages>1?" ("+r.pages+" páginas)":""));
+}
+async function pdfAll(){
+  const u=U(),g=G();if(!u||!g)return;const st=students();const list=st.filter(s=>grade(u,s.id).done>0);
+  if(!list.length){toast("Todavía no hay ningún alumno evaluado en esta unidad");return}
+  toast("Generando "+plural(list.length,"informe","informes")+"…");const t="Informes "+g.name+" - "+u.name;
+  const r=await makePDF(list,t);if(!r)return;
+  const skip=st.length-list.length;
+  saveFile(fileSafe(t)+".pdf",r.blob,"PDF guardado: "+plural(list.length,"alumno","alumnos")+", "+plural(r.pages,"página","páginas")
+    +(r.blanks?" ("+r.blanks+" en blanco para la doble cara)":"")+(skip?". "+plural(skip,"alumno sin evaluar no incluido","alumnos sin evaluar no incluidos"):""));
+}
+
+// ---------- rendering ----------
+function render(){
+  const ae=document.activeElement;
+  const keep=ae&&ae.dataset&&ae.dataset.keep&&ae.id?{id:ae.id,v:ae.value,a:ae.selectionStart,b:ae.selectionEnd}:null;
+  renderTop();renderNav();
+  const m=$("#main");
+  if(S.mode==="loading"){m.innerHTML='<div class="loading"><span class="spin"></span><p class="muted">Cargando tus grupos…</p></div>';return}
+  let html="";
+  if(S.mode==="local")html+='<div class="banner">Los datos se guardan solo en este navegador y en este dispositivo. Si borras los datos del navegador, se pierden.</div>';
+  if(!G()&&S.tab!=="ajustes")html+=emptyNoGroup();
+  else if(!U()&&S.tab!=="ajustes")html+=`<div class="card empty"><h2>Este grupo no tiene unidades</h2><p class="muted">Crea la primera unidad para empezar a registrar.</p><button class="btn primary" data-a="newunit-quick">Crear «Unidad 1»</button></div>`;
+  else html+=({hoy:viewHoy,eval:viewEval,notas:viewNotas,ajustes:viewAjustes}[S.tab]||viewHoy)();
+  m.innerHTML=html;
+  renderSheet();
+  if(keep){const el=document.getElementById(keep.id);if(el&&el!==ae){el.value=keep.v;try{el.focus({preventScroll:true});el.setSelectionRange(keep.a,keep.b)}catch(e){}}}
+}
+function emptyNoGroup(){
+  return `<div class="card empty"><span class="logo">${ICON.logo}</span><h2>Empieza creando un grupo</h2>
+  <p class="muted">Crea tu grupo de 3º ESO e importa la lista de alumnos exportada desde iDoceo (CSV o Excel), o pégala a mano.</p>
+  <button class="btn primary" data-a="goto" data-tab="ajustes">Crear grupo</button>
+  <button class="btn ghost" data-a="demo">Probar con un grupo de ejemplo</button>
+  <button class="btn ghost" data-a="goto" data-tab="ajustes">Cargar una copia de seguridad</button>
+  <p class="small muted">El grupo de ejemplo usa nombres inventados; bórralo cuando quieras desde Ajustes.</p></div>`;
+}
+function renderTop(){
+  const t=$("#top");const gs=sortedGroups(),us=sortedUnits();const u=U();
+  t.innerHTML=`<div class="brand"><h1><span class="logo">${ICON.logo}</span>Rúbrica cuaderno</h1><small>${u?esc(u.name):""}</small></div>
+  <div class="pickers">
+   <label for="selG">Grupo<select id="selG" ${gs.length?"":"disabled"}>${gs.length?gs.map(g=>`<option value="${g.id}" ${g.id===S.gid?"selected":""}>${esc(g.name)}</option>`).join(""):"<option>Sin grupos</option>"}</select></label>
+   <label for="selU">Unidad<select id="selU" ${us.length?"":"disabled"}>${us.length?us.map(x=>`<option value="${x.id}" ${x.id===S.uid?"selected":""}>${esc(x.name)}</option>`).join(""):"<option>Sin unidades</option>"}</select></label>
+  </div>`;
+}
+function renderNav(){
+  const tabs=[["hoy","Hoy"],["eval","Evaluar"],["notas","Notas"],["ajustes","Ajustes"]];
+  $("#nav").innerHTML=tabs.map(([k,l])=>`<button data-a="tab" data-tab="${k}" ${S.tab===k?'aria-current="page"':""}>${ICON[k]}<span>${l}</span></button>`).join("");
+}
+function viewHoy(){
+  const u=U(),st=students();const day=(u.att||{})[S.date]||{};
+  let ok=0,no=0,ab=0;st.forEach(s=>{const v=day[s.id];if(v==="ok")ok++;else if(v==="no")no++;else if(v==="abs")ab++});
+  const d=new Date(S.date+"T12:00:00");const label=d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+  const recorded=Object.keys(u.att||{}).length;
+  return `<div class="card">
+   <div class="datebar"><button class="iconbtn" data-a="day" data-d="-1" aria-label="Día anterior">${ICON.left}</button>
+    <label for="dateIn" class="small muted" style="text-align:center"><span class="dlabel">${esc(label)}</span><input type="date" id="dateIn" value="${S.date}"></label>
+    <button class="iconbtn" data-a="day" data-d="1" aria-label="Día siguiente">${ICON.right}</button></div>
+   <div class="stats"><div class="lv4"><b>${ok}</b><span>atienden</span></div><div class="lv0"><b>${no}</b><span>no atienden</span></div><div class="lvn"><b>${ab}</b><span>faltan</span></div><div class="lvn"><b>${st.length-ok-no-ab}</b><span>sin marcar</span></div></div>
+   <div class="row"><button class="btn primary grow" data-a="allok" ${st.length?"":"disabled"}>Marcar sin marcar como «atiende»</button></div>
+   <p class="small muted" style="margin:0">Toca «No» en quien se distraiga (habla, se maquilla, móvil…). Las faltas no cuentan para la actitud. ${recorded} ${recorded===1?"día registrado":"días registrados"} en esta unidad.</p>
+  </div>
+  ${st.length?`<div class="list">${st.map(s=>{const v=day[s.id];const a=attStats(u,s.id);
+    return `<div class="item att">${avatar(s)}<div class="nm">${esc(dispName(s))}<div class="sub">${a.ok+a.no?`Atento ${a.ok} de ${plural(a.ok+a.no,"día","días")}`:"Sin registros"}${a.ab?` · ${a.ab} ${a.ab===1?"falta":"faltas"}`:""}</div></div>
+    <div class="seg" role="group" aria-label="Atención de ${esc(dispName(s))}">
+     <button class="ok" data-a="att" data-s="${s.id}" data-v="ok" aria-pressed="${v==="ok"}">Atiende</button>
+     <button class="no" data-a="att" data-s="${s.id}" data-v="no" aria-pressed="${v==="no"}">No</button>
+     <button class="abs" data-a="att" data-s="${s.id}" data-v="abs" aria-pressed="${v==="abs"}">Falta</button></div></div>`}).join("")}</div>`
+   :`<div class="card empty"><p class="muted">Este grupo no tiene alumnos todavía.</p><button class="btn primary" data-a="goto" data-tab="ajustes">Importar lista</button></div>`}`;
+}
+function unitToggles(u){
+  return `<div class="toggles">
+   <button class="tog" data-a="tficha" aria-pressed="${!!u.ficha}"><span class="sw"></span><span class="t"><b>Ficha de repaso</b><br><span class="small muted">${u.ficha?"Añade 2 criterios (20 %)":"No se ha hecho"}</span></span></button>
+   <button class="tog" data-a="tvol" aria-pressed="${!!u.vol}"><span class="sw"></span><span class="t"><b>Voluntarias</b><br><span class="small muted">${u.vol?"Extra hasta +"+fmt(u.volMax||1,1):"No se han pedido"}</span></span></button>
+  </div>`;
+}
+function viewEval(){
+  const u=U(),st=students();
+  return `${unitToggles(u)}
+  ${st.length?`<div class="list">${st.map(s=>{const g=grade(u,s.id);
+   return `<button class="item" style="width:100%;border-left:0;border-right:0;border-bottom:0;background:none;text-align:left" data-a="open" data-s="${s.id}">
+    ${avatar(s)}<span class="nm">${esc(dispName(s))}<span class="sub" style="display:block">${g.done} de ${g.total} criterios${g.partial&&g.done?" · nota parcial":""}${u.vol&&raw(u,s.id,"vol")!=null?" · voluntarias ✓":""}</span><span class="mini"><i style="width:${Math.round(g.done/g.total*100)}%"></i></span></span>
+    <span class="pill ${lvClass(g.final)}">${fmt(g.final)}</span><span class="chev">${ICON.right}</span></button>`}).join("")}</div>`
+   :`<div class="card empty"><p class="muted">Este grupo no tiene alumnos todavía.</p><button class="btn primary" data-a="goto" data-tab="ajustes">Importar lista</button></div>`}
+  <p class="small muted">El criterio 8 (actitud) se rellena solo con la atención registrada en «Hoy» mientras no le pongas un valor a mano.</p>`;
+}
+function viewNotas(){
+  const u=U(),st=students();const cl=critList(u);
+  const heads=cl.map((c,i)=>i<8?String(i+1):(c.k==="f1"?"Ent.":"Ficha"));
+  return `<div class="section-t"><h2>${esc(u.name)}</h2><span class="small muted">${plural(st.length,"alumno","alumnos")}</span></div>
+  <div class="tablewrap"><table><thead><tr><th>Alumno/a</th>${heads.map(h=>`<th>${h}</th>`).join("")}${u.vol?"<th>Vol.</th>":""}<th>Faltas</th><th>Nota</th></tr></thead>
+  <tbody>${st.map(s=>{const g=grade(u,s.id);return `<tr><td>${esc(dispName(s))}</td>${cl.map(c=>{const r=raw(u,s.id,c.k),v=val(u,s.id,c.k);const auto=r==null&&v!=null;return `<td class="${auto?"auto-v ":""}${v==null?"dot":"c"+v}">${v==null?"·":v}</td>`}).join("")}${u.vol?`<td>${g.bonus?"+"+fmt(g.bonus,2):"·"}</td>`:""}<td>${attStats(u,s.id).ab||"·"}</td><td><span class="pill ${lvClass(g.final)}">${fmt(g.final)}</span></td></tr>`}).join("")}</tbody></table></div>
+  <div class="legend small">${cl.map((c,i)=>`<span><b class="num">${i<8?i+1:(c.k==="f1"?"Ent.":"Ficha")}</b>${esc(c.n)}<em>${fmt(c.w,0)} %</em></span>`).join("")}${u.vol?`<span><b class="num">Vol.</b>Actividades voluntarias<em>hasta +${fmt(u.volMax||1,1)}</em></span>`:""}<span class="note muted">Faltas: días que ha faltado en esta unidad. En cursiva, la actitud calculada desde la atención diaria. Los colores siguen el nivel: verde 4, rojo 0.</span></div>
+  ${viewPdf()}
+  ${viewAsistencia()}
+  ${viewIdoceo()}`;
+}
+function viewPdf(){
+  const u=U(),g=G(),st=students(),p=prof();const lang=g.lang==="va"?"va":"es";
+  const miss=p.pdfMissing!==false,teach=p.pdfTeacher!==false,duplex=p.pdfDuplex!==false;
+  const inc=st.filter(x=>{const r=grade(u,x.id);return r.done>0&&r.partial}).length;
+  const none=st.filter(x=>grade(u,x.id).done===0).length;
+  return `<div class="card"><div class="section-t"><h2>Informes en PDF</h2><span class="small muted">${duplex?"a doble cara":"a una cara"}</span></div>
+   <p class="small muted" style="margin:0">Cada informe recoge la nota, el nivel de cada criterio con su descripción, la atención en clase y tus observaciones. Las observaciones se escriben al final de la ficha de cada alumno, en «Evaluar».</p>
+   <div class="field"><span class="small muted">Idioma de los informes de ${esc(g.name)}</span>
+    <div class="seg opt" style="grid-template-columns:1fr 1fr" role="group" aria-label="Idioma de los informes">
+     <button data-a="plang" data-v="es" aria-pressed="${lang==="es"}">Castellano</button><button data-a="plang" data-v="va" aria-pressed="${lang==="va"}">Valencià</button></div></div>
+   <div class="toggles">
+    <button class="tog" data-a="pmiss" aria-pressed="${miss}"><span class="sw"></span><span class="t"><b>Aviso de nota incompleta</b><br><span class="small muted">${miss?"Indica qué criterios faltan":"No se muestra"}</span></span></button>
+    <button class="tog" data-a="pteach" aria-pressed="${teach}"><span class="sw"></span><span class="t"><b>Datos del profesor</b><br><span class="small muted">${teach?"Se muestran arriba":"No se muestran"}</span></span></button>
+    <button class="tog" data-a="pduplex" aria-pressed="${duplex}"><span class="sw"></span><span class="t"><b>Imprimir a doble cara</b><br><span class="small muted">${duplex?"Cada alumno en su hoja; añade reversos en blanco":"Sin páginas en blanco"}</span></span></button>
+   </div>
+   ${teach?`<div class="mapgrid"><label for="profName">Profesor/a<input type="text" id="profName" value="${esc(p.name)}" placeholder="Nombre y apellidos"></label>
+     <label for="profSubj">Materia (${lang==="va"?"valenciano":"castellano"})<input type="text" id="profSubj" value="${esc(p.subj[lang]||"")}" placeholder="${lang==="va"?"Geografia i Història":"Geografía e Historia"}"></label></div>
+    <div class="pdfprev"><b>${esc(p.name)||"&nbsp;"}</b><span>${esc([p.subj[lang],g.name].filter(Boolean).join(" · "))}</span></div>`:""}
+   ${inc?`<span class="small muted">${plural(inc,"alumno tiene","alumnos tienen")} la rúbrica incompleta: su informe sale como «nota provisional»${miss?" e indica qué criterios faltan":""}.</span>`:""}
+   <div class="row"><button class="btn primary" data-a="pdfall" ${st.length>none?"":"disabled"}>PDF de todo el grupo</button>
+    <span class="small muted grow">${none?plural(none,"alumno sin evaluar no se incluye","alumnos sin evaluar no se incluyen"):""}</span></div>
+  </div>`;
+}
+function viewIdoceo(){
+  const u=U(),st=students();const g=G();
+  const inc=st.filter(x=>grade(u,x.id).partial).length;
+  const colName=u.idoceoCol||("Rúbrica cuaderno "+u.name);
+  const withN=idoceoRows().slice(1).filter(r=>r[1]!=="").length;
+  return `<div class="card"><h2 style="font-size:1.05rem">Pasar la nota a iDoceo</h2>
+   <p class="small muted" style="margin:0">Genera un CSV con el mismo formato que exporta iDoceo: nombres en la primera columna, escritos igual que en tu clase, y la nota en una columna nueva.</p>
+   <label for="idoCol" class="small muted">Nombre de la columna en iDoceo<input type="text" id="idoCol" value="${esc(colName)}"></label>
+   <label for="idoDec" class="small muted">Separador decimal<select id="idoDec"><option value="comma" ${(S.idoDec||"comma")==="comma"?"selected":""}>Coma (7,50), como guarda iDoceo las notas</option><option value="dot" ${S.idoDec==="dot"?"selected":""}>Punto (7.50)</option></select></label>
+   ${inc?`<div class="banner">${inc} ${inc===1?"alumno tiene":"alumnos tienen"} la rúbrica incompleta.
+     <label class="check" style="margin-top:8px"><input type="checkbox" id="idoBlank" ${S.idoBlank!==false?"checked":""}><span>Dejar su nota en blanco (si no, se exporta la nota provisional)</span></label></div>`
+    :`<span class="small" style="color:var(--l4f)">Todas las rúbricas de esta unidad están completas.</span>`}
+   <div class="${withN?"":"banner"} small" style="${withN?"color:var(--l4f)":""}">${withN?`El archivo llevará la nota de <b>${withN}</b> de ${plural(st.length,"alumno","alumnos")}.`:`<b>El archivo saldría sin ninguna nota.</b> Completa la rúbrica de los alumnos o desmarca «Dejar su nota en blanco».`}</div>
+   <div class="row"><button class="btn primary" data-a="idoexport">CSV para iDoceo</button><button class="btn" data-a="idoexportx">Excel para iDoceo</button><button class="btn ghost" data-a="idocopy">Copiar</button></div>
+   <details><summary class="small">Cómo importarlo en iDoceo</summary>
+    <ol class="small" style="margin:6px 0 0;padding-left:20px;display:grid;gap:4px">
+     <li>Lleva el archivo al MacBook: si lo has generado en el iPhone, pásalo por AirDrop o guárdalo en iCloud Drive.</li>
+     <li>En iDoceo, en el Mac, abre la clase de ${esc(g.name)} y usa la opción de importar archivo (XLS/CSV) sobre esa clase.</li>
+     <li>Comprueba que todos los alumnos se han emparejado: solo se importan los nombres idénticos a los de la clase.</li></ol></details>
+   <div class="row" style="border-top:1px solid var(--line);padding-top:10px"><span class="grow small muted">Informe completo con criterios, faltas y asistencia</span><button class="btn" data-a="export">Excel completo</button></div>
+  </div>`;
+}
+function viewAsistencia(){
+  const st=students();const g=G();if(!st.length)return "";
+  const days=new Set();Object.values(S.units).forEach(u=>Object.keys(u.att||{}).forEach(d=>days.add(d)));
+  let rows=st.map(s=>({s,a:groupAtt(s.id)}));
+  if(S.attSort)rows=rows.sort((x,y)=>y.a.ab-x.a.ab||y.a.no-x.a.no);
+  const tot=rows.reduce((t,r)=>t+r.a.ab,0);
+  return `<div class="card"><div class="section-t"><h2>Asistencia de ${esc(g.name)}</h2><span class="small muted">${plural(days.size,"día","días")} de clase · todas las unidades</span></div>
+   <div class="row"><span class="small muted grow">${plural(tot,"falta","faltas")} en total. Toca un alumno para ver las fechas.</span>
+    <button class="btn ghost small" data-a="attsort" aria-pressed="${!!S.attSort}">${S.attSort?"Orden de lista":"Más faltas primero"}</button></div>
+   <div class="list">${rows.map(({s,a})=>`<details class="item" style="display:block">
+     <summary style="display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;color:inherit;font-weight:inherit">
+      ${avatar(s)}<span class="nm">${esc(dispName(s))}<span class="sub" style="display:block">${a.pct==null?"Sin registros":`Asiste ${Math.round(a.pct*100)} % · sin atender ${a.no} ${a.no===1?"día":"días"}`}</span></span>
+      <span class="pill ${a.ab===0?"lv4":a.ab<3?"lv2":"lv0"}" title="Faltas">${a.ab} ${a.ab===1?"falta":"faltas"}</span></summary>
+     <div class="small" style="padding:8px 0 2px;display:grid;gap:4px">
+      <span><b>Faltas:</b> ${a.absDates.length?a.absDates.map(shortDate).join(", "):"ninguna"}</span>
+      <span><b>Sin atender:</b> ${a.noDates.length?a.noDates.map(shortDate).join(", "):"ningún día"}</span></div></details>`).join("")}</div>
+   <p class="small muted" style="margin:0">Colores: verde sin faltas, ámbar 1–2, rojo 3 o más. Los días sin marcar no cuentan.</p></div>`;
+}
+function viewBackup(){
+  const last=lsGet("rc.lastBackup",null);const r=S.restore;
+  return `<div class="card"><div class="section-t"><h2>Copia de seguridad</h2><span class="small muted">${last?"Última: "+last.split("-").reverse().join("/"):"Nunca"}</span></div>
+   <p class="small muted" style="margin:0">Descarga un archivo con todos tus grupos, alumnos, unidades, notas y asistencia. Sirve para no perder nada y para pasar los datos a otro dispositivo o a otra versión de la app.</p>
+   <div class="row"><button class="btn primary" data-a="backup">Descargar copia</button>
+    <label class="btn" for="restoreIn">Cargar copia<input type="file" id="restoreIn" accept=".json,application/json" hidden></label></div>
+   ${r?`<div class="crit"><b>Restaurar copia del ${esc(new Date(r.date).toLocaleDateString("es-ES"))}</b>
+     <span class="small">${r.groups} ${r.groups===1?"grupo":"grupos"}, ${plural(r.students,"alumno","alumnos")} y ${r.units} ${r.units===1?"unidad":"unidades"}.</span>
+     <span class="small muted">Los grupos de la copia sustituyen a los mismos grupos si ya existen aquí. El resto de grupos no se toca.</span>
+     <div class="row"><button class="btn ${S.confirm==="rs"?"confirm":"primary"}" data-a="restore">${S.confirm==="rs"?"Sí, restaurar":"Restaurar"}</button><button class="btn ghost" data-a="restorecancel">Cancelar</button></div></div>`:""}
+  </div>`;
+}
+function viewAjustes(){
+  const g=G(),gs=sortedGroups(),us=sortedUnits();
+  const conf=k=>S.confirm===k;
+  const th=S.theme||"auto";
+  let h=viewBackup()+`<div class="card"><div class="section-t"><h2>Apariencia</h2></div>
+   <div class="seg opt" role="group" aria-label="Tema">${[["auto","Automático"],["light","Claro"],["dark","Oscuro"]].map(([k,l])=>`<button data-a="theme" data-v="${k}" aria-pressed="${th===k}">${l}</button>`).join("")}</div>
+   <span class="small muted">«Automático» sigue el modo claro u oscuro del dispositivo. Se recuerda en este navegador.</span></div>
+  <div class="card"><div class="section-t"><h2>Grupos</h2></div>
+   ${gs.map(x=>`<div class="row"><span class="grow">${esc(x.name)} <span class="small muted">· ${plural((x.students||[]).length,"alumno","alumnos")}</span></span>
+     ${x.id===S.gid?'<span class="tag">Actual</span>':`<button class="btn" data-a="pickg" data-g="${x.id}">Abrir</button>`}</div>`).join("")||'<p class="muted small" style="margin:0">Todavía no hay grupos.</p>'}
+   <div class="row"><input type="text" id="newG" placeholder="Nombre del grupo (p. ej. 3º ESO A)" class="grow" style="flex:1 1 180px"><button class="btn primary" data-a="newgroup">Crear grupo</button></div>
+   ${gs.length?"":'<button class="btn ghost" data-a="demo">Crear un grupo de ejemplo</button>'}
+  </div>`;
+  if(!g)return h;
+  const st=students();
+  h+=`<div class="card"><div class="section-t"><h2>Alumnado de ${esc(g.name)}</h2><span class="small muted">${st.length}</span></div>
+   <p class="small muted" style="margin:0">En iDoceo, exporta el cuaderno de la clase en CSV y súbelo aquí (si usas la app en el iPhone, pásate antes el archivo desde el Mac por AirDrop o iCloud Drive). Se toma la lista de alumnos en el mismo orden; las notas del archivo no se importan. También acepta otros CSV o Excel con columnas de nombre y apellidos.</p>
+   <label class="btn" for="fileIn" style="text-align:center">Importar archivo de iDoceo (CSV, XLS, XLSX)<input type="file" id="fileIn" accept=".csv,.xls,.xlsx,.txt,.tsv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label>
+   <details><summary class="small">O pega la lista (un alumno por línea)</summary>
+    <textarea id="pasteIn" rows="5" placeholder="García López, Ana&#10;Martín Ruiz, Pablo"></textarea>
+    <button class="btn" data-a="paste" style="margin-top:6px">Revisar lista pegada</button></details>
+   ${S.imp?importPanel():""}
+   <label for="nameFmt" class="small muted">Mostrar nombres como<select id="nameFmt"><option value="ap" ${g.nameFormat!=="no"?"selected":""}>Apellidos, Nombre</option><option value="no" ${g.nameFormat==="no"?"selected":""}>Nombre Apellidos</option></select></label>
+   ${st.length?`<details><summary class="small">Ver y editar la lista (${st.length})</summary><div class="list" style="margin-top:8px">${st.map(s=>`<div class="item"><span class="nm">${esc(dispName(s))}</span><button class="btn ${conf("ds"+s.id)?"confirm":"ghost danger"}" data-a="delst" data-s="${s.id}">${conf("ds"+s.id)?"¿Quitar?":"Quitar"}</button></div>`).join("")}</div></details>`:""}
+   <div class="mapgrid"><input type="text" id="addNom" placeholder="Nombre"><input type="text" id="addApe" placeholder="Apellidos"></div>
+   <button class="btn" data-a="addst">Añadir alumno</button>
+  </div>`;
+  h+=`<div class="card"><div class="section-t"><h2>Unidades</h2></div>
+   ${us.map(x=>`<div class="crit" style="padding:10px">
+     <div class="row"><input type="text" class="grow" style="flex:1 1 150px" data-f="uname" data-u="${x.id}" id="un-${x.id}" value="${esc(x.name)}" aria-label="Nombre de la unidad">
+      <button class="btn ${conf("du"+x.id)?"confirm":"ghost danger"}" data-a="delunit" data-u="${x.id}">${conf("du"+x.id)?"¿Borrar con sus datos?":"Borrar"}</button></div>
+     <div class="row small"><label class="row"><input type="checkbox" data-f="uficha" data-u="${x.id}" ${x.ficha?"checked":""}> Ficha de repaso</label>
+      <label class="row"><input type="checkbox" data-f="uvol" data-u="${x.id}" ${x.vol?"checked":""}> Voluntarias</label>
+      <label class="row">extra máx. <select data-f="uvolmax" data-u="${x.id}" style="width:auto"><option value="0.5" ${x.volMax===0.5?"selected":""}>+0,5</option><option value="1" ${x.volMax!==0.5?"selected":""}>+1</option></select></label></div>
+   </div>`).join("")}
+   <div class="row"><input type="text" id="newU" placeholder="Nombre de la unidad" class="grow" style="flex:1 1 180px"><button class="btn primary" data-a="newunit">Añadir unidad</button></div>
+  </div>
+  <div class="card"><h2 style="font-size:1rem">Cómo se calcula la nota</h2>
+   <p class="small" style="margin:0">Cada criterio puntúa de 0 a 4 y pesa su porcentaje. Si la unidad tiene ficha de repaso, se añaden «Entrega de la ficha» (5 %) y «Actividades de la ficha» (15 %) y los 8 criterios se reducen al 80 % de su peso. Si no entrega la ficha, sus actividades cuentan 0. Las voluntarias solo suman, con la nota limitada a 10.</p>
+   <p class="small" style="margin:0">Actitud automática según el % de días atento:</p>
+   <div class="thr"><span class="lv4">≥ 90 % · Excelente</span><span class="lv3">≥ 75 % · Bueno</span><span class="lv2">≥ 50 % · Regular</span><span class="lv1">≥ 25 % · Deficiente</span><span class="lv0">&lt; 25 % · Nulo</span></div>
+  </div>
+  <div class="card danger-zone"><div class="row"><span class="grow small">Borrar el grupo «${esc(g.name)}» con todas sus unidades y notas</span>
+   <button class="btn ${conf("dg")?"confirm":"ghost danger"}" data-a="delgroup">${conf("dg")?"Sí, borrar el grupo":"Borrar grupo"}</button></div></div>`;
+  return h;
+}
+function importPanel(){
+  const imp=S.imp;const list=impStudents(imp);
+  const opts=sel=>imp.cols.map((c,i)=>`<option value="${i}" ${i===sel?"selected":""}>${esc(c)}</option>`).join("");
+  return `<div class="crit">
+   <b>Revisar importación</b>${imp.idoceo?'<span class="small" style="color:var(--l4f)">Formato de exportación de iDoceo reconocido: se toma el nombre completo de la columna A y se mantiene el orden de la lista de iDoceo. Las notas del archivo no se importan.</span>':""}
+   <label class="small muted" for="impMode">Los nombres vienen<select id="impMode"><option value="split" ${imp.mode==="split"?"selected":""}>En dos columnas: nombre y apellidos</option><option value="full" ${imp.mode==="full"?"selected":""}>En una sola columna</option></select></label>
+   ${imp.mode==="split"?`<div class="mapgrid"><label for="impNom">Columna de nombre<select id="impNom">${opts(imp.nom)}</select></label><label for="impApe">Columna de apellidos<select id="impApe">${opts(imp.ape)}</select></label></div>`
+    :`<label class="small muted" for="impFull">Columna con el nombre<select id="impFull">${opts(imp.full)}</select></label><span class="small muted">Si pone «Apellidos, Nombre» con coma, se separa solo.</span>`}
+   <div class="preview">${list.slice(0,8).map(s=>esc(dispName(s))).join("<br>")||"No se ha encontrado ningún nombre en esa columna."}${list.length>8?`<br><span class="muted">… y ${list.length-8} más</span>`:""}</div>
+   <div class="row"><button class="btn primary" data-a="impadd" ${list.length?"":"disabled"}>Añadir ${list.length}</button>
+    <button class="btn" data-a="imprep" ${list.length?"":"disabled"}>Sustituir la lista</button><button class="btn ghost" data-a="impcancel">Cancelar</button></div>
+   <span class="small muted">«Sustituir» conserva las notas de quien ya estaba si el nombre coincide.</span></div>`;
+}
+function renderSheet(){
+  const el=$("#sheet");const u=U();
+  const st=students();const idx=st.findIndex(s=>s.id===S.evalSid);
+  if(!S.evalSid||!u||idx<0){el.hidden=true;el.innerHTML="";document.body.style.overflow="";return}
+  const s=st[idx];const g=grade(u,s.id);const opening=el.hidden;const body=el.querySelector(".sheet-b");const scroll=body?body.scrollTop:0;
+  const card=(c,extra,num)=>{
+    const r=raw(u,s.id,c.k),v=val(u,s.id,c.k);const auto=r==null&&v!=null;
+    const disabled=c.k==="f2"&&raw(u,s.id,"f1")===0;
+    const d=c.binary?(v==null?null:c.d[v]):(v==null?null:c.d[4-v]);
+    let note="";
+    if(c.k==="c8"){const a=attStats(u,s.id);note=`<div class="auto">Atención registrada: ${a.ok} de ${plural(a.ok+a.no,"día","días")}${a.ab?` · ${plural(a.ab,"falta","faltas")}`:""}${auto?' · <span class="tag">automático</span>':r!=null&&suggest8(u,s.id)!=null?` · sugerido ${suggest8(u,s.id)} <button class="btn ghost small" data-a="score" data-s="${s.id}" data-k="c8" data-v="${r}" style="padding:2px 8px">usar sugerido</button>`:""}</div>`}
+    if(disabled)note=`<div class="auto">Sin ficha entregada, las actividades cuentan 0.</div>`;
+    const btns=c.binary?[[4,"Sí","Entrega"],[0,"No","No entrega"]].map(([n,a,b])=>`<button class="lv${n}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${n}" aria-pressed="${v===n}"><b>${a}</b><span>${b}</span></button>`).join("")
+      :[4,3,2,1,0].map(n=>`<button class="lv${n}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${n}" aria-pressed="${v===n}" ${disabled?"disabled":""}><b>${n}</b><span>${SHORT[n]}</span></button>`).join("");
+    return `<section class="crit ${extra?"extra":""} ${v!=null?"done":""}"><div class="ch"><b>${num?`<span class="num">${num}</span>`:""}${esc(c.n)}</b><span class="w">${extra||fmt(c.w,0)+" %"}</span></div>
+     <div class="lvls ${c.binary?"two":""}">${btns}</div>${note}
+     <p class="desc ${d?"":"none"}">${d?esc(d):"Toca un nivel para ver su descripción."}</p></section>`;
+  };
+  const cl=critList(u);
+  el.innerHTML=`<div class="sheet${opening?" anim":""}" role="dialog" aria-modal="true" aria-label="Evaluar a ${esc(dispName(s))}">
+   <div class="sheet-h"><div class="row"><button class="iconbtn" data-a="close" aria-label="Volver a la lista">${ICON.close}</button>
+     <h2 class="grow">${esc(dispName(s))}</h2><span class="big ${lvClass(g.final)}">${fmt(g.final)}</span></div>
+     <div class="row"><button class="btn" data-a="nav" data-d="-1" ${idx>0?"":"disabled"}>‹ Anterior</button>
+     <span class="grow small muted" style="text-align:center">${idx+1} de ${st.length} · ${g.done}/${g.total}${g.bonus?` · +${fmt(g.bonus,2)} extra`:""}</span>
+     <button class="btn" data-a="nav" data-d="1" ${idx<st.length-1?"":"disabled"}>Siguiente ›</button></div>
+     <div class="prog" role="progressbar" aria-label="Criterios puntuados" aria-valuemin="0" aria-valuemax="${g.total}" aria-valuenow="${g.done}"><i style="width:${Math.round(g.done/g.total*100)}%"></i></div></div>
+   <div class="sheet-b">${cl.map((c,i)=>card(c,"",i<8?i+1:"")).join("")}${u.vol?card(VOL,"extra hasta +"+fmt(u.volMax||1,1)):""}
+   ${g.partial?`<p class="small muted">Faltan ${g.total-g.done} criterios: la nota mostrada es provisional y se calcula con los criterios ya puntuados.</p>`:""}
+   <section class="crit"><div class="ch"><b><label for="obs-${s.id}">Observaciones para el informe</label></b><span class="w">PDF</span></div>
+    <textarea id="obs-${s.id}" data-keep="1" data-obs="${s.id}" rows="3" placeholder="Aclaraciones sobre la nota o posibles malentendidos">${esc((u.notes||{})[s.id]||"")}</textarea>
+    <span class="auto">Salen en su informe. Si lo dejas vacío, el PDF lleva un recuadro en blanco para escribir a mano.</span>
+    <button class="btn primary" data-a="pdf1" data-s="${s.id}">PDF de este alumno</button></section></div></div>`;
+  el.hidden=false;document.body.style.overflow="hidden";
+  const nb=el.querySelector(".sheet-b");if(nb)nb.scrollTop=scroll;
+}
+
+// ---------- events ----------
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
+  if(a!=="delst"&&a!=="delunit"&&a!=="delgroup"&&a!=="restore")S.confirm=null;
+  const u=U(),g=G();
+  switch(a){
+   case "tab":S.tab=b.dataset.tab;lsSet("rc.tab",S.tab);window.scrollTo(0,0);break;
+   case "goto":S.tab=b.dataset.tab;lsSet("rc.tab",S.tab);break;
+   case "att":setAtt(b.dataset.s,b.dataset.v);break;
+   case "allok":{const d=(u.att=u.att||{})[S.date]=(u.att[S.date]||{});students().forEach(s=>{if(!d[s.id])d[s.id]="ok"});saveUnit(S.uid);break}
+   case "day":{const d=new Date(S.date+"T12:00:00");d.setDate(d.getDate()+Number(b.dataset.d));d.setMinutes(d.getMinutes()-d.getTimezoneOffset());S.date=d.toISOString().slice(0,10);break}
+   case "tficha":u.ficha=!u.ficha;saveUnit(S.uid);break;
+   case "tvol":u.vol=!u.vol;saveUnit(S.uid);break;
+   case "open":S.evalSid=b.dataset.s;break;
+   case "close":S.evalSid=null;break;
+   case "nav":{const st=students();const i=st.findIndex(s=>s.id===S.evalSid)+Number(b.dataset.d);if(st[i]){S.evalSid=st[i].id;const sb=$("#sheet .sheet-b");if(sb)sb.scrollTop=0}break}
+   case "score":setScore(b.dataset.s,b.dataset.k,Number(b.dataset.v));break;
+   case "theme":S.theme=b.dataset.v;lsSet("rc.theme",S.theme);applyTheme(S.theme);break;
+   case "plang":if(g){g.lang=b.dataset.v==="va"?"va":"es";saveGroup(S.gid)}break;
+   case "pmiss":setProf({pdfMissing:!(prof().pdfMissing!==false)});break;
+   case "pduplex":setProf({pdfDuplex:!(prof().pdfDuplex!==false)});break;
+   case "pteach":setProf({pdfTeacher:!(prof().pdfTeacher!==false)});break;
+   case "pdf1":pdfOne(b.dataset.s);return;
+   case "pdfall":pdfAll();return;
+   case "attsort":S.attSort=!S.attSort;break;
+   case "backup":doBackup();return;
+   case "restore":if(S.confirm!=="rs"){S.confirm="rs";break}S.confirm=null;applyRestore();break;
+   case "restorecancel":S.restore=null;break;
+   case "export":doExport();return;
+   case "idoexport":idoExport();return;
+   case "idoexportx":idoExportX();return;
+   case "idocopy":copyTSV(idoceoRows().map(r=>r.map(c=>c)));return;
+   case "copy":copyTSV(exportRows());return;
+   case "newgroup":{const n=$("#newG").value.trim();if(!n){toast("Escribe un nombre para el grupo");return}createGroup(n);toast("Grupo creado");break}
+   case "pickg":S.gid=b.dataset.g;lsSet("rc.gid",S.gid);S.uid=null;subscribeUnits();break;
+   case "demo":{const names=[["Lucía","Benítez Soler"],["Marcos","Carrasco Vidal"],["Irene","Domínguez Ortega"],["Hugo","Ferrer Lozano"],["Nerea","Gallardo Pons"],["Adrián","Herrera Molina"],["Carla","Iglesias Rey"],["Óscar","Jiménez Navas"]];
+     createGroup("Ejemplo 3º ESO",names.map(([n,a])=>({id:newId("s"),nombre:n,apellidos:a})));S.tab="hoy";lsSet("rc.tab","hoy");toast("Grupo de ejemplo creado");break}
+   case "newunit":{const n=$("#newU").value.trim()||("Unidad "+(sortedUnits().length+1));createUnit(n);toast("Unidad añadida");break}
+   case "newunit-quick":createUnit("Unidad 1");break;
+   case "delunit":{const id=b.dataset.u;if(S.confirm!=="du"+id){S.confirm="du"+id;break}S.confirm=null;store.del(S.gid+"/units/"+id);delete S.units[id];if(S.uid===id){const us=sortedUnits();S.uid=us.length?us[us.length-1].id:null}toast("Unidad borrada");break}
+   case "delgroup":{if(S.confirm!=="dg"){S.confirm="dg";break}S.confirm=null;const gid=S.gid;Object.keys(S.units).forEach(id=>store.del(gid+"/units/"+id));store.del(gid);delete S.groups[gid];S.gid=sortedGroups()[0]?.id||null;S.uid=null;unitsFor=null;subscribeUnits();toast("Grupo borrado");break}
+   case "delst":{const id=b.dataset.s;if(S.confirm!=="ds"+id){S.confirm="ds"+id;break}S.confirm=null;g.students=(g.students||[]).filter(s=>s.id!==id);saveGroup(S.gid);break}
+   case "addst":{const n=$("#addNom").value.trim(),ap=$("#addApe").value.trim();if(!n&&!ap){toast("Escribe el nombre");return}const mx=Math.max(0,...(g.students||[]).map(s=>typeof s.order==="number"?s.order:0));g.students=[...(g.students||[]),{id:newId("s"),nombre:n,apellidos:ap,order:mx+1}];saveGroup(S.gid);toast("Alumno añadido");break}
+   case "paste":{const t=$("#pasteIn").value;if(!t.trim()){toast("Pega primero la lista");return}S.imp=analyse(parseDelimited(t));break}
+   case "impadd":applyImport(false);return;
+   case "imprep":applyImport(true);return;
+   case "impcancel":S.imp=null;break;
+   default:return;
+  }
+  render();
+});
+document.addEventListener("change",async e=>{
+  const t=e.target;const g=G();
+  if(t.id==="selG"){S.gid=t.value;lsSet("rc.gid",S.gid);S.uid=null;S.evalSid=null;subscribeUnits();render();return}
+  if(t.id==="selU"){S.uid=t.value;lsSet("rc.unit",S.uid);S.evalSid=null;render();return}
+  if(t.id==="dateIn"&&t.value){S.date=t.value;render();return}
+  if(t.id==="profName"){setProf({name:t.value.trim()});render();return}
+  if(t.id==="profSubj"){const lang=g&&g.lang==="va"?"va":"es";setProf({subj:{...prof().subj,[lang]:t.value.trim()}});render();return}
+  if(t.id==="idoCol"){const u=U();if(u){u.idoceoCol=t.value.trim();saveUnit(S.uid)}return}
+  if(t.id==="idoDec"){S.idoDec=t.value;lsSet("rc.idoDec",t.value);return}
+  if(t.id==="idoBlank"){S.idoBlank=t.checked;render();return}
+  if(t.id==="nameFmt"&&g){g.nameFormat=t.value;saveGroup(S.gid);render();return}
+  if(t.id==="restoreIn"&&t.files&&t.files[0]){await readBackup(t.files[0]);t.value="";return}
+  if(t.id==="fileIn"&&t.files&&t.files[0]){
+    try{S.imp=analyse(await readFile(t.files[0]));if(!S.imp.rows.length)toast("El archivo no tiene filas con datos")}
+    catch(err){toast(err&&err.message==="noxlsx"?"No se ha podido cargar el lector de Excel. Prueba con CSV.":"No se ha podido leer el archivo")}
+    t.value="";render();return}
+  if(S.imp&&["impMode","impNom","impApe","impFull"].includes(t.id)){const k={impMode:"mode",impNom:"nom",impApe:"ape",impFull:"full"}[t.id];S.imp[k]=t.id==="impMode"?t.value:Number(t.value);render();return}
+  const f=t.dataset&&t.dataset.f;if(f){const u=S.units[t.dataset.u];if(!u)return;
+    if(f==="uname"){u.name=t.value.trim()||u.name}
+    else if(f==="uficha")u.ficha=t.checked;else if(f==="uvol")u.vol=t.checked;else if(f==="uvolmax")u.volMax=Number(t.value);
+    store.put(S.gid+"/units/"+t.dataset.u,u);render()}
+});
+document.addEventListener("input",e=>{
+  const t=e.target;const sid=t.dataset&&t.dataset.obs;if(!sid)return;
+  const u=U();if(!u)return;u.notes=u.notes||{};
+  if(t.value.trim())u.notes[sid]=t.value;else delete u.notes[sid];
+  saveUnit(S.uid);
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.evalSid){S.evalSid=null;render()}});
+init();
+})();
+</script>
+
+</body>
+</html>
