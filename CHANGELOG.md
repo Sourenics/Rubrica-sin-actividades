@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-14 · Versión en Claude con datos sincronizados
+## 2026-10-14 · Versión en Claude con datos sincronizados ([#6](https://github.com/Sourenics/Rubrica-sin-actividades/pull/6))
 
 ### Añadido
 - **Versión en Claude:** la app se publica también como artifact privado de Claude. Allí los datos se guardan en la cuenta y se sincronizan entre el Mac y el iPhone. GitHub Pages sigue funcionando igual, con los datos en cada navegador.
