@@ -6,6 +6,7 @@ Cambios de la app agrupados por cada fusión en `main`, que es lo que publica Gi
 
 ### Añadido
 - **Versión en Claude:** la app se publica también como artifact privado de Claude. Allí los datos se guardan en la cuenta y se sincronizan entre el Mac y el iPhone. GitHub Pages sigue funcionando igual, con los datos en cada navegador.
+- **`CLAUDE.md`:** recoge la forma de trabajar del proyecto y cómo mantener a la par GitHub Pages y la versión en Claude.
 
 ### Cambiado
 - **Rúbricas importadas:** cada una se guarda en su propio documento en lugar de ir todas dentro del perfil del profesor. En Claude cada documento admite 256 KB, así que dentro del perfil cabían unas 20 rúbricas; ahora no hay límite práctico.
