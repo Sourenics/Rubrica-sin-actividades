@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-14 · Lista de alumnos: orden alfabético y desplegables
+## 2026-10-14 · Lista de alumnos: orden alfabético y desplegables ([#11](https://github.com/Sourenics/Rubrica-sin-actividades/pull/11))
 
 ### Añadido
 - **«Ordenar por apellidos»:** si la lista de un grupo no está en orden alfabético (por ejemplo, porque sigue el orden de iDoceo), en «Ver y editar la lista» aparece este botón para ordenarla. Las notas y la asistencia no cambian.
