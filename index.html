@@ -569,9 +569,17 @@ const U=()=>S.units[S.uid]||null;
 const sortedGroups=()=>Object.entries(S.groups).map(([id,g])=>({id,...g})).sort((a,b)=>(a.order||0)-(b.order||0)||a.name.localeCompare(b.name,"es"));
 const sortedUnits=()=>Object.entries(S.units).map(([id,u])=>({id,...u})).sort((a,b)=>(a.order||0)-(b.order||0));
 function dispName(st,g){g=g||G();const ap=(st.apellidos||"").trim(),no=(st.nombre||"").trim();if(!ap)return no;if(!no)return ap;return (g&&g.nameFormat==="no")?no+" "+ap:ap+", "+no}
+// alphabetical order by surname, whatever the display format
+const bySurname=(a,b)=>((a.apellidos||"")+" "+(a.nombre||"")).trim().localeCompare(((b.apellidos||"")+" "+(b.nombre||"")).trim(),"es");
 function students(){const g=G();if(!g)return[];const l=[...(g.students||[])];
   if(l.length&&l.every(s=>typeof s.order==="number"))return l.sort((a,b)=>a.order-b.order);
-  return l.sort((a,b)=>dispName(a,g).localeCompare(dispName(b,g),"es"))}
+  return l.sort(bySurname)}
+// new students go to their alphabetical place, so a list kept in iDoceo's order is not disturbed
+function addStudents(g,news){
+  const l=students();
+  news.forEach(n=>{const i=l.findIndex(s=>bySurname(s,n)>0);l.splice(i<0?l.length:i,0,n)});
+  g.students=l.map((s,i)=>({...s,order:i+1}));
+}
 // criteria of a unit in one language: {k,num,n,d,w,lv,max,auto,binary}
 function critList(u,L){
   L=L||"es";const Rb=rubricOf(u),f=u&&u.ficha;
@@ -749,8 +757,7 @@ function applyImport(replace){
     g.students=list.map(s=>({id:old.get(norm(s.apellidos+"|"+s.nombre))||newId("s"),...s}));
   }else{
     const have=new Set((g.students||[]).map(s=>norm(s.apellidos+"|"+s.nombre)));
-    const mx=Math.max(0,...(g.students||[]).map(s=>typeof s.order==="number"?s.order:0));
-    g.students=[...(g.students||[]),...list.filter(s=>!have.has(norm(s.apellidos+"|"+s.nombre))).map((s,i)=>({id:newId("s"),...s,order:mx+i+1}))];
+    addStudents(g,list.filter(s=>!have.has(norm(s.apellidos+"|"+s.nombre))).map(s=>({id:newId("s"),...s})));
   }
   saveGroup(S.gid);toast(plural(list.length,"alumno procesado","alumnos procesados"));S.imp=null;render();
 }
@@ -1293,7 +1300,7 @@ function viewAjustes(){
     <button class="btn" data-a="paste" style="margin-top:6px">Revisar lista pegada</button></details>
    ${S.imp?importPanel():""}
    <label for="nameFmt" class="small muted">Mostrar nombres como<select id="nameFmt"><option value="ap" ${g.nameFormat!=="no"?"selected":""}>Apellidos, Nombre</option><option value="no" ${g.nameFormat==="no"?"selected":""}>Nombre Apellidos</option></select></label>
-   ${st.length?`<details data-d="stlist"><summary class="small">Ver y editar la lista (${st.length})</summary><div class="list" style="margin-top:8px">${st.map(s=>`<div class="item"><span class="nm">${esc(dispName(s))}</span><button class="btn ${conf("ds"+s.id)?"confirm":"ghost danger"}" data-a="delst" data-s="${s.id}">${conf("ds"+s.id)?"¿Quitar?":"Quitar"}</button></div>`).join("")}</div></details>`:""}
+   ${st.length?`<details data-d="stlist"><summary class="small">Ver y editar la lista (${st.length})</summary>${st.some((s,i)=>i&&bySurname(st[i-1],s)>0)?`<div class="row" style="margin-top:8px"><span class="grow small muted">La lista no está en orden alfabético (por ejemplo, sigue el orden de iDoceo).</span><button class="btn ghost small" data-a="stsort">Ordenar por apellidos</button></div>`:""}<div class="list" style="margin-top:8px">${st.map(s=>`<div class="item"><span class="nm">${esc(dispName(s))}</span><button class="btn ${conf("ds"+s.id)?"confirm":"ghost danger"}" data-a="delst" data-s="${s.id}">${conf("ds"+s.id)?"¿Quitar?":"Quitar"}</button></div>`).join("")}</div></details>`:""}
    <div class="mapgrid"><input type="text" id="addNom" placeholder="Nombre"><input type="text" id="addApe" placeholder="Apellidos"></div>
    <button class="btn" data-a="addst">Añadir alumno</button>
   </div>`;
@@ -1473,7 +1480,8 @@ document.addEventListener("click",e=>{
    case "confirmcancel":break;
    case "delgroup":{if(S.confirm!=="dg"){S.confirm="dg";break}S.confirm=null;const gid=S.gid;Object.keys(S.units).forEach(id=>store.del(gid+"/units/"+id));store.del(gid);delete S.groups[gid];S.gid=sortedGroups()[0]?.id||null;S.uid=null;unitsFor=null;subscribeUnits();toast("Grupo borrado");break}
    case "delst":{const id=b.dataset.s;if(S.confirm!=="ds"+id){S.confirm="ds"+id;break}S.confirm=null;g.students=(g.students||[]).filter(s=>s.id!==id);saveGroup(S.gid);break}
-   case "addst":{const n=$("#addNom").value.trim(),ap=$("#addApe").value.trim();if(!n&&!ap){toast("Escribe el nombre");return}const mx=Math.max(0,...(g.students||[]).map(s=>typeof s.order==="number"?s.order:0));g.students=[...(g.students||[]),{id:newId("s"),nombre:n,apellidos:ap,order:mx+1}];saveGroup(S.gid);toast("Alumno añadido");break}
+   case "stsort":g.students=students().sort(bySurname).map((s,i)=>({...s,order:i+1}));saveGroup(S.gid);toast("Lista ordenada por apellidos");break;
+   case "addst":{const n=$("#addNom").value.trim(),ap=$("#addApe").value.trim();if(!n&&!ap){toast("Escribe el nombre");return}addStudents(g,[{id:newId("s"),nombre:n,apellidos:ap}]);saveGroup(S.gid);toast("Alumno añadido");break}
    case "paste":{const t=$("#pasteIn").value;if(!t.trim()){toast("Pega primero la lista");return}S.imp=analyse(parseDelimited(t));break}
    case "impadd":applyImport(false);return;
    case "imprep":applyImport(true);return;
