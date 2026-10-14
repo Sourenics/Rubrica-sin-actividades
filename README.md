@@ -1,6 +1,6 @@
 # Rúbrica del cuaderno
 
-Aplicación web para evaluar el cuaderno del alumnado con una rúbrica de 8 criterios. Sirve para cualquier curso: se crea un grupo por cada clase (2º, 3º, 4º de ESO o lo que haga falta). Permite:
+Aplicación web para evaluar el cuaderno del alumnado con una rúbrica: la predeterminada, de 8 criterios, o una propia importada desde Excel. Sirve para cualquier curso: se crea un grupo por cada clase (2º, 3º, 4º de ESO o lo que haga falta). Permite:
 
 - registrar cada día la atención en clase;
 - calcular la nota de cada unidad;
@@ -12,10 +12,10 @@ Toda la app está en un único archivo, `index.html`. No hay que instalar nada n
 ## Funciones
 
 - **Hoy:** cada día se marca a cada alumno como «Atiende», «No» (no atiende) o «Falta». Un botón marca como «atiende» a todos los que queden sin marcar.
-- **Evaluar:** ficha por alumno con los 8 criterios de la rúbrica, de 0 a 4.
+- **Evaluar:** ficha por alumno con los criterios de la rúbrica de la unidad.
   - Al tocar un nivel se ve su descripción.
   - La ficha también tiene un campo de observaciones para el informe.
-  - La actitud (criterio 8) se rellena sola a partir de la atención registrada en «Hoy», mientras no se le ponga un valor a mano.
+  - El criterio de atención diaria (en la rúbrica predeterminada, la actitud) se rellena solo a partir de la atención registrada en «Hoy», mientras no se le ponga un valor a mano.
 - **Notas:** tabla de la unidad con cada criterio coloreado por nivel, la nota final y las faltas. Incluye:
   - un resumen de asistencia del grupo, con las fechas de las faltas;
   - los informes en PDF;
@@ -91,7 +91,7 @@ Se generan desde la propia app:
 Cada informe recoge la nota (final o provisional), el nivel y la descripción de cada criterio, la atención en clase y las observaciones. Si no hay observaciones, el PDF deja un recuadro rayado para escribirlas a mano.
 
 - **Extensión:** una página siempre que quepa. Solo pasa a dos si hace falta, y nunca se recorta información.
-- **Idioma:** castellano o valenciano, por grupo. En valenciano también se traduce la rúbrica.
+- **Idioma:** castellano o valenciano, por grupo. En valenciano también se traduce la rúbrica: la predeterminada ya está traducida y las importadas usan su hoja «Valencià».
 - **Interruptores:**
   - **Aviso de nota incompleta:** indica qué criterios faltan por evaluar.
   - **Datos del profesor:** nombre, materia y grupo en la cabecera. Se editan en la misma tarjeta.
@@ -112,7 +112,7 @@ El grupo aparece con el nombre que tiene en la app. Para que salga «3º C», el
   - Si se borran los datos del navegador, se pierden.
 - **Dentro de Claude (publicada como artifact):** los datos se guardan en tu cuenta, son privados y se ven desde cualquier dispositivo con la misma cuenta. La app usa las capacidades `db`, `user` y `downloads`.
 
-En los dos casos conviene descargar de vez en cuando una **copia de seguridad** (*Ajustes → Copia de seguridad*). Es un archivo JSON con todos los grupos, unidades, notas, asistencia, observaciones y datos del profesor.
+En los dos casos conviene descargar de vez en cuando una **copia de seguridad** (*Ajustes → Copia de seguridad*). Es un archivo JSON con todos los grupos, unidades, notas, asistencia, observaciones, datos del profesor y rúbricas importadas.
 
 Para **pasar los datos de un dispositivo a otro**:
 1. En el primero, descarga la copia de seguridad.
@@ -151,6 +151,10 @@ La app maneja nombres y notas del alumnado:
   - Los datos por defecto del profesor, en `PROFILE0`.
   - Los umbrales de la actitud automática, en `ATT_THRESHOLDS`.
 - **Probarla:** basta con abrir `index.html` en el navegador y pulsar «Probar con un grupo de ejemplo».
+
+## Historial de cambios
+
+Lo que ha cambiado en cada versión está en [CHANGELOG.md](CHANGELOG.md).
 
 ## Licencia
 
