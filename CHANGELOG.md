@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-14 · Atención «más o menos»
+## 2026-10-14 · Atención «más o menos» ([#7](https://github.com/Sourenics/Rubrica-sin-actividades/pull/7))
 
 ### Añadido
 - **«Más o menos» en «Hoy»:** cuarta opción, entre «Atiende» y «No», para quien atiende solo a ratos. El recuento del día tiene una casilla más para ellos.
@@ -14,6 +14,7 @@ Cambios de la app agrupados por cada fusión en `main`, que es lo que publica Gi
 
 ### Cambiado
 - **Botones de atención en el móvil:** cada uno ocupa el ancho de su texto para que los cuatro quepan en una línea, también en el iPhone.
+- **Orden «Más faltas primero»:** si hay empate en faltas y en días sin atender, salen antes quienes tienen más días «más o menos».
 
 ## 2026-10-14 · Versión en Claude con datos sincronizados ([#6](https://github.com/Sourenics/Rubrica-sin-actividades/pull/6))
 
