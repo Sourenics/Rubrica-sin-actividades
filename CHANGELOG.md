@@ -2,6 +2,14 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
+## 2026-10-14 · Icono de la app ([#10](https://github.com/Sourenics/Rubrica-sin-actividades/pull/10))
+
+### Añadido
+- **Icono de la app** en la carpeta `iconos`: un cuaderno con una marca de verificación sobre fondo azul, como el logotipo de la cabecera.
+  - Hay una versión para el Dock del Mac, otra cuadrada y otra para la pestaña del navegador.
+- **GitHub Pages:** al añadir la app al Dock del Mac o a la pantalla de inicio del iPhone, sale su icono.
+- **README:** explica cómo poner el icono a la versión de Claude en el Dock, que por defecto sale con el icono de Claude.
+
 ## 2026-10-14 · Fecha centrada en Safari del Mac ([#9](https://github.com/Sourenics/Rubrica-sin-actividades/pull/9))
 
 ### Corregido
