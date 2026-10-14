@@ -2,6 +2,15 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
+## 2026-10-14 · Versión en Claude con datos sincronizados
+
+### Añadido
+- **Versión en Claude:** la app se publica también como artifact privado de Claude. Allí los datos se guardan en la cuenta y se sincronizan entre el Mac y el iPhone. GitHub Pages sigue funcionando igual, con los datos en cada navegador.
+
+### Cambiado
+- **Rúbricas importadas:** cada una se guarda en su propio documento en lugar de ir todas dentro del perfil del profesor. En Claude cada documento admite 256 KB, así que dentro del perfil cabían unas 20 rúbricas; ahora no hay límite práctico.
+- **Conversión automática:** las rúbricas guardadas con la versión anterior y las de las copias de seguridad antiguas se convierten solas.
+
 ## 2026-10-14 · Fondo con más vida en el PC ([#5](https://github.com/Sourenics/Rubrica-sin-actividades/pull/5))
 
 ### Cambiado

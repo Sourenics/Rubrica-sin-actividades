@@ -453,7 +453,7 @@ function applyTheme(t){
   const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=getComputedStyle(r).getPropertyValue("--surface").trim()||"#FFFFFF";
 }
 const plural=(n,one,many)=>n+" "+(n===1?one:many);
-const S={mode:"loading",theme:lsGet("rc.theme","auto"),groups:{},units:{},gid:lsGet("rc.gid",null),uid:lsGet("rc.unit",null),tab:lsGet("rc.tab","hoy"),
+const S={mode:"loading",rubrics:{},theme:lsGet("rc.theme","auto"),groups:{},units:{},gid:lsGet("rc.gid",null),uid:lsGet("rc.unit",null),tab:lsGet("rc.tab","hoy"),
   date:todayISO(),idoDec:lsGet("rc.idoDec","comma"),evalSid:null,imp:null,confirm:null,fallbackShown:false};
 let store=null, unsubUnits=null, unitsFor=null;
 
@@ -478,23 +478,33 @@ function dbStore(db,userId){
   const q=makeQueue((path,data)=>db.doc(base+"/"+path).set(data));
   return {
     kind:"db",q,
-    onGroups(cb){return db.collection(base).onSnapshot(s=>{const o={};let pr=null;s.docs.forEach(d=>{const v=d.data();if(v&&v.kind==="group")o[d.id]=clone(v);else if(v&&v.kind==="profile"&&d.id==="profile")pr=clone(v)});cb(o,pr)},e=>{console.warn(e);toast("Se ha perdido la conexión con tus datos. Recarga la página.")})},
+    onGroups(cb){return db.collection(base).onSnapshot(s=>{const o={},rb={};let pr=null;s.docs.forEach(d=>{const v=d.data();if(v&&v.kind==="group")o[d.id]=clone(v);else if(v&&v.kind==="profile"&&d.id==="profile")pr=clone(v);else if(v&&v.kind==="rubric"&&d.id.startsWith(RUB_PREFIX))rb[d.id.slice(RUB_PREFIX.length)]=clone(v)});cb(o,pr,rb)},e=>{console.warn(e);toast("Se ha perdido la conexión con tus datos. Recarga la página.")})},
     onUnits(gid,cb){return db.collection(base+"/"+gid+"/units").onSnapshot(s=>{const o={};s.docs.forEach(d=>{const v=d.data();if(v)o[d.id]=clone(v)});cb(o)},e=>console.warn(e))},
     put(path,data){q.schedule(path,data)},
     async getUnits(gid){const s=await db.collection(base+"/"+gid+"/units").get();const o={};s.docs.forEach(d=>{const v=d.data();if(v)o[d.id]=clone(v)});return o},
     async del(path){q.cancel(path);try{await db.doc(base+"/"+path).delete()}catch(e){toast("No se ha podido borrar.")}}
   };
 }
+// imported rubrics live in their own documents ("rubric-<id>") next to the groups; a single
+// profile document would hit the 256 KB per-document limit of Claude's store after ~20 rubrics
+const RUB_PREFIX="rubric-";
+function saveRubric(id,rb){S.rubrics[id]={...rb,id,kind:"rubric"};store.put(RUB_PREFIX+id,S.rubrics[id])}
+// rubrics saved by the first version sat inside the profile: move them out once
+function migrateRubrics(){
+  const old=S.profile&&S.profile.rubrics;if(!old)return;
+  Object.entries(old).forEach(([id,rb])=>{if(!S.rubrics[id])saveRubric(id,rb)});
+  const p={...S.profile};delete p.rubrics;S.profile=p;store.put("profile",p);
+}
 function localStore(){
   const KEY="rc.localdata";let data=lsGet(KEY,{groups:{},units:{}});let gcb=null;const ucbs={};
   const save=()=>lsSet(KEY,data);
-  const q=makeQueue((path,doc)=>{const p=path.split("/");if(path==="profile"){data.profile=clone(doc)}else if(p.length===1){data.groups[p[0]]=clone(doc)}else{(data.units[p[0]]=data.units[p[0]]||{})[p[2]]=clone(doc)}save()});
+  const q=makeQueue((path,doc)=>{const p=path.split("/");if(path==="profile"){data.profile=clone(doc)}else if(path.startsWith(RUB_PREFIX)){(data.rubrics=data.rubrics||{})[path.slice(RUB_PREFIX.length)]=clone(doc)}else if(p.length===1){data.groups[p[0]]=clone(doc)}else{(data.units[p[0]]=data.units[p[0]]||{})[p[2]]=clone(doc)}save()});
   return {kind:"local",q,
-    onGroups(cb){gcb=cb;cb(clone(data.groups),data.profile?clone(data.profile):null);return()=>{gcb=null}},
+    onGroups(cb){gcb=cb;cb(clone(data.groups),data.profile?clone(data.profile):null,clone(data.rubrics||{}));return()=>{gcb=null}},
     onUnits(gid,cb){ucbs[gid]=cb;cb(clone(data.units[gid]||{}));return()=>{delete ucbs[gid]}},
     put(path,doc){q.schedule(path,doc)},
     async getUnits(gid){return clone(data.units[gid]||{})},
-    async del(path){q.cancel(path);const p=path.split("/");if(p.length===1){delete data.groups[p[0]];delete data.units[p[0]]}else if(data.units[p[0]])delete data.units[p[0]][p[2]];save()}
+    async del(path){q.cancel(path);const p=path.split("/");if(path.startsWith(RUB_PREFIX)){if(data.rubrics)delete data.rubrics[path.slice(RUB_PREFIX.length)]}else if(p.length===1){delete data.groups[p[0]];delete data.units[p[0]]}else if(data.units[p[0]])delete data.units[p[0]][p[2]];save()}
   };
 }
 async function init(){
@@ -507,8 +517,11 @@ async function init(){
     if(db&&user){try{id=await user.id()}catch(e){}}
   }
   if(db&&id){store=dbStore(db,id);S.mode="db"}else{store=localStore();S.mode="local"}
-  store.onGroups((g,pr)=>{
+  store.onGroups((g,pr,rb)=>{
     if(!store.q.isDirty("profile"))S.profile=pr||null;
+    const lib={};Object.entries(rb||{}).forEach(([id,r])=>{lib[id]=store.q.isDirty(RUB_PREFIX+id)&&S.rubrics[id]?S.rubrics[id]:r});
+    Object.keys(S.rubrics).forEach(id=>{if(store.q.isDirty(RUB_PREFIX+id)&&!lib[id])lib[id]=S.rubrics[id]});
+    S.rubrics=lib;migrateRubrics();
     const merged={};
     Object.keys(g).forEach(k=>{merged[k]=store.q.isDirty(k)&&S.groups[k]?S.groups[k]:g[k]});
     Object.keys(S.groups).forEach(k=>{if(store.q.isDirty(k)&&!merged[k])merged[k]=S.groups[k]});
@@ -610,7 +623,7 @@ function createGroup(name,studs){
 }
 function createUnit(name,rid){
   if(!S.gid)return;const id=newId("u");const order=Math.max(0,...sortedUnits().map(u=>u.order||0))+1;
-  const rb=rid&&rid!=="default"?(prof().rubrics||{})[rid]:null;
+  const rb=rid&&rid!=="default"?S.rubrics[rid]:null;
   S.units[id]={name,order,ficha:false,vol:false,volMax:1,scores:{},att:{},...(rb?{rubric:clone(rb)}:{})};saveUnit(id);S.uid=id;lsSet("rc.unit",id);
 }
 
@@ -811,7 +824,7 @@ function browserSave(filename,data){
 }
 async function makeBackup(){
   store.q.flushAll();
-  const out={app:"rubrica-cuaderno",version:1,exportedAt:new Date().toISOString(),groups:{},profile:S.profile?clone(S.profile):null};
+  const out={app:"rubrica-cuaderno",version:1,exportedAt:new Date().toISOString(),groups:{},profile:S.profile?clone(S.profile):null,rubrics:clone(S.rubrics)};
   for(const g of sortedGroups()){const {id,...doc}=g;
     let units=g.id===S.gid?clone(S.units):null;
     if(!units){try{units=await store.getUnits(g.id)}catch(e){throw new Error("units")}}
@@ -844,6 +857,8 @@ function applyRestore(){
     Object.entries(units||{}).forEach(([uid,u])=>store.put(gid+"/units/"+uid,u));
   });
   if(r.data.profile&&typeof r.data.profile==="object"){S.profile={...r.data.profile,kind:"profile"};store.put("profile",S.profile)}
+  if(r.data.rubrics&&typeof r.data.rubrics==="object")Object.entries(r.data.rubrics).forEach(([id,rb])=>{if(rb&&rb.crit)saveRubric(id,rb)});
+  migrateRubrics();
   if(!S.gid||!S.groups[S.gid])S.gid=Object.keys(r.data.groups)[0];
   lsSet("rc.gid",S.gid);
   unitsFor=null;S.uid=null;subscribeUnits();
@@ -1246,7 +1261,7 @@ function viewAjustes(){
    <button class="btn ${conf("dg")?"confirm":"ghost danger"}" data-a="delgroup">${conf("dg")?"Sí, borrar el grupo":"Borrar grupo"}</button></div></div>`;
   return h;
 }
-function rubricLib(){return Object.entries(prof().rubrics||{}).map(([id,r])=>({...r,id})).sort((a,b)=>a.name.localeCompare(b.name,"es"))}
+function rubricLib(){return Object.entries(S.rubrics).map(([id,r])=>({...r,id})).sort((a,b)=>a.name.localeCompare(b.name,"es"))}
 function rubricOptions(sel){
   return `<option value="default" ${!sel||sel==="default"?"selected":""}>${esc(DEFAULT_RUBRIC.name)} (predeterminada)</option>`+
     rubricLib().map(r=>`<option value="${r.id}" ${sel===r.id?"selected":""}>${esc(r.name)}</option>`).join("");
@@ -1254,7 +1269,7 @@ function rubricOptions(sel){
 function unitRubricRow(x){
   const rb=rubricOf(x);
   if(hasScores(x))return `<span class="muted">Rúbrica:</span> <b>${esc(rb.name)}</b> <span class="muted">· no se cambia porque ya tiene notas</span>`;
-  const inLib=!x.rubric||(prof().rubrics||{})[x.rubric.id];
+  const inLib=!x.rubric||S.rubrics[x.rubric.id];
   return `<label class="row" style="flex:1 1 auto;min-width:0"><span class="muted">Rúbrica</span><select data-f="urub" data-u="${x.id}" style="flex:1 1 160px;width:auto">${inLib?"":`<option value="__keep" selected>${esc(rb.name)}</option>`}${rubricOptions(inLib?(x.rubric?x.rubric.id:"default"):"__none")}</select></label>`;
 }
 function viewRubrics(){
@@ -1377,12 +1392,12 @@ document.addEventListener("click",e=>{
      createGroup("Grupo de ejemplo",names.map(([n,a])=>({id:newId("s"),nombre:n,apellidos:a})));S.tab="hoy";lsSet("rc.tab","hoy");toast("Grupo de ejemplo creado");break}
    case "newunit":{const n=$("#newU").value.trim()||("Unidad "+(sortedUnits().length+1));createUnit(n,S.newRub);toast("Unidad añadida");break}
    case "rubtpl":downloadRubric(DEFAULT_RUBRIC,"Plantilla de rúbrica");return;
-   case "rubdl":{const rb=(prof().rubrics||{})[b.dataset.r];if(rb)downloadRubric(rb,"Rúbrica "+rb.name);return}
-   case "rubdel":{const id=b.dataset.r;if(S.confirm!=="rd"+id){S.confirm="rd"+id;break}S.confirm=null;const lib={...(prof().rubrics||{})};delete lib[id];setProf({rubrics:lib});if(S.newRub===id)S.newRub="default";toast("Rúbrica borrada");break}
+   case "rubdl":{const rb=S.rubrics[b.dataset.r];if(rb)downloadRubric(rb,"Rúbrica "+rb.name);return}
+   case "rubdel":{const id=b.dataset.r;if(S.confirm!=="rd"+id){S.confirm="rd"+id;break}S.confirm=null;delete S.rubrics[id];store.del(RUB_PREFIX+id);if(S.newRub===id)S.newRub="default";toast("Rúbrica borrada");break}
    case "rimpcancel":S.rimp=null;S.rimpErr=null;break;
    case "rimpsave":{const r=S.rimp;if(!r)break;const id=newId("r");
      const Rb={...r.Rb,id,name:(r.name||"").trim()||"Rúbrica importada",crit:r.Rb.crit.map((c,i)=>({...c,auto:i===r.auto}))};
-     setProf({rubrics:{...(prof().rubrics||{}),[id]:Rb}});S.rimp=null;S.newRub=id;toast("Rúbrica guardada: ya puedes elegirla al crear una unidad");break}
+     saveRubric(id,Rb);S.rimp=null;S.newRub=id;toast("Rúbrica guardada: ya puedes elegirla al crear una unidad");break}
    case "newunit-quick":createUnit("Unidad 1");break;
    case "delunit":{const id=b.dataset.u;if(S.confirm!=="du"+id){S.confirm="du"+id;break}S.confirm=null;store.del(S.gid+"/units/"+id);delete S.units[id];if(S.uid===id){const us=sortedUnits();S.uid=us.length?us[us.length-1].id:null}toast("Unidad borrada");break}
    case "delgroup":{if(S.confirm!=="dg"){S.confirm="dg";break}S.confirm=null;const gid=S.gid;Object.keys(S.units).forEach(id=>store.del(gid+"/units/"+id));store.del(gid);delete S.groups[gid];S.gid=sortedGroups()[0]?.id||null;S.uid=null;unitsFor=null;subscribeUnits();toast("Grupo borrado");break}
@@ -1425,7 +1440,7 @@ document.addEventListener("change",async e=>{
   if(S.imp&&["impMode","impNom","impApe","impFull"].includes(t.id)){const k={impMode:"mode",impNom:"nom",impApe:"ape",impFull:"full"}[t.id];S.imp[k]=t.id==="impMode"?t.value:Number(t.value);render();return}
   const f=t.dataset&&t.dataset.f;if(f){const u=S.units[t.dataset.u];if(!u)return;
     if(f==="uname"){u.name=t.value.trim()||u.name}
-    else if(f==="urub"){if(t.value==="__keep"||hasScores(u))return;const rb=(prof().rubrics||{})[t.value];if(rb)u.rubric=clone(rb);else delete u.rubric}
+    else if(f==="urub"){if(t.value==="__keep"||hasScores(u))return;const rb=S.rubrics[t.value];if(rb)u.rubric=clone(rb);else delete u.rubric}
     else if(f==="uficha")u.ficha=t.checked;else if(f==="uvol")u.vol=t.checked;else if(f==="uvolmax")u.volMax=Number(t.value);
     store.put(S.gid+"/units/"+t.dataset.u,u);render()}
 });
