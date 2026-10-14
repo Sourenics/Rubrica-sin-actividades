@@ -110,7 +110,10 @@ El grupo aparece con el nombre que tiene en la app. Para que salga «3º C», el
 - **En GitHub Pages (sourenics.github.io) o abriendo `index.html` directamente:** los datos se guardan solo en ese navegador y en ese dispositivo (`localStorage`). La app muestra un aviso en este modo.
   - El PC y el iPhone **no comparten datos**: cada uno tiene los suyos.
   - Si se borran los datos del navegador, se pierden.
-- **Dentro de Claude (publicada como artifact):** los datos se guardan en tu cuenta, son privados y se ven desde cualquier dispositivo con la misma cuenta. La app usa las capacidades `db`, `user` y `downloads`.
+- **Dentro de Claude (publicada como artifact):** los datos se guardan en tu cuenta de Claude, son privados (ni siquiera los ve quien comparta el enlace) y **se sincronizan entre dispositivos**: lo que haces en el Mac aparece en el iPhone si abres la app con la misma cuenta. Es la opción recomendada si usas la app en más de un dispositivo.
+  - Se abre desde el enlace privado del artifact, en el navegador o en la app de Claude, con la sesión iniciada.
+  - Usarla no gasta cuota de Claude: la app no le hace preguntas al modelo, solo guarda datos.
+  - Cada grupo, unidad y rúbrica importada es un documento propio. El límite es de 25 000 documentos por artifact y 256 KB por documento.
 
 En los dos casos conviene descargar de vez en cuando una **copia de seguridad** (*Ajustes → Copia de seguridad*). Es un archivo JSON con todos los grupos, unidades, notas, asistencia, observaciones, datos del profesor y rúbricas importadas.
 
@@ -118,7 +121,16 @@ Para **pasar los datos de un dispositivo a otro**:
 1. En el primero, descarga la copia de seguridad.
 2. En el segundo, cárgala con «Cargar copia».
 
-Los grupos de la copia sustituyen a los mismos grupos si ya existen; el resto no se toca.
+Los grupos de la copia sustituyen a los mismos grupos si ya existen; el resto no se toca. Así se pasan también los datos de GitHub Pages a la versión de Claude.
+
+## Versión en Claude
+
+El mismo `index.html` se publica como artifact de Claude, sin la cabecera del documento (`<!doctype>`, `<head>`), que la pone Claude, y con las capacidades `db`, `user` y `downloads`. La app detecta dónde se está ejecutando:
+
+- **Dentro de Claude:** guarda en la base de datos privada de la cuenta (`data/users/<id>/…`) y descarga los archivos con la confirmación de Claude.
+- **Fuera de Claude:** guarda en el navegador.
+
+El artifact no se actualiza solo con GitHub: después de cada cambio en `main` hay que volver a publicarlo en el mismo enlace.
 
 ## Dispositivos
 
