@@ -4,7 +4,7 @@
 - **Idioma:** todo en castellano: textos de la app, commits, PR, README y CHANGELOG.
 - **Rama:** se trabaja en `dev`, partiendo siempre del último `main`. Los cambios llegan a `main` por PR, y la fusión la hace el propietario.
 - **Documentación:** cada cambio actualiza el `README.md` y el `CHANGELOG.md`, con una entrada por fusión: fecha, título, enlace a la PR y apartados «Añadido / Cambiado / Corregido».
-- **Pruebas:** antes de subir cambios, se prueban en el navegador con el grupo de ejemplo, en móvil y en PC, en modo claro y oscuro.
+- **Pruebas:** antes de subir cambios, se prueban en el navegador con el grupo de ejemplo, en móvil y en PC, en modo claro y oscuro. El móvil de referencia es un iPhone 16 Pro Max (440 px de ancho), y el PC, un MacBook con Safari.
 
 ## Dos versiones de la misma app, siempre a la par
 - **GitHub Pages:** publica `main` tal cual. Los datos se guardan en cada navegador.
