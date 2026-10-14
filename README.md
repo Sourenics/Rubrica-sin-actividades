@@ -22,7 +22,7 @@ Toda la app está en un único archivo, `index.html`. No hay que instalar nada n
   - la exportación a iDoceo y a Excel.
 - **Ajustes:**
   - grupos: crear y renombrar. También se crean desde el selector de grupo de arriba, con «＋ Nuevo grupo…»;
-  - alumnado de cada grupo: importar la lista desde iDoceo, pegarla o añadir alumnos a mano;
+  - alumnado de cada grupo: importar la lista desde iDoceo, pegarla o añadir alumnos a mano. Los que se añaden después se colocan por orden alfabético de apellidos, y «Ordenar por apellidos» ordena una lista que no lo esté;
   - unidades: cada una con su rúbrica (la predeterminada o una importada), con o sin ficha de repaso y actividades voluntarias;
   - rúbricas: importar rúbricas desde Excel y descargar la plantilla;
   - copia de seguridad;
@@ -102,7 +102,7 @@ El grupo aparece con el nombre que tiene en la app. Para que salga «3º C», el
 
 ## Trabajar con iDoceo (en el Mac)
 
-1. **Importar la lista:** en iDoceo, exporta el cuaderno de la clase en CSV y súbelo en *Ajustes → Alumnado*. Se toman los nombres en el mismo orden; las notas del archivo no se importan. Si usas la app en el iPhone, pásate antes el archivo por AirDrop o iCloud Drive.
+1. **Importar la lista:** en iDoceo, exporta el cuaderno de la clase en CSV y súbelo en *Ajustes → Alumnado*. Se toman los nombres en el mismo orden; las notas del archivo no se importan. Los alumnos que añadas después se colocan en su sitio por apellido. Si usas la app en el iPhone, pásate antes el archivo por AirDrop o iCloud Drive.
 2. **Pasar la nota:** en *Notas → Pasar la nota a iDoceo*, descarga el CSV o el Excel. Los nombres van en la primera columna, escritos igual que en tu clase, y la nota en una columna nueva. Luego impórtalo en esa clase de iDoceo, en el Mac. Solo se emparejan los nombres idénticos.
 3. **Rúbricas incompletas:** se puede elegir si esos alumnos salen con la nota en blanco o con la nota provisional.
 
