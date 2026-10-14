@@ -2,6 +2,12 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
+## 2026-10-14 · Desplegables que no se cierran solos
+
+### Corregido
+- **Lista de alumnos:** al pulsar «Quitar», el desplegable «Ver y editar la lista» se cerraba y había que volver a abrirlo. Ahora sigue abierto mientras confirmas y después de quitar al alumno.
+- **Otros desplegables:** tampoco se cierran al tocar otro botón de la misma pantalla. Son «O pega la lista», «Cómo importarlo en iDoceo» y las fichas de asistencia de cada alumno en «Notas», que antes se cerraban, por ejemplo, al ordenar por faltas.
+
 ## 2026-10-14 · Icono de la app ([#10](https://github.com/Sourenics/Rubrica-sin-actividades/pull/10))
 
 ### Añadido
