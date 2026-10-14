@@ -109,6 +109,8 @@ main{padding:16px 16px 96px;max-width:760px;margin:0 auto;display:flex;flex-dire
 .banner{background:var(--l2b);color:var(--l2f);border-radius:12px;padding:10px 12px 10px 40px;font-size:.88rem;position:relative}
 .banner::before{content:"!";position:absolute;left:12px;top:10px;width:20px;height:20px;border-radius:50%;background:var(--l2f);color:var(--l2b);font-weight:700;font-size:.8rem;display:grid;place-items:center;line-height:1}
 .card .banner{padding-left:12px}.card .banner::before{display:none}
+.card .banner.alert{padding-left:40px;background:var(--l0b);color:var(--l0f)}.card .banner.alert::before{display:grid;background:var(--l0f);color:var(--l0b)}
+.danger-zone .sep{border-top:1px solid var(--line);padding-top:12px}
 .empty{text-align:center;padding:28px 16px;display:flex;flex-direction:column;gap:12px;align-items:center}
 .empty h2{font-size:1.25rem}
 .list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
@@ -633,6 +635,49 @@ function createUnit(name,rid){
   if(!S.gid)return;const id=newId("u");const order=Math.max(0,...sortedUnits().map(u=>u.order||0))+1;
   const rb=rid&&rid!=="default"?S.rubrics[rid]:null;
   S.units[id]={name,order,ficha:false,vol:false,volMax:1,scores:{},att:{},...(rb?{rubric:clone(rb)}:{})};saveUnit(id);S.uid=id;lsSet("rc.unit",id);
+}
+
+// ---------- test evaluation: random attendance, marks and observations for the whole group ----------
+const TEST_DAYS=10; // school days of attendance per unit
+const TEST_OBS={
+ es:{good:["Cuaderno muy completo y bien organizado.","Buen trabajo: las anotaciones de clase son muy completas.","Ha mejorado mucho respecto a la unidad anterior."],
+     poor:["Le falta copiar los esquemas de las dos últimas sesiones.","Debe cuidar la letra y la limpieza del cuaderno.","Se distrae con frecuencia durante la explicación."]},
+ va:{good:["Quadern molt complet i ben organitzat.","Bon treball: les anotacions de classe són molt completes.","Ha millorat molt respecte a la unitat anterior."],
+     poor:["Li falta copiar els esquemes de les dues últimes sessions.","Ha de cuidar la lletra i la netedat del quadern.","Es distrau amb freqüència durant l'explicació."]}};
+function testFill(){
+  const g=G(),st=students();if(!g||!st.length)return 0;
+  if(!sortedUnits().length)createUnit("Unidad 1");
+  const us=sortedUnits(),rnd=Math.random,pick=a=>a[Math.floor(rnd()*a.length)];
+  const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  // Monday to Friday going back from today; the last unit gets the most recent days
+  const days=[],d=new Date();d.setHours(12,0,0,0);
+  while(days.length<us.length*TEST_DAYS){const w=d.getDay();if(w>0&&w<6)days.push(iso(d));d.setDate(d.getDate()-1)}
+  // each student keeps the same profile in every unit, so the results go from good to poor
+  const pr=Object.fromEntries(st.map(s=>[s.id,{att:0.35+rnd()*0.65,skill:rnd()}]));
+  // one student left without marks and another one half evaluated, to see provisional grades
+  const order=[...st].sort(()=>rnd()-0.5),none=st.length>3?order[0].id:null,half=st.length>3?order[1].id:null;
+  const L=g.lang==="va"?"va":"es";
+  us.forEach((x,i)=>{
+    const u=S.units[x.id],cl=critList(u),mine=days.slice((us.length-1-i)*TEST_DAYS,(us.length-i)*TEST_DAYS);
+    u.att={};mine.forEach(dt=>{const day={};st.forEach(s=>{day[s.id]=rnd()<0.06?"abs":rnd()<pr[s.id].att?"ok":rnd()<0.5?"mid":"no"});u.att[dt]=day});
+    u.scores={};u.notes={};
+    st.forEach(s=>{if(s.id===none)return;
+      const sk=pr[s.id].skill,sc={};
+      // the daily-attention criterion is left empty so it is filled from the attendance
+      let todo=cl.filter(c=>!c.auto);
+      if(s.id===half)todo=todo.slice(0,Math.max(1,todo.length-1-Math.floor(rnd()*3)));
+      todo.forEach(c=>{
+        if(c.binary){sc[c.k]=rnd()<0.35+sk*0.6?4:0;return}
+        if(c.k==="f2"&&sc.f1===0)return;
+        const f=Math.min(1,Math.max(0,sk+(rnd()-0.5)*0.5));
+        sc[c.k]=c.lv.reduce((b,l)=>Math.abs(l.v/c.max-f)<Math.abs(b.v/c.max-f)?l:b).v});
+      if(u.vol&&rnd()<0.6)sc.vol=Math.round(rnd()*4);
+      u.scores[s.id]=sc;
+      if(rnd()<0.4)u.notes[s.id]=pick(TEST_OBS[L][sk>=0.5?"good":"poor"]);
+    });
+    saveUnit(x.id);
+  });
+  return us.length;
 }
 
 // ---------- import (iDoceo CSV/XLS/XLSX or pasted list) ----------
@@ -1267,8 +1312,16 @@ function viewAjustes(){
    <p class="small" style="margin:0">Actitud automática según el % de días atento (en la rúbrica predeterminada; en las importadas los niveles se reparten de forma proporcional). Cada día «más o menos» cuenta un ${Math.round(MID_W*100)} % de un día atento:</p>
    <div class="thr"><span class="lv4">≥ 90 % · Excelente</span><span class="lv3">≥ 75 % · Bueno</span><span class="lv2">≥ 50 % · Regular</span><span class="lv1">≥ 25 % · Deficiente</span><span class="lv0">&lt; 25 % · Nulo</span></div>
   </div>
-  <div class="card danger-zone"><div class="row"><span class="grow small">Borrar el grupo «${esc(g.name)}» con todas sus unidades y notas</span>
-   <button class="btn ${conf("dg")?"confirm":"ghost danger"}" data-a="delgroup">${conf("dg")?"Sí, borrar el grupo":"Borrar grupo"}</button></div></div>`;
+  <div class="card danger-zone">
+   <div class="row"><span class="grow small"><b>Evaluación de prueba:</b> rellena al azar la asistencia, las notas y las observaciones de «${esc(g.name)}» para probar la app.${st.length?"":" Añade antes algún alumno."}</span>
+    ${conf("tf")?"":`<button class="btn" data-a="testfill" ${st.length?"":"disabled"}>Evaluación de prueba</button>`}</div>
+   ${conf("tf")?`<div class="banner alert" role="alert"><b>Se borrarán los datos del grupo.</b> La asistencia, las notas y las observaciones de ${us.length>1?`sus ${us.length} unidades`:"su unidad"} se sustituirán por datos inventados. Los alumnos y las unidades se mantienen. No se puede deshacer: si quieres conservar los datos, descarga antes una copia de seguridad.</div>
+    <div class="row"><button class="btn confirm" data-a="testfill">Sí, rellenar al azar</button><button class="btn ghost" data-a="confirmcancel">Cancelar</button></div>`:""}
+   <div class="row sep"><span class="grow small">Borrar el grupo «${esc(g.name)}» con todas sus unidades y notas</span>
+    ${conf("dg")?"":`<button class="btn ghost danger" data-a="delgroup">Borrar grupo</button>`}</div>
+   ${conf("dg")?`<div class="banner alert" role="alert"><b>Se borrará el grupo «${esc(g.name)}».</b> ${[st.length?`Desaparecen sus ${plural(st.length,"alumno","alumnos")}`:"",us.length?`${st.length?"y":"Desaparecen"} ${us.length===1?"su unidad":`sus ${us.length} unidades`}, con la asistencia, las notas y las observaciones`:""].filter(Boolean).join(" ")}${st.length||us.length?". ":""}No se puede deshacer.</div>
+    <div class="row"><button class="btn confirm" data-a="delgroup">Sí, borrar el grupo</button><button class="btn ghost" data-a="confirmcancel">Cancelar</button></div>`:""}
+  </div>`;
   return h;
 }
 function rubricLib(){return Object.entries(S.rubrics).map(([id,r])=>({...r,id})).sort((a,b)=>a.name.localeCompare(b.name,"es"))}
@@ -1366,7 +1419,7 @@ function renderSheet(){
 // ---------- events ----------
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
-  if(a!=="delst"&&a!=="delunit"&&a!=="delgroup"&&a!=="restore"&&a!=="rubdel")S.confirm=null;
+  if(a!=="delst"&&a!=="delunit"&&a!=="delgroup"&&a!=="restore"&&a!=="rubdel"&&a!=="testfill")S.confirm=null;
   const u=U(),g=G();
   switch(a){
    case "tab":S.tab=b.dataset.tab;lsSet("rc.tab",S.tab);window.scrollTo(0,0);break;
@@ -1410,6 +1463,8 @@ document.addEventListener("click",e=>{
      saveRubric(id,Rb);S.rimp=null;S.newRub=id;toast("Rúbrica guardada: ya puedes elegirla al crear una unidad");break}
    case "newunit-quick":createUnit("Unidad 1");break;
    case "delunit":{const id=b.dataset.u;if(S.confirm!=="du"+id){S.confirm="du"+id;break}S.confirm=null;store.del(S.gid+"/units/"+id);delete S.units[id];if(S.uid===id){const us=sortedUnits();S.uid=us.length?us[us.length-1].id:null}toast("Unidad borrada");break}
+   case "testfill":{if(S.confirm!=="tf"){S.confirm="tf";break}S.confirm=null;const n=testFill();if(n)toast("Evaluación de prueba lista: "+(n===1?"1 unidad rellenada":n+" unidades rellenadas")+" al azar");break}
+   case "confirmcancel":break;
    case "delgroup":{if(S.confirm!=="dg"){S.confirm="dg";break}S.confirm=null;const gid=S.gid;Object.keys(S.units).forEach(id=>store.del(gid+"/units/"+id));store.del(gid);delete S.groups[gid];S.gid=sortedGroups()[0]?.id||null;S.uid=null;unitsFor=null;subscribeUnits();toast("Grupo borrado");break}
    case "delst":{const id=b.dataset.s;if(S.confirm!=="ds"+id){S.confirm="ds"+id;break}S.confirm=null;g.students=(g.students||[]).filter(s=>s.id!==id);saveGroup(S.gid);break}
    case "addst":{const n=$("#addNom").value.trim(),ap=$("#addApe").value.trim();if(!n&&!ap){toast("Escribe el nombre");return}const mx=Math.max(0,...(g.students||[]).map(s=>typeof s.order==="number"?s.order:0));g.students=[...(g.students||[]),{id:newId("s"),nombre:n,apellidos:ap,order:mx+1}];saveGroup(S.gid);toast("Alumno añadido");break}

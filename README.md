@@ -26,7 +26,8 @@ Toda la app está en un único archivo, `index.html`. No hay que instalar nada n
   - unidades: cada una con su rúbrica (la predeterminada o una importada), con o sin ficha de repaso y actividades voluntarias;
   - rúbricas: importar rúbricas desde Excel y descargar la plantilla;
   - copia de seguridad;
-  - tema claro u oscuro.
+  - tema claro u oscuro;
+  - evaluación de prueba: rellena al azar la asistencia, las notas y las observaciones del grupo para probar la app. Antes de hacerlo avisa de que sustituye los datos del grupo y pide confirmación, igual que «Borrar grupo».
 
 ## La rúbrica predeterminada y el cálculo de la nota
 
@@ -162,7 +163,10 @@ La app maneja nombres y notas del alumnado:
   - Los textos del PDF, en `PDFT`.
   - Los datos por defecto del profesor, en `PROFILE0`.
   - Los umbrales de la actitud automática, en `ATT_THRESHOLDS`, y lo que vale un día «más o menos», en `MID_W`.
-- **Probarla:** basta con abrir `index.html` en el navegador y pulsar «Probar con un grupo de ejemplo».
+- **Probarla:** basta con abrir `index.html` en el navegador y pulsar «Probar con un grupo de ejemplo». Para tener datos con los que probar los informes y las exportaciones, usa *Ajustes → Evaluación de prueba*.
+  - Rellena 10 días lectivos de asistencia por unidad, con días distintos para cada unidad, y puntúa todos los criterios salvo la actitud, que sale de la asistencia.
+  - Deja un alumno sin puntuar y otro a medias, para ver las notas provisionales, y añade observaciones a algunos.
+  - Está en la función `testFill`.
 
 ## Historial de cambios
 
