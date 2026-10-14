@@ -2,6 +2,15 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
+## 2026-10-14 · Fondo con más vida en el PC
+
+### Cambiado
+- **Fondo:** manchas de color muy suaves detrás de la cuadrícula, en modo claro y oscuro.
+- **Pantallas anchas:**
+  - una línea de margen doble, como la de las libretas, junto al contenido;
+  - dibujos a trazo en los márgenes con motivos de Geografía e Historia: globo terráqueo, brújula, columna clásica, reloj de arena, chincheta de mapa, libro abierto, lápiz, regla, estrella y marca de verificación.
+  - Los dibujos son muy tenues y se mueven con un vaivén lento, que se desactiva si el sistema pide reducir el movimiento. En el móvil no aparecen.
+
 ## 2026-10-14 · Rúbricas propias desde Excel ([#4](https://github.com/Sourenics/Rubrica-sin-actividades/pull/4))
 
 ### Añadido
