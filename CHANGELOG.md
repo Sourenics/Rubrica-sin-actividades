@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-14 · Icono de la app
+## 2026-10-14 · Icono de la app ([#10](https://github.com/Sourenics/Rubrica-sin-actividades/pull/10))
 
 ### Añadido
 - **Icono de la app** en la carpeta `iconos`: un cuaderno con una marca de verificación sobre fondo azul, como el logotipo de la cabecera.
