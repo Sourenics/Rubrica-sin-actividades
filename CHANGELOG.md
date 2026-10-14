@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-14 · Fondo con más vida en el PC
+## 2026-10-14 · Fondo con más vida en el PC ([#5](https://github.com/Sourenics/Rubrica-sin-actividades/pull/5))
 
 ### Cambiado
 - **Fondo:** manchas de color muy suaves detrás de la cuadrícula, en modo claro y oscuro.
