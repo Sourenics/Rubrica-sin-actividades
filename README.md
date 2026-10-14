@@ -11,13 +11,13 @@ Toda la app está en un único archivo, `index.html`. No hay que instalar nada n
 
 ## Funciones
 
-- **Hoy:** cada día se marca a cada alumno como «Atiende», «No» (no atiende) o «Falta». Un botón marca como «atiende» a todos los que queden sin marcar.
+- **Hoy:** cada día se marca a cada alumno como «Atiende», «Más o menos» (atiende a ratos), «No» (no atiende) o «Falta». Un botón marca como «atiende» a todos los que queden sin marcar.
 - **Evaluar:** ficha por alumno con los criterios de la rúbrica de la unidad.
   - Al tocar un nivel se ve su descripción.
   - La ficha también tiene un campo de observaciones para el informe.
   - El criterio de atención diaria (en la rúbrica predeterminada, la actitud) se rellena solo a partir de la atención registrada en «Hoy», mientras no se le ponga un valor a mano.
 - **Notas:** tabla de la unidad con cada criterio coloreado por nivel, la nota final y las faltas. Incluye:
-  - un resumen de asistencia del grupo, con las fechas de las faltas;
+  - un resumen de asistencia del grupo, con las fechas de las faltas, de los días «más o menos» y de los días sin atender;
   - los informes en PDF;
   - la exportación a iDoceo y a Excel.
 - **Ajustes:**
@@ -47,7 +47,7 @@ Es la rúbrica del cuaderno que trae la app y la que se usa si no eliges otra.
 - **Nota provisional:** si faltan criterios por puntuar, la nota se calcula solo con los ya evaluados y se marca como provisional.
 - **Ficha de repaso** (opcional por unidad): se añaden «Entrega de la ficha» (5 %) y «Actividades de la ficha» (15 %), y los 8 criterios pasan al 80 % de su peso. Si no se entrega la ficha, sus actividades cuentan 0.
 - **Actividades voluntarias** (opcional por unidad): suman hasta +0,5 o +1 punto extra. La nota nunca pasa de 10.
-- **Actitud automática:** se calcula según el porcentaje de días que el alumno atiende, contando solo los días registrados. Las faltas no cuentan.
+- **Actitud automática:** se calcula según el porcentaje de días que el alumno atiende, contando solo los días registrados. Un día «más o menos» cuenta como el 35 % de un día atento, y las faltas no cuentan. Por ejemplo, con un día «atiende» y otro «más o menos», el porcentaje es (1 + 0,35) / 2 = 67,5 %, es decir, Regular (2).
 
   | Días atento | Nivel |
   |---|---|
@@ -161,7 +161,7 @@ La app maneja nombres y notas del alumnado:
   - La versión en valenciano, en `VA` y `LEVELS_VA`.
   - Los textos del PDF, en `PDFT`.
   - Los datos por defecto del profesor, en `PROFILE0`.
-  - Los umbrales de la actitud automática, en `ATT_THRESHOLDS`.
+  - Los umbrales de la actitud automática, en `ATT_THRESHOLDS`, y lo que vale un día «más o menos», en `MID_W`.
 - **Probarla:** basta con abrir `index.html` en el navegador y pulsar «Probar con un grupo de ejemplo».
 
 ## Historial de cambios

@@ -127,6 +127,9 @@ button.item{transition:background .15s}button.item:hover{background:var(--paper)
 .seg button[aria-pressed="true"]{box-shadow:0 1px 3px rgba(22,32,58,.12)}
 .seg button[aria-pressed="true"].ok{background:var(--l4b);color:var(--l4f)}
 .seg button[aria-pressed="true"].no{background:var(--l0b);color:var(--l0f)}
+.seg button[aria-pressed="true"].mid{background:var(--l2b);color:var(--l2f)}
+.item.att .seg{grid-template-columns:repeat(4,auto)}
+.item.att .seg button{line-height:1.15}
 .seg button[aria-pressed="true"].abs{background:var(--surface);color:var(--ink)}
 .pill{font-family:var(--f-display);font-weight:700;font-variant-numeric:tabular-nums;border-radius:999px;padding:4px 11px;font-size:.95rem;flex:0 0 auto;min-width:3.4em;text-align:center}
 .lv4{background:var(--l4b);color:var(--l4f)} .lv3{background:var(--l3b);color:var(--l3f)} .lv2{background:var(--l2b);color:var(--l2f)}
@@ -140,7 +143,7 @@ button.item{transition:background .15s}button.item:hover{background:var(--paper)
 .tog[aria-pressed="true"] .sw{background:var(--pen)}
 .tog[aria-pressed="true"] .sw::after{transform:translateX(16px)}
 .tog span.t{font-size:.88rem;line-height:1.2;min-width:0}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .stats div{border-radius:12px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;line-height:1.1}
 .stats b{font-family:var(--f-display);font-size:1.45rem;font-variant-numeric:tabular-nums}
 .stats span{font-size:.72rem;margin-top:2px}
@@ -148,7 +151,7 @@ button.item{transition:background .15s}button.item:hover{background:var(--paper)
 .dlabel{font-family:var(--f-display);font-weight:700;font-size:1.05rem;color:var(--ink);display:block;margin-bottom:4px}
 .dlabel::first-letter{text-transform:uppercase}
 /* narrow phones: attendance buttons go under the name, full width, so names stay on one line */
-@media (max-width:440px){.item.att{flex-wrap:wrap;row-gap:8px}.item.att .nm{flex:1 1 0}.item.att .seg{flex:1 1 100%;grid-template-columns:repeat(3,1fr)}.item.att .seg button{padding:9px 6px}}
+@media (max-width:440px){.item.att{flex-wrap:wrap;row-gap:8px}.item.att .nm{flex:1 1 0}.item.att .seg{flex:1 1 100%;grid-template-columns:repeat(4,auto)}.item.att .seg button{padding:9px 6px}}
 /* evaluation sheet */
 .sheet{position:fixed;inset:0;z-index:10;background:var(--paper);display:flex;flex-direction:column}
 .sheet.anim{animation:up .22s ease-out}
@@ -221,7 +224,7 @@ details > summary{cursor:pointer;color:var(--pen);font-weight:700}
 .empty .logo{width:56px;height:56px;border-radius:16px}.empty .logo svg{width:30px;height:30px}
 .iconbtn svg{width:20px;height:20px}
 @media (max-width:380px){.seg button{padding:8px 7px}.lvls button span{font-size:.6rem}}
-@media (max-width:360px){.stats b{font-size:1.2rem}.av{display:none}}
+@media (max-width:360px){.stats b{font-size:1.2rem}.stats div{padding:8px 2px}.stats span{font-size:.62rem}.av{display:none}}
 /* drawn by hand: Safari on iPhone paints native checkboxes solid black in dark mode */
 input[type=checkbox]{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin:0;flex:0 0 auto;border:2px solid var(--muted);border-radius:6px;background:var(--surface);display:inline-grid;place-content:center;cursor:pointer;transition:background .12s,border-color .12s}
 input[type=checkbox]::before{content:"";width:11px;height:11px;background:var(--pen-ink);clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0%,43% 62%);transform:scale(0);transition:transform .12s}
@@ -416,13 +419,15 @@ const PDFT={
  es:{title:"Informe de evaluación del cuaderno",student:"Alumno/a",final:"Nota final",prov:"Nota provisional",crit:"Criterio",level:"Nivel",desc:"Descripción",
   notEval:"Sin evaluar",missing:"Nota provisional, calculada solo con los criterios ya evaluados. Falta por evaluar: ",auto:"Calculado con la atención diaria.",noFicha:"Sin ficha entregada, cuenta 0.",
   yes:"Sí",no:"No",upTo:"hasta",extra:"de nota extra",att:"Atención en clase",obs:"Observaciones",generated:"Generado el",
-  attLine:(ok,n,ab)=>(n?"Atiende en "+ok+" de "+n+(n===1?" día":" días"):"Sin registros de atención")+" · "+ab+(ab===1?" falta":" faltas")},
+  attLine:(ok,mid,n,ab)=>(n?"Atiende en "+ok+" de "+n+(n===1?" día":" días")+(mid?" ("+mid+" más o menos)":""):"Sin registros de atención")+" · "+ab+(ab===1?" falta":" faltas")},
  va:{title:"Informe d'avaluació del quadern",student:"Alumne/a",final:"Nota final",prov:"Nota provisional",crit:"Criteri",level:"Nivell",desc:"Descripció",
   notEval:"Sense avaluar",missing:"Nota provisional, calculada només amb els criteris ja avaluats. Falta per avaluar: ",auto:"Calculat amb l'atenció diària.",noFicha:"Sense fitxa lliurada, compta 0.",
   yes:"Sí",no:"No",upTo:"fins a",extra:"de nota extra",att:"Atenció a classe",obs:"Observacions",generated:"Generat el",
-  attLine:(ok,n,ab)=>(n?"Atén en "+ok+" de "+n+(n===1?" dia":" dies"):"Sense registres d'atenció")+" · "+ab+(ab===1?" falta":" faltes")}
+  attLine:(ok,mid,n,ab)=>(n?"Atén en "+ok+" de "+n+(n===1?" dia":" dies")+(mid?" ("+mid+" més o menys)":""):"Sense registres d'atenció")+" · "+ab+(ab===1?" falta":" faltes")}
 };
 const PROFILE0={kind:"profile",name:"Carlos Camacho",subj:{es:"Geografía e Historia",va:"Geografia i Història"},pdfMissing:true,pdfTeacher:true,pdfDuplex:true};
+// «Más o menos» (mid) counts as this share of an attentive day for the automatic attitude
+const MID_W=0.35;
 const ATT_THRESHOLDS=[[0.9,4],[0.75,3],[0.5,2],[0.25,1],[0,0]];
 
 // ---------- helpers ----------
@@ -573,16 +578,19 @@ function critList(u,L){
 }
 const autoKey=u=>(rubricOf(u).crit.find(c=>c.auto)||{}).k||null;
 const hasScores=u=>Object.values(u.scores||{}).some(x=>Object.values(x||{}).some(v=>v!=null));
-function attStats(u,sid){let ok=0,no=0,ab=0;Object.values(u.att||{}).forEach(day=>{const v=day&&day[sid];if(v==="ok")ok++;else if(v==="no")no++;else if(v==="abs")ab++});return{ok,no,ab}}
+// n = days with attention marked (absences apart); p = share of attention, «más o menos» weighted by MID_W
+function attStats(u,sid){let ok=0,mid=0,no=0,ab=0;Object.values(u.att||{}).forEach(day=>{const v=day&&day[sid];if(v==="ok")ok++;else if(v==="mid")mid++;else if(v==="no")no++;else if(v==="abs")ab++});
+  const n=ok+mid+no;return{ok,mid,no,ab,n,p:n?(ok+MID_W*mid)/n:null}}
 function groupAtt(sid){
-  const r={ok:0,no:0,ab:0,absDates:[],noDates:[]};
+  const r={ok:0,mid:0,no:0,ab:0,absDates:[],noDates:[],midDates:[]};
   Object.values(S.units).forEach(u=>Object.entries(u.att||{}).forEach(([d,day])=>{const v=day&&day[sid];
-    if(v==="ok")r.ok++;else if(v==="no"){r.no++;r.noDates.push(d)}else if(v==="abs"){r.ab++;r.absDates.push(d)}}));
-  r.absDates.sort();r.noDates.sort();const n=r.ok+r.no+r.ab;r.pct=n?(r.ok+r.no)/n:null;return r;
+    if(v==="ok")r.ok++;else if(v==="mid"){r.mid++;r.midDates.push(d)}else if(v==="no"){r.no++;r.noDates.push(d)}else if(v==="abs"){r.ab++;r.absDates.push(d)}}));
+  r.absDates.sort();r.noDates.sort();r.midDates.sort();const n=r.ok+r.mid+r.no+r.ab;r.pct=n?(r.ok+r.mid+r.no)/n:null;return r;
 }
+const attText=a=>a.n?`Atiende ${a.ok} de ${plural(a.n,"día","días")}${a.mid?` · ${a.mid} más o menos`:""}`:"Sin registros";
 const shortDate=d=>{const [y,m,dd]=d.split("-");return dd+"/"+m};
 // level for the criterion filled from daily attention; other scales spread the levels evenly up to 90 %
-function suggestAuto(u,sid){const a=attStats(u,sid);const n=a.ok+a.no;if(!n)return null;const p=a.ok/n;
+function suggestAuto(u,sid){const a=attStats(u,sid);if(!a.n)return null;const p=a.p;
   const vals=rubricOf(u).levels.map(l=>l.v).sort((x,y)=>x-y);
   if(vals.join()==="0,1,2,3,4"){for(const [t,l] of ATT_THRESHOLDS)if(p>=t)return l;return 0}
   for(let i=vals.length-1;i>0;i--)if(p>=0.9*i/(vals.length-1))return vals[i];return vals[0]}
@@ -779,10 +787,10 @@ function downloadRubric(Rb,fname){
 // ---------- export ----------
 function exportRows(){
   const u=U(),g=G();const cl=critList(u);
-  const head=["Alumno/a",...cl.map(c=>c.n),...(u.vol?["Actividades voluntarias (0-4)","Extra voluntarias"]:[]),"Días atento","Días sin atender","Faltas","Nota","Observaciones"];
+  const head=["Alumno/a",...cl.map(c=>c.n),...(u.vol?["Actividades voluntarias (0-4)","Extra voluntarias"]:[]),"Días atento","Días más o menos","Días sin atender","Faltas","Nota","Observaciones"];
   const rows=students().map(s=>{const gr=grade(u,s.id);const a=attStats(u,s.id);
     return [dispName(s,g),...cl.map(c=>{const v=val(u,s.id,c.k);return v==null?"":v}),
-      ...(u.vol?[raw(u,s.id,"vol")??"",Math.round(gr.bonus*100)/100]:[]),a.ok,a.no,a.ab,gr.final==null?"":Math.round(gr.final*100)/100,(u.notes||{})[s.id]||""]});
+      ...(u.vol?[raw(u,s.id,"vol")??"",Math.round(gr.bonus*100)/100]:[]),a.ok,a.mid,a.no,a.ab,gr.final==null?"":Math.round(gr.final*100)/100,(u.notes||{})[s.id]||""]});
   return [head,...rows];
 }
 function idoceoRows(withDate){
@@ -869,8 +877,8 @@ function applyRestore(){
   S.restore=null;toast("Copia restaurada");
 }
 function attendanceRows(){
-  return [["Alumno/a","Faltas","Días atento","Días sin atender","% asistencia","Fechas de las faltas","Fechas sin atender"],
-   ...students().map(s=>{const a=groupAtt(s.id);return [dispName(s),a.ab,a.ok,a.no,a.pct==null?"":Math.round(a.pct*100),a.absDates.map(shortDate).join(", "),a.noDates.map(shortDate).join(", ")]})];
+  return [["Alumno/a","Faltas","Días atento","Días más o menos","Días sin atender","% asistencia","Fechas de las faltas","Fechas más o menos","Fechas sin atender"],
+   ...students().map(s=>{const a=groupAtt(s.id);return [dispName(s),a.ab,a.ok,a.mid,a.no,a.pct==null?"":Math.round(a.pct*100),a.absDates.map(shortDate).join(", "),a.midDates.map(shortDate).join(", "),a.noDates.map(shortDate).join(", ")]})];
 }
 async function doExport(){
   const u=U(),g=G();if(!u||!g)return;const data=exportRows();
@@ -881,7 +889,7 @@ async function doExport(){
     if(browserSave(fname,new Blob([XLSX.write(wb,{type:"array",bookType:"xlsx"})]))){toast("Excel descargado");return}}catch(e){console.warn(e)}}
   if(dl&&window.XLSX){
     try{const ws=XLSX.utils.aoa_to_sheet(data);ws["!cols"]=data[0].map((h,i)=>({wch:i<1?34:12}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Notas");
-      const att=attendanceRows();const ws2=XLSX.utils.aoa_to_sheet(att);ws2["!cols"]=[{wch:34},{wch:10},{wch:12},{wch:14},{wch:12},{wch:40},{wch:40}];XLSX.utils.book_append_sheet(wb,ws2,"Asistencia");
+      const att=attendanceRows();const ws2=XLSX.utils.aoa_to_sheet(att);ws2["!cols"]=[{wch:34},{wch:10},{wch:12},{wch:16},{wch:14},{wch:12},{wch:40},{wch:40},{wch:40}];XLSX.utils.book_append_sheet(wb,ws2,"Asistencia");
       const buf=XLSX.write(wb,{type:"array",bookType:"xlsx"});
       await dl.save({filename:fname,data:new Blob([buf])});toast("Archivo guardado");return}
     catch(e){if(e&&e.code==="declined")return;console.warn(e)}
@@ -988,7 +996,7 @@ function pdfStudent(doc,u,g,s,o,K){
   y+=K.attGap;if(y+lh(9.5)>BOT)newPage();
   const a=attStats(u,s.id);
   F(9.5,"bold");const al=pdfTxt(L.att+": ");T(al,M,y);const aw=doc.getTextWidth(al);
-  F(9.5,"normal");T(L.attLine(a.ok,a.ok+a.no,a.ab),M+aw,y);y+=lh(9.5)+K.attAfter;
+  F(9.5,"normal");T(L.attLine(a.ok,a.mid,a.n,a.ab),M+aw,y);y+=lh(9.5)+K.attAfter;
   // observations: the teacher's text, or a ruled box to write by hand
   const note=((u.notes||{})[s.id]||"").trim();
   F(9.5,"normal");let ol=note?wrap(note,CW-8):[];
@@ -1085,7 +1093,7 @@ function renderNav(){
 }
 function viewHoy(){
   const u=U(),st=students();const day=(u.att||{})[S.date]||{};
-  let ok=0,no=0,ab=0;st.forEach(s=>{const v=day[s.id];if(v==="ok")ok++;else if(v==="no")no++;else if(v==="abs")ab++});
+  let ok=0,mid=0,no=0,ab=0;st.forEach(s=>{const v=day[s.id];if(v==="ok")ok++;else if(v==="mid")mid++;else if(v==="no")no++;else if(v==="abs")ab++});
   const d=new Date(S.date+"T12:00:00");const label=d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
   const recorded=Object.keys(u.att||{}).length;
   return `<div class="card">
@@ -1093,14 +1101,15 @@ function viewHoy(){
     <button class="iconbtn" data-a="day" data-d="-1" aria-label="Día anterior">${ICON.left}</button>
     <input type="date" id="dateIn" value="${S.date}">
     <button class="iconbtn" data-a="day" data-d="1" aria-label="Día siguiente">${ICON.right}</button></div>
-   <div class="stats"><div class="lv4"><b>${ok}</b><span>atienden</span></div><div class="lv0"><b>${no}</b><span>no atienden</span></div><div class="lvn"><b>${ab}</b><span>faltan</span></div><div class="lvn"><b>${st.length-ok-no-ab}</b><span>sin marcar</span></div></div>
+   <div class="stats"><div class="lv4"><b>${ok}</b><span>atienden</span></div><div class="lv2"><b>${mid}</b><span>más o menos</span></div><div class="lv0"><b>${no}</b><span>no atienden</span></div><div class="lvn"><b>${ab}</b><span>faltan</span></div><div class="lvn"><b>${st.length-ok-mid-no-ab}</b><span>sin marcar</span></div></div>
    <div class="row"><button class="btn primary grow" data-a="allok" ${st.length?"":"disabled"}>Marcar sin marcar como «atiende»</button></div>
-   <p class="small muted" style="margin:0">Toca «No» en quien se distraiga (habla, se maquilla, móvil…). Las faltas no cuentan para la actitud. ${recorded} ${recorded===1?"día registrado":"días registrados"} en esta unidad.</p>
+   <p class="small muted" style="margin:0">Toca «No» en quien se distraiga (habla, se maquilla, móvil…) y «Más o menos» en quien atienda a ratos: cuenta un ${Math.round(MID_W*100)} % de un día atento. Las faltas no cuentan para la actitud. ${recorded} ${recorded===1?"día registrado":"días registrados"} en esta unidad.</p>
   </div>
   ${st.length?`<div class="list">${st.map(s=>{const v=day[s.id];const a=attStats(u,s.id);
-    return `<div class="item att">${avatar(s)}<div class="nm">${esc(dispName(s))}<div class="sub">${a.ok+a.no?`Atento ${a.ok} de ${plural(a.ok+a.no,"día","días")}`:"Sin registros"}${a.ab?` · ${a.ab} ${a.ab===1?"falta":"faltas"}`:""}</div></div>
+    return `<div class="item att">${avatar(s)}<div class="nm">${esc(dispName(s))}<div class="sub">${attText(a)}${a.ab?` · ${a.ab} ${a.ab===1?"falta":"faltas"}`:""}</div></div>
     <div class="seg" role="group" aria-label="Atención de ${esc(dispName(s))}">
      <button class="ok" data-a="att" data-s="${s.id}" data-v="ok" aria-pressed="${v==="ok"}">Atiende</button>
+     <button class="mid" data-a="att" data-s="${s.id}" data-v="mid" aria-pressed="${v==="mid"}">Más o menos</button>
      <button class="no" data-a="att" data-s="${s.id}" data-v="no" aria-pressed="${v==="no"}">No</button>
      <button class="abs" data-a="att" data-s="${s.id}" data-v="abs" aria-pressed="${v==="abs"}">Falta</button></div></div>`}).join("")}</div>`
    :`<div class="card empty"><p class="muted">Este grupo no tiene alumnos todavía.</p><button class="btn primary" data-a="goto" data-tab="ajustes">Importar lista</button></div>`}`;
@@ -1182,17 +1191,18 @@ function viewAsistencia(){
   const st=students();const g=G();if(!st.length)return "";
   const days=new Set();Object.values(S.units).forEach(u=>Object.keys(u.att||{}).forEach(d=>days.add(d)));
   let rows=st.map(s=>({s,a:groupAtt(s.id)}));
-  if(S.attSort)rows=rows.sort((x,y)=>y.a.ab-x.a.ab||y.a.no-x.a.no);
+  if(S.attSort)rows=rows.sort((x,y)=>y.a.ab-x.a.ab||y.a.no-x.a.no||y.a.mid-x.a.mid);
   const tot=rows.reduce((t,r)=>t+r.a.ab,0);
   return `<div class="card"><div class="section-t"><h2>Asistencia de ${esc(g.name)}</h2><span class="small muted">${plural(days.size,"día","días")} de clase · todas las unidades</span></div>
    <div class="row"><span class="small muted grow">${plural(tot,"falta","faltas")} en total. Toca un alumno para ver las fechas.</span>
     <button class="btn ghost small" data-a="attsort" aria-pressed="${!!S.attSort}">${S.attSort?"Orden de lista":"Más faltas primero"}</button></div>
    <div class="list">${rows.map(({s,a})=>`<details class="item" style="display:block">
      <summary style="display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;color:inherit;font-weight:inherit">
-      ${avatar(s)}<span class="nm">${esc(dispName(s))}<span class="sub" style="display:block">${a.pct==null?"Sin registros":`Asiste ${Math.round(a.pct*100)} % · sin atender ${a.no} ${a.no===1?"día":"días"}`}</span></span>
+      ${avatar(s)}<span class="nm">${esc(dispName(s))}<span class="sub" style="display:block">${a.pct==null?"Sin registros":`Asiste ${Math.round(a.pct*100)} %${a.mid?` · más o menos ${plural(a.mid,"día","días")}`:""} · sin atender ${plural(a.no,"día","días")}`}</span></span>
       <span class="pill ${a.ab===0?"lv4":a.ab<3?"lv2":"lv0"}" title="Faltas">${a.ab} ${a.ab===1?"falta":"faltas"}</span></summary>
      <div class="small" style="padding:8px 0 2px;display:grid;gap:4px">
       <span><b>Faltas:</b> ${a.absDates.length?a.absDates.map(shortDate).join(", "):"ninguna"}</span>
+      <span><b>Más o menos:</b> ${a.midDates.length?a.midDates.map(shortDate).join(", "):"ningún día"}</span>
       <span><b>Sin atender:</b> ${a.noDates.length?a.noDates.map(shortDate).join(", "):"ningún día"}</span></div></details>`).join("")}</div>
    <p class="small muted" style="margin:0">Colores: verde sin faltas, ámbar 1–2, rojo 3 o más. Los días sin marcar no cuentan.</p></div>`;
 }
@@ -1254,7 +1264,7 @@ function viewAjustes(){
   <div class="card"><h2 style="font-size:1rem">Cómo se calcula la nota</h2>
    <p class="small" style="margin:0">Cada criterio puntúa de 0 a 4 y pesa su porcentaje. Si la unidad tiene ficha de repaso, se añaden «Entrega de la ficha» (5 %) y «Actividades de la ficha» (15 %) y los 8 criterios se reducen al 80 % de su peso. Si no entrega la ficha, sus actividades cuentan 0. Las voluntarias solo suman, con la nota limitada a 10.</p>
    <p class="small" style="margin:0">Con una rúbrica importada, cada criterio puntúa sobre el nivel más alto de esa rúbrica (por ejemplo, 3 sobre 4 cuenta el 75 % de su peso).</p>
-   <p class="small" style="margin:0">Actitud automática según el % de días atento (en la rúbrica predeterminada; en las importadas los niveles se reparten de forma proporcional):</p>
+   <p class="small" style="margin:0">Actitud automática según el % de días atento (en la rúbrica predeterminada; en las importadas los niveles se reparten de forma proporcional). Cada día «más o menos» cuenta un ${Math.round(MID_W*100)} % de un día atento:</p>
    <div class="thr"><span class="lv4">≥ 90 % · Excelente</span><span class="lv3">≥ 75 % · Bueno</span><span class="lv2">≥ 50 % · Regular</span><span class="lv1">≥ 25 % · Deficiente</span><span class="lv0">&lt; 25 % · Nulo</span></div>
   </div>
   <div class="card danger-zone"><div class="row"><span class="grow small">Borrar el grupo «${esc(g.name)}» con todas sus unidades y notas</span>
@@ -1327,7 +1337,7 @@ function renderSheet(){
     const disabled=c.k==="f2"&&raw(u,s.id,"f1")===0;
     const d=v==null?null:c.d[v];
     let note="";
-    if(c.auto){const a=attStats(u,s.id);const sg=suggestAuto(u,s.id);note=`<div class="auto">Atención registrada: ${a.ok} de ${plural(a.ok+a.no,"día","días")}${a.ab?` · ${plural(a.ab,"falta","faltas")}`:""}${auto?' · <span class="tag">automático</span>':r!=null&&sg!=null?` · sugerido ${sg} <button class="btn ghost small" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${r}" style="padding:2px 8px">usar sugerido</button>`:""}</div>`}
+    if(c.auto){const a=attStats(u,s.id);const sg=suggestAuto(u,s.id);note=`<div class="auto">Atención registrada: ${attText(a).replace(/^Atiende /,"atiende ")}${a.ab?` · ${plural(a.ab,"falta","faltas")}`:""}${auto?' · <span class="tag">automático</span>':r!=null&&sg!=null?` · sugerido ${sg} <button class="btn ghost small" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${r}" style="padding:2px 8px">usar sugerido</button>`:""}</div>`}
     if(disabled)note=`<div class="auto">Sin ficha entregada, las actividades cuentan 0.</div>`;
     const btns=c.binary?[[4,"Sí","Entrega"],[0,"No","No entrega"]].map(([n,a,b])=>`<button class="lv${n}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${n}" aria-pressed="${v===n}"><b>${a}</b><span>${b}</span></button>`).join("")
       :c.lv.map(l=>`<button class="${lvOf(l.v,c.max)}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${l.v}" aria-pressed="${v===l.v}" ${disabled?"disabled":""} title="${esc(l.name)}"><b>${l.v}</b><span>${esc(l.sh||l.name)}</span></button>`).join("");
