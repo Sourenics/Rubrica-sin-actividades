@@ -216,7 +216,8 @@ td.auto-v{font-style:italic;color:var(--muted)}
 @keyframes pop{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
 .datebar{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
 .datebar .dlabel{grid-column:1/-1;text-align:center;margin:0}
-.datebar input[type=date]{height:40px;padding:0 10px;text-align:center;min-width:0}
+/* Safari on the Mac lays the date field out as a flex row and ignores text-align: centre it with justify-content */
+.datebar input[type=date]{height:40px;padding:0 10px;text-align:center;justify-content:center;min-width:0}
 /* iOS Safari gives date fields their own width and alignment: make it fill the column and centre the date */
 @supports (-webkit-touch-callout:none){.datebar input[type=date]{-webkit-appearance:none;appearance:none;display:block;line-height:38px}
  .datebar input[type=date]::-webkit-date-and-time-value{text-align:center}}
