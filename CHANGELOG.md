@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-14 · Rúbricas propias desde Excel
+## 2026-10-14 · Rúbricas propias desde Excel ([#4](https://github.com/Sourenics/Rubrica-sin-actividades/pull/4))
 
 ### Añadido
 - **Rúbricas importadas** en *Ajustes → Unidades → Rúbricas*:
