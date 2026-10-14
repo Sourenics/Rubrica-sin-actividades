@@ -199,7 +199,15 @@ details > summary{cursor:pointer;color:var(--pen);font-weight:700}
 .iconbtn svg{width:20px;height:20px}
 @media (max-width:380px){.seg button{padding:8px 7px}.lvls button span{font-size:.6rem}}
 @media (max-width:360px){.stats b{font-size:1.2rem}.av{display:none}}
-input[type=checkbox]{accent-color:var(--pen);width:18px;height:18px;margin:0;flex:0 0 auto}
+/* drawn by hand: Safari on iPhone paints native checkboxes solid black in dark mode */
+input[type=checkbox]{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin:0;flex:0 0 auto;border:2px solid var(--muted);border-radius:6px;background:var(--surface);display:inline-grid;place-content:center;cursor:pointer;transition:background .12s,border-color .12s}
+input[type=checkbox]::before{content:"";width:11px;height:11px;background:var(--pen-ink);clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0%,43% 62%);transform:scale(0);transition:transform .12s}
+input[type=checkbox]:checked{background:var(--pen);border-color:var(--pen)}
+input[type=checkbox]:checked::before{transform:scale(1)}
+.lvls button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.newunit{display:flex;flex-direction:column;gap:8px}
+.subsec{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.subsec h3{font-size:1rem}
 .check{display:flex;align-items:flex-start;gap:8px;cursor:pointer}.check input{margin-top:2px}
 .seg.opt{grid-template-columns:repeat(3,1fr);width:100%}
 .seg.opt button[aria-pressed="true"]{background:var(--pen-soft);color:var(--pen)}
@@ -366,7 +374,20 @@ const VA={
   "Realitza alguna activitat voluntària aïllada.",
   "No realitza les activitats voluntàries."]}
 };
-const tc=(c,lang)=>lang==="va"&&VA[c.k]?{...c,...VA[c.k]}:c;
+// ---------- rubrics: the built-in one, plus imported ones (each unit keeps its own copy) ----------
+// descriptors are stored by level value: {4:"…",3:"…",…}
+const dmap=a=>Array.isArray(a)?Object.fromEntries(a.map((t,i)=>[4-i,t])):a;
+const DEFAULT_RUBRIC={id:"default",name:"Rúbrica del cuaderno",
+  levels:[4,3,2,1,0].map(v=>({v,es:LEVELS[v],va:LEVELS_VA[v],sh:SHORT[v]})),
+  crit:CRIT.map(c=>({k:c.k,w:c.w,auto:c.k==="c8",es:{n:c.n,d:dmap(c.d)},va:{n:VA[c.k].n,d:dmap(VA[c.k].d)}}))};
+const rubricOf=u=>(u&&u.rubric)||DEFAULT_RUBRIC;
+const DEF_LV=L=>[4,3,2,1,0].map(v=>({v,name:L==="va"?LEVELS_VA[v]:LEVELS[v],sh:L==="va"?null:SHORT[v]}));
+// ficha de repaso and voluntarias keep the 0-4 scale whatever the rubric
+function extraCrit(c,L){const t=L==="va"&&VA[c.k]?VA[c.k]:c;
+  return {k:c.k,n:t.n,d:dmap(t.d),w:c.w||0,lv:c.binary?[{v:4,name:"Sí"},{v:0,name:"No"}]:DEF_LV(L),max:4,binary:!!c.binary}}
+const wfmt=w=>fmt(w,Math.abs(w-Math.round(w))<0.05?0:1);
+// level colour from the fraction of the top level (exact lv0-lv4 on the 0-4 scale)
+const lvOf=(v,max)=>{if(v==null)return "lvn";const f=max?v/max:0;return f>=0.95?"lv4":f>=0.7?"lv3":f>=0.45?"lv2":f>=0.2?"lv1":"lv0"};
 const PDFT={
  es:{title:"Informe de evaluación del cuaderno",student:"Alumno/a",final:"Nota final",prov:"Nota provisional",crit:"Criterio",level:"Nivel",desc:"Descripción",
   notEval:"Sin evaluar",missing:"Nota provisional, calculada solo con los criterios ya evaluados. Falta por evaluar: ",auto:"Calculado con la atención diaria.",noFicha:"Sin ficha entregada, cuenta 0.",
@@ -504,10 +525,17 @@ function dispName(st,g){g=g||G();const ap=(st.apellidos||"").trim(),no=(st.nombr
 function students(){const g=G();if(!g)return[];const l=[...(g.students||[])];
   if(l.length&&l.every(s=>typeof s.order==="number"))return l.sort((a,b)=>a.order-b.order);
   return l.sort((a,b)=>dispName(a,g).localeCompare(dispName(b,g),"es"))}
-function critList(u){
-  const f=u&&u.ficha;const out=CRIT.map(c=>({...c,w:f?c.w*0.8:c.w}));
-  if(f){out.push(F1,F2)}return out;
+// criteria of a unit in one language: {k,num,n,d,w,lv,max,auto,binary}
+function critList(u,L){
+  L=L||"es";const Rb=rubricOf(u),f=u&&u.ficha;
+  const lv=Rb.levels.map(l=>({v:l.v,name:(L==="va"?l.va:l.es)||l.es||l.va||String(l.v),sh:L==="va"?null:l.sh||null})).sort((a,b)=>b.v-a.v);
+  const max=Math.max(...Rb.levels.map(l=>l.v));
+  const out=Rb.crit.map((c,i)=>{const t=c[L]||c.es||c.va;return {k:c.k,num:i+1,n:t.n,d:t.d,w:f?c.w*0.8:c.w,lv,max,auto:!!c.auto}});
+  if(f)out.push(extraCrit(F1,L),extraCrit(F2,L));
+  return out;
 }
+const autoKey=u=>(rubricOf(u).crit.find(c=>c.auto)||{}).k||null;
+const hasScores=u=>Object.values(u.scores||{}).some(x=>Object.values(x||{}).some(v=>v!=null));
 function attStats(u,sid){let ok=0,no=0,ab=0;Object.values(u.att||{}).forEach(day=>{const v=day&&day[sid];if(v==="ok")ok++;else if(v==="no")no++;else if(v==="abs")ab++});return{ok,no,ab}}
 function groupAtt(sid){
   const r={ok:0,no:0,ab:0,absDates:[],noDates:[]};
@@ -516,17 +544,21 @@ function groupAtt(sid){
   r.absDates.sort();r.noDates.sort();const n=r.ok+r.no+r.ab;r.pct=n?(r.ok+r.no)/n:null;return r;
 }
 const shortDate=d=>{const [y,m,dd]=d.split("-");return dd+"/"+m};
-function suggest8(u,sid){const a=attStats(u,sid);const n=a.ok+a.no;if(!n)return null;const p=a.ok/n;for(const [t,l] of ATT_THRESHOLDS)if(p>=t)return l;return 0}
+// level for the criterion filled from daily attention; other scales spread the levels evenly up to 90 %
+function suggestAuto(u,sid){const a=attStats(u,sid);const n=a.ok+a.no;if(!n)return null;const p=a.ok/n;
+  const vals=rubricOf(u).levels.map(l=>l.v).sort((x,y)=>x-y);
+  if(vals.join()==="0,1,2,3,4"){for(const [t,l] of ATT_THRESHOLDS)if(p>=t)return l;return 0}
+  for(let i=vals.length-1;i>0;i--)if(p>=0.9*i/(vals.length-1))return vals[i];return vals[0]}
 function raw(u,sid,k){const s=(u.scores||{})[sid]||{};return s[k]==null?null:s[k]}
 function val(u,sid,k){
   const r=raw(u,sid,k);
-  if(k==="c8"&&r==null)return suggest8(u,sid);
+  if(r==null&&k===autoKey(u))return suggestAuto(u,sid);
   if(k==="f2"&&raw(u,sid,"f1")===0)return 0;
   return r;
 }
 function grade(u,sid){
   const cl=critList(u);let sum=0,ws=0,done=0;
-  cl.forEach(c=>{const v=val(u,sid,c.k);if(v!=null){sum+=v/4*c.w;ws+=c.w;done++}});
+  cl.forEach(c=>{const v=val(u,sid,c.k);if(v!=null){sum+=v/c.max*c.w;ws+=c.w;done++}});
   const base=ws?sum/ws*10:null;
   const vv=u.vol?raw(u,sid,"vol"):null;const bonus=vv!=null?vv/4*(u.volMax||1):0;
   const final=base==null?null:Math.min(10,base+bonus);
@@ -552,9 +584,10 @@ function createGroup(name,studs){
   S.groups[id]={kind:"group",name,order,nameFormat:"ap",students:studs||[]};saveGroup(id);
   S.gid=id;lsSet("rc.gid",id);subscribeUnits();createUnit("Unidad 1");return id;
 }
-function createUnit(name){
+function createUnit(name,rid){
   if(!S.gid)return;const id=newId("u");const order=Math.max(0,...sortedUnits().map(u=>u.order||0))+1;
-  S.units[id]={name,order,ficha:false,vol:false,volMax:1,scores:{},att:{}};saveUnit(id);S.uid=id;lsSet("rc.unit",id);
+  const rb=rid&&rid!=="default"?(prof().rubrics||{})[rid]:null;
+  S.units[id]={name,order,ficha:false,vol:false,volMax:1,scores:{},att:{},...(rb?{rubric:clone(rb)}:{})};saveUnit(id);S.uid=id;lsSet("rc.unit",id);
 }
 
 // ---------- import (iDoceo CSV/XLS/XLSX or pasted list) ----------
@@ -629,6 +662,83 @@ function applyImport(replace){
   saveGroup(S.gid);toast(plural(list.length,"alumno procesado","alumnos procesados"));S.imp=null;render();
 }
 
+// ---------- rubric import and template ----------
+// only the app's own template is accepted: sheets «Castellano» and/or «Valencià»,
+// row 1 = Criterio | Peso (%) | Atención diaria | «Nivel (n)»…, then one row per criterion
+function parseRubricSheet(rows,nm){
+  rows=rows.map(r=>(r||[]).map(c=>String(c==null?"":c).replace(/\r/g,"").trim()));
+  const head=rows[0]||[],H=head.map(norm);const err=m=>({err:"Hoja «"+nm+"»: "+m});
+  if(!/^criteri/.test(H[0]||"")||!/^pes/.test(H[1]||"")||!/^atenci/.test(H[2]||""))
+    return err("la primera fila tiene que ser «Criterio | Peso (%) | Atención diaria» y después los niveles, como en la plantilla.");
+  const lvCols=[];head.forEach((t,i)=>{if(i>2&&t)lvCols.push(i)});
+  if(lvCols.length<2)return err("hacen falta al menos dos niveles a partir de la columna D.");
+  const levels=[];
+  for(const i of lvCols){const m=head[i].match(/^([\s\S]*?)\s*\(\s*(\d+(?:[.,]\d+)?)\s*\)\s*$/);
+    if(!m||!m[1].trim())return err("el nivel «"+head[i]+"» tiene que llevar su nombre y la puntuación entre paréntesis, por ejemplo «Excelente (4)».");
+    levels.push({v:parseFloat(m[2].replace(",",".")),name:m[1].replace(/\s+/g," ").trim()})}
+  if(new Set(levels.map(l=>l.v)).size!==levels.length)return err("hay dos niveles con la misma puntuación.");
+  const crit=[];
+  for(let r=1;r<rows.length;r++){const row=rows[r]||[];const name=(row[0]||"").replace(/\s+/g," ").trim();if(!name)continue;
+    const w=row[1]?parseFloat(row[1].replace("%","").replace(",",".")):null;
+    if(row[1]&&isNaN(w))return err("el peso de «"+name+"» no es un número.");
+    crit.push({n:name,w,auto:/^(s[ií]|x)$/i.test(row[2]||""),d:Object.fromEntries(lvCols.map((i,j)=>[levels[j].v,row[i]||""]))})}
+  if(!crit.length)return err("no tiene ningún criterio.");
+  return {levels,crit};
+}
+async function readRubricFile(file){
+  if(!window.XLSX)throw new Error("noxlsx");
+  const wb=XLSX.read(await file.arrayBuffer(),{type:"array"});
+  const sheetOf=re=>wb.SheetNames.find(nm=>re.test(norm(nm)));
+  const esN=sheetOf(/castell/),vaN=sheetOf(/valenci/);
+  if(!esN&&!vaN)return {err:"Este archivo no sigue la plantilla de la app: necesita una hoja «Castellano» o «Valencià». Descarga la plantilla y parte de ella."};
+  const parse=nm=>nm?parseRubricSheet(XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1,defval:"",raw:false}),nm):null;
+  const es=parse(esN),va=parse(vaN);
+  if(es&&es.err)return es;if(va&&va.err)return va;
+  const base=es||va,baseL=es?"es":"va";
+  if(es&&va){const lv=x=>x.levels.map(l=>l.v).sort((a,b)=>a-b).join();
+    if(es.crit.length!==va.crit.length||lv(es)!==lv(va))return {err:"Las hojas «Castellano» y «Valencià» tienen que tener los mismos criterios y los mismos niveles, en el mismo orden."}}
+  const warn=[];
+  let ws=base.crit.map(c=>c.w);const eq=()=>ws.map(()=>100/ws.length);
+  if(ws.every(w=>w==null))ws=eq();
+  else if(ws.some(w=>w==null)){warn.push("Algunos criterios no tienen peso: todos pesan lo mismo.");ws=eq()}
+  else{const sum=ws.reduce((a,b)=>a+b,0);if(!sum)ws=eq();else if(Math.abs(sum-100)>0.5){warn.push("Los pesos suman "+wfmt(sum)+" %: se han ajustado a 100 %.");ws=ws.map(w=>w*100/sum)}}
+  if(base.crit.filter(c=>c.auto).length>1)warn.push("Hay más de un criterio con «Sí» en «Atención diaria»: se usa el primero.");
+  const lname=(x,v)=>x?(x.levels.find(l=>l.v===v)||{}).name:null;
+  const Rb={levels:base.levels.map(l=>({v:l.v,...(es?{es:lname(es,l.v)}:{}),...(va?{va:lname(va,l.v)}:{})})).sort((a,b)=>b.v-a.v),
+    crit:base.crit.map((c,i)=>({k:"r"+(i+1),w:ws[i],...(es?{es:{n:es.crit[i].n,d:es.crit[i].d}}:{}),...(va?{va:{n:va.crit[i].n,d:va.crit[i].d}}:{})}))};
+  const name=file.name.replace(/\.[^.]+$/,"").replace(/_+/g," ").trim()||"Rúbrica importada";
+  return {Rb,name,auto:base.crit.findIndex(c=>c.auto),warn,sheets:{es:esN||null,va:vaN||null}};
+}
+function rubricSheetRows(Rb,L){
+  const va=L==="va";const lv=[...Rb.levels].sort((a,b)=>b.v-a.v);
+  return [[va?"Criteri":"Criterio",va?"Pes (%)":"Peso (%)",va?"Atenció diària":"Atención diaria",...lv.map(l=>((va?l.va:l.es)||l.es||l.va)+" ("+l.v+")")],
+    ...Rb.crit.map(c=>{const t=c[L]||c.es||c.va;return [t.n,Math.round(c.w*100)/100,c.auto?"Sí":"",...lv.map(l=>t.d[l.v]||"")]})];
+}
+const RUB_HELP=["Plantilla de rúbrica de la app «Rúbrica del cuaderno»",
+ "",
+ "Para crear una rúbrica nueva, parte de este archivo (o pídele a Claude que lo adapte) y mantén su estructura: la app solo reconoce este formato.",
+ "",
+ "· Hojas «Castellano» y «Valencià»: los mismos criterios y niveles, en el mismo orden. Cada una se usa para los informes en su idioma. Si borras una de las dos, la otra sirve para ambos idiomas.",
+ "· Primera fila: no cambies «Criterio», «Peso (%)» ni «Atención diaria» (en valenciano, «Criteri», «Pes (%)», «Atenció diària»).",
+ "· Niveles: desde la columna D, uno por columna, con el nombre y la puntuación entre paréntesis, por ejemplo «Excelente (4)». Puedes añadir o quitar niveles (mínimo dos).",
+ "· Una fila por criterio: nombre, peso en % y una descripción por nivel.",
+ "· Atención diaria: escribe «Sí» en el criterio que se rellena solo con la atención registrada en «Hoy», como la actitud. Como mucho uno.",
+ "· Peso: si lo dejas vacío en todos los criterios, pesan lo mismo; si no suman 100, la app los ajusta. El peso y la atención diaria se toman de la hoja «Castellano».",
+ "· Nota de cada criterio: su puntuación dividida entre la del nivel más alto, multiplicada por su peso.",
+ "· Nombre de la rúbrica en la app: el del archivo (se puede cambiar al importar).",
+ "· Esta hoja de instrucciones se ignora al importar."];
+function downloadRubric(Rb,fname){
+  if(!window.XLSX){toast("No se ha podido cargar el generador de Excel");return}
+  const wb=XLSX.utils.book_new();
+  const add=(rows,nm,cols)=>{const ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=cols;XLSX.utils.book_append_sheet(wb,ws,nm)};
+  const cols=[{wch:34},{wch:9},{wch:14},...Rb.levels.map(()=>({wch:42}))];
+  const hasEs=Rb.crit.every(c=>c.es),hasVa=Rb.crit.every(c=>c.va);
+  if(hasEs||!hasVa)add(rubricSheetRows(Rb,"es"),"Castellano",cols);
+  if(hasVa)add(rubricSheetRows(Rb,"va"),"Valencià",cols);
+  add(RUB_HELP.map(t=>[t]),"Instrucciones",[{wch:120}]);
+  saveFile(fileSafe(fname)+".xlsx",new Blob([XLSX.write(wb,{type:"array",bookType:"xlsx"})]),"Excel guardado");
+}
+
 // ---------- export ----------
 function exportRows(){
   const u=U(),g=G();const cl=critList(u);
@@ -644,7 +754,7 @@ function idoceoRows(withDate){
   const blank=S.idoBlank!==false;
   const dec=S.idoDec||"comma";const num=x=>{const t=x.toFixed(2);return dec==="comma"?t.replace(".",","):t};
   const dd=S.date.split("-").reverse().join("/");
-  const head=["",withDate?col+"\n"+dd:col,...(S.idoCrit?[...cl.map((c,i)=>(i<8?(i+1)+". ":"")+c.n),...(u.vol?["Voluntarias"]:[])]:[])];
+  const head=["",withDate?col+"\n"+dd:col,...(S.idoCrit?[...cl.map(c=>(c.num?c.num+". ":"")+c.n),...(u.vol?["Voluntarias"]:[])]:[])];
   const rows=students().map(st=>{const gr=grade(u,st.id);
     const n=gr.final==null||(blank&&gr.partial)?"":num(gr.final);
     return [dispName(st,g),n,...(S.idoCrit?[...cl.map(c=>{const v=val(u,st.id,c.k);return v==null?"":String(v)}),...(u.vol?[raw(u,st.id,"vol")==null?"":String(raw(u,st.id,"vol"))]:[])]:[])]});
@@ -767,9 +877,9 @@ function pdfOpts(){
 const PDF_ROOMY={hdr:14,hdrGap:7,bh:24,gradeY:2.5,lblY:15,afterStudent:7,missPad:7,missText:3.5,missGap:7,pad:3.4,FN:10,FD:9.5,th:8,thY:2.6,attGap:7,attAfter:8,obsMin:40,obsMax:80,noteMin:24,notePad:5};
 const PDF_COMPACT={hdr:13,hdrGap:5,bh:21,gradeY:1.5,lblY:13,afterStudent:5,missPad:6,missText:3,missGap:5,pad:2.2,FN:9.5,FD:9,th:7,thY:2.2,attGap:5,attAfter:6,obsMin:16,obsMax:50,noteMin:16,notePad:4};
 function pdfStudent(doc,u,g,s,o,K){
-  const L=PDFT[o.lang],LV=o.lang==="va"?LEVELS_VA:LEVELS;
+  const L=PDFT[o.lang];
   const W=210,H=297,M=16,CW=W-2*M,BOT=H-M-8;
-  const name=dispName(s,g),gr=grade(u,s.id),cl=critList(u),date=todayISO().split("-").reverse().join("/");
+  const name=dispName(s,g),gr=grade(u,s.id),cl=critList(u,o.lang),date=todayISO().split("-").reverse().join("/");
   const lh=sz=>sz*0.3528*1.25;
   const F=(sz,st,col)=>{doc.setFont("helvetica",st||"normal");doc.setFontSize(sz);doc.setTextColor(...rgb(col||"#16203A"))};
   const T=(t,x,yy,op)=>doc.text(Array.isArray(t)?t:pdfTxt(t),x,yy,{baseline:"top",...(op||{})});
@@ -796,7 +906,7 @@ function pdfStudent(doc,u,g,s,o,K){
   y+=Math.max(4.5+nl.length*lh(17),bh-2)+K.afterStudent;
   // what is missing
   if(o.missing&&gr.partial){
-    const miss=cl.map((c,i)=>({c,i})).filter(x=>val(u,s.id,x.c.k)==null).map(x=>(x.i<8?(x.i+1)+". ":"")+tc(x.c,o.lang).n);
+    const miss=cl.filter(c=>val(u,s.id,c.k)==null).map(c=>(c.num?c.num+". ":"")+c.n);
     F(9.5,"normal","#744E00");const ml=wrap(L.missing+miss.join("; ")+".",CW-10);const mh=ml.length*lh(9.5)+K.missPad;
     doc.setFillColor(...rgb("#FBE8BE"));doc.roundedRect(M,y,CW,mh,2.5,2.5,"F");T(ml,M+5,y+K.missText);y+=mh+K.missGap;
   }
@@ -805,25 +915,25 @@ function pdfStudent(doc,u,g,s,o,K){
   const thead=()=>{doc.setFillColor(...rgb("#F5F7FB"));doc.rect(M,y,CW,K.th,"F");F(7.5,"bold","#58637F");
     T(L.crit.toUpperCase(),M+pad+1.5,y+K.thY);T(L.level.toUpperCase(),M+c1+pad,y+K.thY);T(L.desc.toUpperCase(),M+c1+c2+pad,y+K.thY);y+=K.th};
   thead();
-  const rows=cl.map((c,i)=>({c,num:i<8?i+1:0,v:val(u,s.id,c.k),r:raw(u,s.id,c.k),w:fmt(c.w,0)+" %"}));
-  if(u.vol)rows.push({c:VOL,num:0,v:raw(u,s.id,"vol"),r:raw(u,s.id,"vol"),w:L.upTo+" +"+fmt(u.volMax||1,1),vol:true});
+  const rows=cl.map(c=>({c,num:c.num||0,v:val(u,s.id,c.k),r:raw(u,s.id,c.k),w:wfmt(c.w)+" %"}));
+  if(u.vol)rows.push({c:extraCrit(VOL,o.lang),num:0,v:raw(u,s.id,"vol"),r:raw(u,s.id,"vol"),w:L.upTo+" +"+fmt(u.volMax||1,1),vol:true});
   rows.forEach(row=>{
-    const t=tc(row.c,o.lang),v=row.v;
+    const t=row.c,v=row.v;
     const nw=c1-pad*2-1.5;F(FN,"bold");const nm=wrap((row.num?row.num+". ":"")+t.n,nw);
     const lastW=doc.getTextWidth(nm[nm.length-1]);F(8,"normal");const wInline=lastW+1.5+doc.getTextWidth(pdfTxt(row.w))<=nw;
     const nh=nm.length*lh(FN)+(wInline?0:lh(8));
-    const badge=v==null?null:row.c.binary?(v===4?L.yes:L.no):v+" · "+LV[v];
+    const badge=v==null?null:row.c.binary?(v===4?L.yes:L.no):v+" · "+((row.c.lv.find(l=>l.v===v)||{}).name||"");
     const notes=[];
-    if(row.c.k==="c8"&&row.r==null&&v!=null)notes.push(L.auto);
+    if(row.c.auto&&row.r==null&&v!=null)notes.push(L.auto);
     if(row.c.k==="f2"&&raw(u,s.id,"f1")===0)notes.push(L.noFicha);
     if(row.vol&&v!=null)notes.push("+"+fmt(gr.bonus,2)+" "+L.extra);
     F(7.5,"italic");const nt=notes.length?wrap(notes.join(" "),c2-pad*2):[];
     const lvh=(badge?6:lh(9))+(nt.length?1.5+nt.length*lh(7.5):0);
-    const d=v==null?null:(row.c.binary?t.d[v]:t.d[4-v]);
+    const d=v==null?null:t.d[v];
     F(FD,"normal");const dl=wrap(d||L.notEval,c3-pad*2);
     const rh=Math.max(nh,lvh,dl.length*lh(FD))+pad*2;
     if(y+rh>BOT){newPage();thead()}
-    const [bg,fg]=PCOL[v==null?"lvn":"lv"+v].map(rgb);
+    const [bg,fg]=PCOL[lvOf(v,row.c.max)].map(rgb);
     doc.setFillColor(...(v==null?rgb("#D9DFEB"):fg));doc.rect(M,y,1.2,rh,"F");
     F(FN,"bold");T(nm,M+pad+1.5,y+pad);F(8,"normal","#58637F");
     if(wInline)T(row.w,M+pad+1.5+lastW+1.5,y+pad+(nm.length-1)*lh(FN)+0.5);else T(row.w,M+pad+1.5,y+pad+nm.length*lh(FN));
@@ -970,15 +1080,16 @@ function viewEval(){
     ${avatar(s)}<span class="nm">${esc(dispName(s))}<span class="sub" style="display:block">${g.done} de ${g.total} criterios${g.partial&&g.done?" · nota parcial":""}${u.vol&&raw(u,s.id,"vol")!=null?" · voluntarias ✓":""}</span><span class="mini"><i style="width:${Math.round(g.done/g.total*100)}%"></i></span></span>
     <span class="pill ${lvClass(g.final)}">${fmt(g.final)}</span><span class="chev">${ICON.right}</span></button>`}).join("")}</div>`
    :`<div class="card empty"><p class="muted">Este grupo no tiene alumnos todavía.</p><button class="btn primary" data-a="goto" data-tab="ajustes">Importar lista</button></div>`}
-  <p class="small muted">El criterio 8 (actitud) se rellena solo con la atención registrada en «Hoy» mientras no le pongas un valor a mano.</p>`;
+  ${(()=>{const ac=critList(u).find(c=>c.auto);return ac?`<p class="small muted">El criterio «${esc(ac.n)}» se rellena solo con la atención registrada en «Hoy» mientras no le pongas un valor a mano.</p>`:""})()}`;
 }
 function viewNotas(){
   const u=U(),st=students();const cl=critList(u);
-  const heads=cl.map((c,i)=>i<8?String(i+1):(c.k==="f1"?"Ent.":"Ficha"));
-  return `<div class="section-t"><h2>${esc(u.name)}</h2><span class="small muted">${plural(st.length,"alumno","alumnos")}</span></div>
+  const heads=cl.map(c=>c.num?String(c.num):(c.k==="f1"?"Ent.":"Ficha"));
+  const rb=u.rubric?`<span class="tag" style="align-self:flex-start">${esc(rubricOf(u).name)}</span>`:"";
+  return `<div class="section-t"><h2>${esc(u.name)}</h2><span class="small muted">${plural(st.length,"alumno","alumnos")}</span></div>${rb}
   <div class="tablewrap"><table><thead><tr><th>Alumno/a</th>${heads.map(h=>`<th>${h}</th>`).join("")}${u.vol?"<th>Vol.</th>":""}<th>Faltas</th><th>Nota</th></tr></thead>
-  <tbody>${st.map(s=>{const g=grade(u,s.id);return `<tr><td>${esc(dispName(s))}</td>${cl.map(c=>{const r=raw(u,s.id,c.k),v=val(u,s.id,c.k);const auto=r==null&&v!=null;return `<td class="${auto?"auto-v ":""}${v==null?"dot":"c"+v}">${v==null?"·":v}</td>`}).join("")}${u.vol?`<td>${g.bonus?"+"+fmt(g.bonus,2):"·"}</td>`:""}<td>${attStats(u,s.id).ab||"·"}</td><td><span class="pill ${lvClass(g.final)}">${fmt(g.final)}</span></td></tr>`}).join("")}</tbody></table></div>
-  <div class="legend small">${cl.map((c,i)=>`<span><b class="num">${i<8?i+1:(c.k==="f1"?"Ent.":"Ficha")}</b>${esc(c.n)}<em>${fmt(c.w,0)} %</em></span>`).join("")}${u.vol?`<span><b class="num">Vol.</b>Actividades voluntarias<em>hasta +${fmt(u.volMax||1,1)}</em></span>`:""}<span class="note muted">Faltas: días que ha faltado en esta unidad. En cursiva, la actitud calculada desde la atención diaria. Los colores siguen el nivel: verde 4, rojo 0.</span></div>
+  <tbody>${st.map(s=>{const g=grade(u,s.id);return `<tr><td>${esc(dispName(s))}</td>${cl.map(c=>{const r=raw(u,s.id,c.k),v=val(u,s.id,c.k);const auto=r==null&&v!=null;return `<td class="${auto?"auto-v ":""}${v==null?"dot":"c"+lvOf(v,c.max).slice(2)}">${v==null?"·":v}</td>`}).join("")}${u.vol?`<td>${g.bonus?"+"+fmt(g.bonus,2):"·"}</td>`:""}<td>${attStats(u,s.id).ab||"·"}</td><td><span class="pill ${lvClass(g.final)}">${fmt(g.final)}</span></td></tr>`}).join("")}</tbody></table></div>
+  <div class="legend small">${cl.map(c=>`<span><b class="num">${c.num||(c.k==="f1"?"Ent.":"Ficha")}</b>${esc(c.n)}<em>${wfmt(c.w)} %</em></span>`).join("")}${u.vol?`<span><b class="num">Vol.</b>Actividades voluntarias<em>hasta +${fmt(u.volMax||1,1)}</em></span>`:""}<span class="note muted">Faltas: días que ha faltado en esta unidad. En cursiva, lo calculado desde la atención diaria. Los colores siguen el nivel: verde el más alto, rojo el más bajo.</span></div>
   ${viewPdf()}
   ${viewAsistencia()}
   ${viewIdoceo()}`;
@@ -1090,20 +1201,69 @@ function viewAjustes(){
    ${us.map(x=>`<div class="crit" style="padding:10px">
      <div class="row"><input type="text" class="grow" style="flex:1 1 150px" data-f="uname" data-u="${x.id}" id="un-${x.id}" value="${esc(x.name)}" aria-label="Nombre de la unidad">
       <button class="btn ${conf("du"+x.id)?"confirm":"ghost danger"}" data-a="delunit" data-u="${x.id}">${conf("du"+x.id)?"¿Borrar con sus datos?":"Borrar"}</button></div>
+     <div class="row small">${unitRubricRow(x)}</div>
      <div class="row small"><label class="row"><input type="checkbox" data-f="uficha" data-u="${x.id}" ${x.ficha?"checked":""}> Ficha de repaso</label>
       <label class="row"><input type="checkbox" data-f="uvol" data-u="${x.id}" ${x.vol?"checked":""}> Voluntarias</label>
       <label class="row">extra máx. <select data-f="uvolmax" data-u="${x.id}" style="width:auto"><option value="0.5" ${x.volMax===0.5?"selected":""}>+0,5</option><option value="1" ${x.volMax!==0.5?"selected":""}>+1</option></select></label></div>
    </div>`).join("")}
-   <div class="row"><input type="text" id="newU" placeholder="Nombre de la unidad" class="grow" style="flex:1 1 180px"><button class="btn primary" data-a="newunit">Añadir unidad</button></div>
+   <div class="newunit">
+    <label for="newURub" class="field small muted">Rúbrica de la nueva unidad<select id="newURub">${rubricOptions(S.newRub)}</select></label>
+    <div class="row"><input type="text" id="newU" placeholder="Nombre de la unidad" class="grow" style="flex:1 1 180px"><button class="btn primary" data-a="newunit">Añadir unidad</button></div>
+   </div>
+   ${viewRubrics()}
   </div>
   <div class="card"><h2 style="font-size:1rem">Cómo se calcula la nota</h2>
    <p class="small" style="margin:0">Cada criterio puntúa de 0 a 4 y pesa su porcentaje. Si la unidad tiene ficha de repaso, se añaden «Entrega de la ficha» (5 %) y «Actividades de la ficha» (15 %) y los 8 criterios se reducen al 80 % de su peso. Si no entrega la ficha, sus actividades cuentan 0. Las voluntarias solo suman, con la nota limitada a 10.</p>
-   <p class="small" style="margin:0">Actitud automática según el % de días atento:</p>
+   <p class="small" style="margin:0">Con una rúbrica importada, cada criterio puntúa sobre el nivel más alto de esa rúbrica (por ejemplo, 3 sobre 4 cuenta el 75 % de su peso).</p>
+   <p class="small" style="margin:0">Actitud automática según el % de días atento (en la rúbrica predeterminada; en las importadas los niveles se reparten de forma proporcional):</p>
    <div class="thr"><span class="lv4">≥ 90 % · Excelente</span><span class="lv3">≥ 75 % · Bueno</span><span class="lv2">≥ 50 % · Regular</span><span class="lv1">≥ 25 % · Deficiente</span><span class="lv0">&lt; 25 % · Nulo</span></div>
   </div>
   <div class="card danger-zone"><div class="row"><span class="grow small">Borrar el grupo «${esc(g.name)}» con todas sus unidades y notas</span>
    <button class="btn ${conf("dg")?"confirm":"ghost danger"}" data-a="delgroup">${conf("dg")?"Sí, borrar el grupo":"Borrar grupo"}</button></div></div>`;
   return h;
+}
+function rubricLib(){return Object.entries(prof().rubrics||{}).map(([id,r])=>({...r,id})).sort((a,b)=>a.name.localeCompare(b.name,"es"))}
+function rubricOptions(sel){
+  return `<option value="default" ${!sel||sel==="default"?"selected":""}>${esc(DEFAULT_RUBRIC.name)} (predeterminada)</option>`+
+    rubricLib().map(r=>`<option value="${r.id}" ${sel===r.id?"selected":""}>${esc(r.name)}</option>`).join("");
+}
+function unitRubricRow(x){
+  const rb=rubricOf(x);
+  if(hasScores(x))return `<span class="muted">Rúbrica:</span> <b>${esc(rb.name)}</b> <span class="muted">· no se cambia porque ya tiene notas</span>`;
+  const inLib=!x.rubric||(prof().rubrics||{})[x.rubric.id];
+  return `<label class="row" style="flex:1 1 auto;min-width:0"><span class="muted">Rúbrica</span><select data-f="urub" data-u="${x.id}" style="flex:1 1 160px;width:auto">${inLib?"":`<option value="__keep" selected>${esc(rb.name)}</option>`}${rubricOptions(inLib?(x.rubric?x.rubric.id:"default"):"__none")}</select></label>`;
+}
+function viewRubrics(){
+  const lib=rubricLib();const conf=k=>S.confirm===k;
+  const desc=r=>{const vs=r.levels.map(l=>l.v);return `${plural(r.crit.length,"criterio","criterios")} · niveles ${Math.min(...vs)}–${Math.max(...vs)}${r.crit.every(c=>c.es&&c.va)?" · castellano y valenciano":""}`};
+  return `<div class="subsec"><h3>Rúbricas</h3>
+   <p class="small muted" style="margin:0">Descarga la plantilla, adáptala (a mano o con Claude) manteniendo su estructura e impórtala. Después elígela al crear una unidad. Cada rúbrica de la lista se puede volver a exportar en Excel.</p>
+   <div class="row"><label class="btn" for="rubIn">Importar rúbrica (Excel)<input type="file" id="rubIn" accept=".xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label>
+    <button class="btn ghost" data-a="rubtpl">Descargar plantilla</button></div>
+   ${S.rimpErr?`<div class="banner small">${esc(S.rimpErr)}</div>`:""}
+   ${S.rimp?rubricPreview():""}
+   <div class="list">
+    <div class="item"><span class="nm">${esc(DEFAULT_RUBRIC.name)}<span class="sub" style="display:block">Predeterminada · ${desc(DEFAULT_RUBRIC)}</span></span></div>
+    ${lib.map(r=>`<div class="item"><span class="nm">${esc(r.name)}<span class="sub" style="display:block">${desc(r)}</span></span>
+      <button class="btn ghost" data-a="rubdl" data-r="${r.id}">Excel</button>
+      <button class="btn ${conf("rd"+r.id)?"confirm":"ghost danger"}" data-a="rubdel" data-r="${r.id}">${conf("rd"+r.id)?"¿Borrar?":"Borrar"}</button></div>`).join("")}
+   </div>
+   ${lib.length?'<span class="small muted">Borrar una rúbrica no afecta a las unidades que ya la usan: cada unidad guarda su propia copia.</span>':""}
+  </div>`;
+}
+function rubricPreview(){
+  const r=S.rimp,Rb=r.Rb;const L=Rb.crit[0].es?"es":"va";const cn=c=>(c[L]||c.es||c.va).n;
+  const sh=r.sheets;
+  const langs=sh.es&&sh.va?"Castellano y valenciano."
+    :`Solo ${sh.es?"castellano":"valenciano"}: se usará también para los informes en ${sh.es?"valenciano":"castellano"}.`;
+  return `<div class="crit"><b>Revisar la rúbrica importada</b>
+   <label class="small muted" for="rimpName">Nombre<input type="text" id="rimpName" value="${esc(r.name)}"></label>
+   <span class="small">${langs}</span>
+   <span class="small"><b>Niveles:</b> ${[...Rb.levels].sort((a,b)=>b.v-a.v).map(l=>esc((l[L]||l.es||l.va)+" ("+l.v+")")).join(" · ")}</span>
+   <div class="preview">${Rb.crit.map((c,i)=>`${i+1}. ${esc(cn(c))} <span class="muted">· ${wfmt(c.w)} %</span>`).join("<br>")}</div>
+   <label class="small muted" for="rimpAuto">Criterio que se rellena con la atención diaria<select id="rimpAuto"><option value="-1">Ninguno</option>${Rb.crit.map((c,i)=>`<option value="${i}" ${r.auto===i?"selected":""}>${i+1}. ${esc(cn(c))}</option>`).join("")}</select></label>
+   ${r.warn.length?`<div class="banner small">${r.warn.map(esc).join("<br>")}</div>`:""}
+   <div class="row"><button class="btn primary" data-a="rimpsave">Guardar rúbrica</button><button class="btn ghost" data-a="rimpcancel">Cancelar</button></div></div>`;
 }
 function importPanel(){
   const imp=S.imp;const list=impStudents(imp);
@@ -1126,14 +1286,14 @@ function renderSheet(){
   const card=(c,extra,num)=>{
     const r=raw(u,s.id,c.k),v=val(u,s.id,c.k);const auto=r==null&&v!=null;
     const disabled=c.k==="f2"&&raw(u,s.id,"f1")===0;
-    const d=c.binary?(v==null?null:c.d[v]):(v==null?null:c.d[4-v]);
+    const d=v==null?null:c.d[v];
     let note="";
-    if(c.k==="c8"){const a=attStats(u,s.id);note=`<div class="auto">Atención registrada: ${a.ok} de ${plural(a.ok+a.no,"día","días")}${a.ab?` · ${plural(a.ab,"falta","faltas")}`:""}${auto?' · <span class="tag">automático</span>':r!=null&&suggest8(u,s.id)!=null?` · sugerido ${suggest8(u,s.id)} <button class="btn ghost small" data-a="score" data-s="${s.id}" data-k="c8" data-v="${r}" style="padding:2px 8px">usar sugerido</button>`:""}</div>`}
+    if(c.auto){const a=attStats(u,s.id);const sg=suggestAuto(u,s.id);note=`<div class="auto">Atención registrada: ${a.ok} de ${plural(a.ok+a.no,"día","días")}${a.ab?` · ${plural(a.ab,"falta","faltas")}`:""}${auto?' · <span class="tag">automático</span>':r!=null&&sg!=null?` · sugerido ${sg} <button class="btn ghost small" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${r}" style="padding:2px 8px">usar sugerido</button>`:""}</div>`}
     if(disabled)note=`<div class="auto">Sin ficha entregada, las actividades cuentan 0.</div>`;
     const btns=c.binary?[[4,"Sí","Entrega"],[0,"No","No entrega"]].map(([n,a,b])=>`<button class="lv${n}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${n}" aria-pressed="${v===n}"><b>${a}</b><span>${b}</span></button>`).join("")
-      :[4,3,2,1,0].map(n=>`<button class="lv${n}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${n}" aria-pressed="${v===n}" ${disabled?"disabled":""}><b>${n}</b><span>${SHORT[n]}</span></button>`).join("");
-    return `<section class="crit ${extra?"extra":""} ${v!=null?"done":""}"><div class="ch"><b>${num?`<span class="num">${num}</span>`:""}${esc(c.n)}</b><span class="w">${extra||fmt(c.w,0)+" %"}</span></div>
-     <div class="lvls ${c.binary?"two":""}">${btns}</div>${note}
+      :c.lv.map(l=>`<button class="${lvOf(l.v,c.max)}" data-a="score" data-s="${s.id}" data-k="${c.k}" data-v="${l.v}" aria-pressed="${v===l.v}" ${disabled?"disabled":""} title="${esc(l.name)}"><b>${l.v}</b><span>${esc(l.sh||l.name)}</span></button>`).join("");
+    return `<section class="crit ${extra?"extra":""} ${v!=null?"done":""}"><div class="ch"><b>${num?`<span class="num">${num}</span>`:""}${esc(c.n)}</b><span class="w">${extra||wfmt(c.w)+" %"}</span></div>
+     <div class="lvls ${c.binary?"two":""}" ${c.binary?"":`style="grid-template-columns:repeat(${c.lv.length},minmax(0,1fr))"`}>${btns}</div>${note}
      <p class="desc ${d?"":"none"}">${d?esc(d):"Toca un nivel para ver su descripción."}</p></section>`;
   };
   const cl=critList(u);
@@ -1144,7 +1304,7 @@ function renderSheet(){
      <span class="grow small muted" style="text-align:center">${idx+1} de ${st.length} · ${g.done}/${g.total}${g.bonus?` · +${fmt(g.bonus,2)} extra`:""}</span>
      <button class="btn" data-a="nav" data-d="1" ${idx<st.length-1?"":"disabled"}>Siguiente ›</button></div>
      <div class="prog" role="progressbar" aria-label="Criterios puntuados" aria-valuemin="0" aria-valuemax="${g.total}" aria-valuenow="${g.done}"><i style="width:${Math.round(g.done/g.total*100)}%"></i></div></div>
-   <div class="sheet-b">${cl.map((c,i)=>card(c,"",i<8?i+1:"")).join("")}${u.vol?card(VOL,"extra hasta +"+fmt(u.volMax||1,1)):""}
+   <div class="sheet-b">${cl.map(c=>card(c,"",c.num||"")).join("")}${u.vol?card(extraCrit(VOL,"es"),"extra hasta +"+fmt(u.volMax||1,1)):""}
    ${g.partial?`<p class="small muted">Faltan ${g.total-g.done} criterios: la nota mostrada es provisional y se calcula con los criterios ya puntuados.</p>`:""}
    <section class="crit"><div class="ch"><b><label for="obs-${s.id}">Observaciones para el informe</label></b><span class="w">PDF</span></div>
     <textarea id="obs-${s.id}" data-keep="1" data-obs="${s.id}" rows="3" placeholder="Aclaraciones sobre la nota o posibles malentendidos">${esc((u.notes||{})[s.id]||"")}</textarea>
@@ -1157,7 +1317,7 @@ function renderSheet(){
 // ---------- events ----------
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
-  if(a!=="delst"&&a!=="delunit"&&a!=="delgroup"&&a!=="restore")S.confirm=null;
+  if(a!=="delst"&&a!=="delunit"&&a!=="delgroup"&&a!=="restore"&&a!=="rubdel")S.confirm=null;
   const u=U(),g=G();
   switch(a){
    case "tab":S.tab=b.dataset.tab;lsSet("rc.tab",S.tab);window.scrollTo(0,0);break;
@@ -1191,7 +1351,14 @@ document.addEventListener("click",e=>{
    case "pickg":S.gid=b.dataset.g;lsSet("rc.gid",S.gid);S.uid=null;subscribeUnits();break;
    case "demo":{const names=[["Lucía","Benítez Soler"],["Marcos","Carrasco Vidal"],["Irene","Domínguez Ortega"],["Hugo","Ferrer Lozano"],["Nerea","Gallardo Pons"],["Adrián","Herrera Molina"],["Carla","Iglesias Rey"],["Óscar","Jiménez Navas"]];
      createGroup("Grupo de ejemplo",names.map(([n,a])=>({id:newId("s"),nombre:n,apellidos:a})));S.tab="hoy";lsSet("rc.tab","hoy");toast("Grupo de ejemplo creado");break}
-   case "newunit":{const n=$("#newU").value.trim()||("Unidad "+(sortedUnits().length+1));createUnit(n);toast("Unidad añadida");break}
+   case "newunit":{const n=$("#newU").value.trim()||("Unidad "+(sortedUnits().length+1));createUnit(n,S.newRub);toast("Unidad añadida");break}
+   case "rubtpl":downloadRubric(DEFAULT_RUBRIC,"Plantilla de rúbrica");return;
+   case "rubdl":{const rb=(prof().rubrics||{})[b.dataset.r];if(rb)downloadRubric(rb,"Rúbrica "+rb.name);return}
+   case "rubdel":{const id=b.dataset.r;if(S.confirm!=="rd"+id){S.confirm="rd"+id;break}S.confirm=null;const lib={...(prof().rubrics||{})};delete lib[id];setProf({rubrics:lib});if(S.newRub===id)S.newRub="default";toast("Rúbrica borrada");break}
+   case "rimpcancel":S.rimp=null;S.rimpErr=null;break;
+   case "rimpsave":{const r=S.rimp;if(!r)break;const id=newId("r");
+     const Rb={...r.Rb,id,name:(r.name||"").trim()||"Rúbrica importada",crit:r.Rb.crit.map((c,i)=>({...c,auto:i===r.auto}))};
+     setProf({rubrics:{...(prof().rubrics||{}),[id]:Rb}});S.rimp=null;S.newRub=id;toast("Rúbrica guardada: ya puedes elegirla al crear una unidad");break}
    case "newunit-quick":createUnit("Unidad 1");break;
    case "delunit":{const id=b.dataset.u;if(S.confirm!=="du"+id){S.confirm="du"+id;break}S.confirm=null;store.del(S.gid+"/units/"+id);delete S.units[id];if(S.uid===id){const us=sortedUnits();S.uid=us.length?us[us.length-1].id:null}toast("Unidad borrada");break}
    case "delgroup":{if(S.confirm!=="dg"){S.confirm="dg";break}S.confirm=null;const gid=S.gid;Object.keys(S.units).forEach(id=>store.del(gid+"/units/"+id));store.del(gid);delete S.groups[gid];S.gid=sortedGroups()[0]?.id||null;S.uid=null;unitsFor=null;subscribeUnits();toast("Grupo borrado");break}
@@ -1212,6 +1379,14 @@ document.addEventListener("change",async e=>{
   if(t.id==="selG"){S.gid=t.value;lsSet("rc.gid",S.gid);S.uid=null;S.evalSid=null;subscribeUnits();render();return}
   if(t.id==="selU"){S.uid=t.value;lsSet("rc.unit",S.uid);S.evalSid=null;render();return}
   if(t.id==="dateIn"&&t.value){S.date=t.value;render();return}
+  if(t.id==="newURub"){S.newRub=t.value;return}
+  if(t.id==="rimpName"&&S.rimp){S.rimp.name=t.value;return}
+  if(t.id==="rimpAuto"&&S.rimp){S.rimp.auto=Number(t.value);return}
+  if(t.id==="rubIn"&&t.files&&t.files[0]){
+    S.rimp=null;S.rimpErr=null;
+    try{const r=await readRubricFile(t.files[0]);if(r.err)S.rimpErr=r.err;else S.rimp=r}
+    catch(err){S.rimpErr=err&&err.message==="noxlsx"?"No se ha podido cargar el lector de Excel. Revisa la conexión.":"No se ha podido leer el archivo. Tiene que ser un Excel (.xlsx o .xls) hecho a partir de la plantilla."}
+    t.value="";render();return}
   if(t.id==="profName"){setProf({name:t.value.trim()});render();return}
   if(t.id==="profSubj"){const lang=g&&g.lang==="va"?"va":"es";setProf({subj:{...prof().subj,[lang]:t.value.trim()}});render();return}
   if(t.id==="idoCol"){const u=U();if(u){u.idoceoCol=t.value.trim();saveUnit(S.uid)}return}
@@ -1226,6 +1401,7 @@ document.addEventListener("change",async e=>{
   if(S.imp&&["impMode","impNom","impApe","impFull"].includes(t.id)){const k={impMode:"mode",impNom:"nom",impApe:"ape",impFull:"full"}[t.id];S.imp[k]=t.id==="impMode"?t.value:Number(t.value);render();return}
   const f=t.dataset&&t.dataset.f;if(f){const u=S.units[t.dataset.u];if(!u)return;
     if(f==="uname"){u.name=t.value.trim()||u.name}
+    else if(f==="urub"){if(t.value==="__keep"||hasScores(u))return;const rb=(prof().rubrics||{})[t.value];if(rb)u.rubric=clone(rb);else delete u.rubric}
     else if(f==="uficha")u.ficha=t.checked;else if(f==="uvol")u.vol=t.checked;else if(f==="uvolmax")u.volMax=Number(t.value);
     store.put(S.gid+"/units/"+t.dataset.u,u);render()}
 });

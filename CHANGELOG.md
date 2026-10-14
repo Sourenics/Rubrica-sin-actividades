@@ -1,0 +1,70 @@
+# Historial de cambios
+
+Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
+
+## 2026-10-14 · Rúbricas propias desde Excel ([#4](https://github.com/Sourenics/Rubrica-sin-actividades/pull/4))
+
+### Añadido
+- **Rúbricas importadas** en *Ajustes → Unidades → Rúbricas*:
+  - **Plantilla:** «Descargar plantilla» genera un Excel con la rúbrica predeterminada, una hoja «Castellano», otra «Valencià» y una de instrucciones.
+  - **Importación:** «Importar rúbrica (Excel)» muestra una vista previa con los idiomas, los niveles, los criterios con su peso y el criterio de atención diaria.
+  - **Biblioteca:** las rúbricas guardadas se pueden volver a exportar en Excel o borrar.
+- **Rúbrica por unidad:** se elige al crear la unidad y la predeterminada sigue siendo la opción por defecto. Cada unidad guarda su propia copia, y una unidad que ya tiene notas no puede cambiar de rúbrica.
+- **Cualquier número de niveles:** la evaluación, la tabla de notas, el Excel completo, la exportación a iDoceo y los PDF funcionan con cualquier escala (por ejemplo, de 1 a 4). Cada criterio puntúa sobre el nivel más alto.
+- **Atención diaria:** una rúbrica importada puede tener un criterio que se rellena solo con la atención registrada en «Hoy», como la actitud de la predeterminada.
+- **Informes en valenciano:** usan la hoja «Valencià» de la rúbrica importada.
+
+### Cambiado
+- **Formato único:** el importador solo acepta la plantilla de la app. Si un archivo no la sigue, explica qué falla: falta la hoja, la cabecera está mal, un nivel no tiene puntuación o las hojas tienen criterios distintos.
+
+### Corregido
+- **Casillas en iPhone:** en modo oscuro salían como cuadrados negros.
+
+## 2026-10-13 · Copias de seguridad, fecha y grupos de cualquier curso ([#3](https://github.com/Sourenics/Rubrica-sin-actividades/pull/3))
+
+### Añadido
+- **Nuevo grupo desde la cabecera:** opción «＋ Nuevo grupo…» en el selector de grupo.
+- **Renombrar grupos:** el nombre del grupo actual se puede cambiar en *Ajustes → Grupos*.
+
+### Cambiado
+- **Cualquier curso:** la app ya no habla solo de «3º ESO» y el grupo de ejemplo se llama «Grupo de ejemplo».
+- **README:** explica el uso desde GitHub Pages y cómo pasar los datos entre dispositivos.
+
+### Corregido
+- **Copia de seguridad:** al cargarla, las unidades no aparecían hasta cargarla una segunda vez.
+- **Fecha de «Hoy» en el móvil:** las flechas y el campo de fecha quedaban desalineados.
+
+## 2026-10-13 · README ([#2](https://github.com/Sourenics/Rubrica-sin-actividades/pull/2))
+
+### Añadido
+- `README.md`, con el uso de la app, la rúbrica, los informes, iDoceo, los datos y la privacidad.
+
+## 2026-10-13 · Rediseño e informes en PDF ([#1](https://github.com/Sourenics/Rubrica-sin-actividades/pull/1))
+
+### Añadido
+- **Informes en PDF:**
+  - por alumno (desde su ficha) o de todo el grupo;
+  - con la nota, cada criterio con su nivel y su descripción, la atención en clase y las observaciones;
+  - en castellano o valenciano según el grupo;
+  - con interruptores para el aviso de nota incompleta, los datos del profesor y la impresión a doble cara.
+  - Ocupan una página siempre que quepa.
+- **Observaciones por alumno** en la ficha de evaluación. También salen en el Excel completo.
+- **Selector de tema:** automático, claro u oscuro.
+- **Tabla de notas** con las celdas coloreadas por nivel y la leyenda de criterios con su peso.
+
+### Cambiado
+- **Nuevo aspecto visual:**
+  - cabecera y barra inferior translúcidas, avatares con iniciales, contadores en tarjetas;
+  - barra de progreso en la ficha y criterios numerados;
+  - sombras suaves y respuesta al pulsar.
+- **iPhone:** los campos tienen 16 px para que Safari no amplíe la página. En «Hoy», los botones Atiende / No / Falta van debajo del nombre.
+- **iDoceo:** las instrucciones están adaptadas al uso en el MacBook.
+
+### Corregido
+- **Tabla de notas:** la columna de nombres se reducía a una letra por línea.
+- **Plurales** incorrectos («1 faltas», «1 de 1 días»…).
+- **Casilla de iDoceo:** «Dejar su nota en blanco» quedaba descolocada.
+
+## 2026-10-13 · Versión inicial
+
+- Primera versión de la app subida al repositorio.

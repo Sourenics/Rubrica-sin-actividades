@@ -1,6 +1,6 @@
 # Rúbrica del cuaderno
 
-Aplicación web para evaluar el cuaderno del alumnado con una rúbrica de 8 criterios. Sirve para cualquier curso: se crea un grupo por cada clase (2º, 3º, 4º de ESO o lo que haga falta). Permite:
+Aplicación web para evaluar el cuaderno del alumnado con una rúbrica: la predeterminada, de 8 criterios, o una propia importada desde Excel. Sirve para cualquier curso: se crea un grupo por cada clase (2º, 3º, 4º de ESO o lo que haga falta). Permite:
 
 - registrar cada día la atención en clase;
 - calcular la nota de cada unidad;
@@ -12,10 +12,10 @@ Toda la app está en un único archivo, `index.html`. No hay que instalar nada n
 ## Funciones
 
 - **Hoy:** cada día se marca a cada alumno como «Atiende», «No» (no atiende) o «Falta». Un botón marca como «atiende» a todos los que queden sin marcar.
-- **Evaluar:** ficha por alumno con los 8 criterios de la rúbrica, de 0 a 4.
+- **Evaluar:** ficha por alumno con los criterios de la rúbrica de la unidad.
   - Al tocar un nivel se ve su descripción.
   - La ficha también tiene un campo de observaciones para el informe.
-  - La actitud (criterio 8) se rellena sola a partir de la atención registrada en «Hoy», mientras no se le ponga un valor a mano.
+  - El criterio de atención diaria (en la rúbrica predeterminada, la actitud) se rellena solo a partir de la atención registrada en «Hoy», mientras no se le ponga un valor a mano.
 - **Notas:** tabla de la unidad con cada criterio coloreado por nivel, la nota final y las faltas. Incluye:
   - un resumen de asistencia del grupo, con las fechas de las faltas;
   - los informes en PDF;
@@ -23,11 +23,14 @@ Toda la app está en un único archivo, `index.html`. No hay que instalar nada n
 - **Ajustes:**
   - grupos: crear y renombrar. También se crean desde el selector de grupo de arriba, con «＋ Nuevo grupo…»;
   - alumnado de cada grupo: importar la lista desde iDoceo, pegarla o añadir alumnos a mano;
-  - unidades, con o sin ficha de repaso y actividades voluntarias;
+  - unidades: cada una con su rúbrica (la predeterminada o una importada), con o sin ficha de repaso y actividades voluntarias;
+  - rúbricas: importar rúbricas desde Excel y descargar la plantilla;
   - copia de seguridad;
   - tema claro u oscuro.
 
-## La rúbrica y el cálculo de la nota
+## La rúbrica predeterminada y el cálculo de la nota
+
+Es la rúbrica del cuaderno que trae la app y la que se usa si no eliges otra.
 
 | Nº | Criterio | Peso |
 |---|---|---|
@@ -54,6 +57,30 @@ Toda la app está en un único archivo, `index.html`. No hay que instalar nada n
   | 25 % o más | Deficiente (1) |
   | Menos del 25 % | Nulo (0) |
 
+## Rúbricas importadas desde Excel
+
+Además de la predeterminada, puedes usar tus propias rúbricas. Se importan en *Ajustes → Unidades → Rúbricas* y se eligen al crear cada unidad.
+
+**Flujo de trabajo**
+1. Pulsa «Descargar plantilla». Genera un Excel con la rúbrica predeterminada ya rellena y una hoja de instrucciones.
+2. Adáptala a mano o con Claude (por ejemplo, en un proyecto donde guardes tus rúbricas), **manteniendo su estructura**.
+3. Impórtala con «Importar rúbrica (Excel)», revisa la vista previa y guárdala.
+4. Cualquier rúbrica guardada se puede volver a exportar en Excel con su botón «Excel».
+
+**Formato de la plantilla** (la app solo acepta este; si un archivo no lo sigue, dice qué falla):
+- **Hojas:** «Castellano» y «Valencià», con los mismos criterios y niveles en el mismo orden. Cada una se usa para los informes en su idioma. Si solo hay una, sirve para los dos idiomas. Las demás hojas, como «Instrucciones», se ignoran.
+- **Primera fila:** «Criterio | Peso (%) | Atención diaria» (en valenciano, «Criteri | Pes (%) | Atenció diària») y, desde la columna D, un nivel por columna con su puntuación entre paréntesis, por ejemplo «Excelente (4)». Puede haber tantos niveles como quieras, con un mínimo de dos.
+- **Una fila por criterio:** nombre, peso y una descripción por nivel.
+- **Peso:** si lo dejas vacío en todos los criterios, pesan lo mismo; si no suman 100, se ajustan.
+- **Atención diaria:** «Sí» en el criterio que se rellena solo con la atención registrada en «Hoy», como la actitud. Como mucho uno.
+- **De qué hoja se toman los datos:** el peso y la atención diaria salen de la hoja «Castellano».
+- **Nombre:** la rúbrica toma el nombre del archivo; se puede cambiar en la vista previa.
+
+**Cómo se usa**
+- **Nota:** cada criterio puntúa sobre el nivel más alto de su rúbrica (3 sobre 4 cuenta el 75 % de su peso).
+- **Cada unidad guarda su propia copia** de la rúbrica. Borrar una rúbrica de la biblioteca no afecta a las unidades que la usan, y una unidad que ya tiene notas no puede cambiar de rúbrica.
+- **Espacio:** cada rúbrica ocupa unos pocos KB, así que caben cientos. Las rúbricas importadas entran en la copia de seguridad.
+
 ## Informes en PDF
 
 Se generan desde la propia app:
@@ -64,7 +91,7 @@ Se generan desde la propia app:
 Cada informe recoge la nota (final o provisional), el nivel y la descripción de cada criterio, la atención en clase y las observaciones. Si no hay observaciones, el PDF deja un recuadro rayado para escribirlas a mano.
 
 - **Extensión:** una página siempre que quepa. Solo pasa a dos si hace falta, y nunca se recorta información.
-- **Idioma:** castellano o valenciano, por grupo. En valenciano también se traduce la rúbrica.
+- **Idioma:** castellano o valenciano, por grupo. En valenciano también se traduce la rúbrica: la predeterminada ya está traducida y las importadas usan su hoja «Valencià».
 - **Interruptores:**
   - **Aviso de nota incompleta:** indica qué criterios faltan por evaluar.
   - **Datos del profesor:** nombre, materia y grupo en la cabecera. Se editan en la misma tarjeta.
@@ -85,7 +112,7 @@ El grupo aparece con el nombre que tiene en la app. Para que salga «3º C», el
   - Si se borran los datos del navegador, se pierden.
 - **Dentro de Claude (publicada como artifact):** los datos se guardan en tu cuenta, son privados y se ven desde cualquier dispositivo con la misma cuenta. La app usa las capacidades `db`, `user` y `downloads`.
 
-En los dos casos conviene descargar de vez en cuando una **copia de seguridad** (*Ajustes → Copia de seguridad*). Es un archivo JSON con todos los grupos, unidades, notas, asistencia, observaciones y datos del profesor.
+En los dos casos conviene descargar de vez en cuando una **copia de seguridad** (*Ajustes → Copia de seguridad*). Es un archivo JSON con todos los grupos, unidades, notas, asistencia, observaciones, datos del profesor y rúbricas importadas.
 
 Para **pasar los datos de un dispositivo a otro**:
 1. En el primero, descarga la copia de seguridad.
@@ -117,12 +144,17 @@ La app maneja nombres y notas del alumnado:
   - [jsPDF](https://github.com/parallax/jsPDF) 2.5.1, para los PDF. Se descarga solo la primera vez que se genera un PDF.
 - **Fuentes:** Atkinson Hyperlegible y Bricolage Grotesque, de Google Fonts.
 - **Dónde está cada cosa en el código:**
-  - La rúbrica en castellano está en las constantes `CRIT`, `F1`, `F2` y `VOL`.
+  - La rúbrica predeterminada en castellano está en las constantes `CRIT`, `F1`, `F2` y `VOL`, y se convierte en `DEFAULT_RUBRIC`, el mismo formato que las rúbricas importadas.
+  - El importador de rúbricas es `parseRubricSheet` y `readRubricFile`; la plantilla, `downloadRubric` y `RUB_HELP`.
   - La versión en valenciano, en `VA` y `LEVELS_VA`.
   - Los textos del PDF, en `PDFT`.
   - Los datos por defecto del profesor, en `PROFILE0`.
   - Los umbrales de la actitud automática, en `ATT_THRESHOLDS`.
 - **Probarla:** basta con abrir `index.html` en el navegador y pulsar «Probar con un grupo de ejemplo».
+
+## Historial de cambios
+
+Lo que ha cambiado en cada versión está en [CHANGELOG.md](CHANGELOG.md).
 
 ## Licencia
 
