@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-14 · Evaluación de prueba
+## 2026-10-14 · Evaluación de prueba ([#8](https://github.com/Sourenics/Rubrica-sin-actividades/pull/8))
 
 ### Añadido
 - **Evaluación de prueba** en *Ajustes*, encima de «Borrar grupo»: rellena al azar la asistencia, las notas y las observaciones del grupo para probar la app, los informes y las exportaciones.
