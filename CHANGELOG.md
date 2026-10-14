@@ -2,6 +2,18 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
+## 2026-10-14 · Evaluación de prueba ([#8](https://github.com/Sourenics/Rubrica-sin-actividades/pull/8))
+
+### Añadido
+- **Evaluación de prueba** en *Ajustes*, encima de «Borrar grupo»: rellena al azar la asistencia, las notas y las observaciones del grupo para probar la app, los informes y las exportaciones.
+  - Cada unidad recibe 10 días lectivos de asistencia distintos, con «atiende», «más o menos», «no» y alguna falta.
+  - Se puntúan todos los criterios salvo la actitud, que se calcula con la asistencia. También la ficha de repaso y las voluntarias si la unidad las tiene.
+  - Un alumno queda sin puntuar y otro a medias, para ver las notas provisionales. Algunos reciben observaciones en el idioma del grupo.
+  - Antes de rellenar, un aviso explica que se sustituyen los datos del grupo y pide confirmación.
+
+### Cambiado
+- **Borrar grupo:** al pulsarlo aparece un aviso con lo que se va a borrar (alumnos, unidades, asistencia, notas y observaciones) y un botón «Cancelar».
+
 ## 2026-10-14 · Atención «más o menos» ([#7](https://github.com/Sourenics/Rubrica-sin-actividades/pull/7))
 
 ### Añadido
