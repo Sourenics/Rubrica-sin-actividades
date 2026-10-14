@@ -140,6 +140,23 @@ Pensada para usarse en el **PC** y en el **iPhone**:
 - En el móvil, los botones son grandes y los campos tienen el tamaño justo para que Safari no amplíe la página al tocarlos.
 - En el PC, el contenido se centra y la barra de navegación flota abajo. Los márgenes llevan una línea de margen de cuaderno y dibujos tenues de Geografía e Historia, que no aparecen en el móvil.
 
+### Icono para el Dock y la pantalla de inicio
+
+La carpeta [`iconos`](iconos) tiene el icono de la app: un cuaderno con una marca de verificación sobre fondo azul.
+
+| Archivo | Para qué sirve |
+|---|---|
+| `icono-mac-1024.png` | Dock del Mac, con la forma y la sombra de los iconos de macOS |
+| `icono-1024.png` | Icono cuadrado a sangre, para cuando el sistema recorta las esquinas |
+| `apple-touch-icon.png` | Lo usan Safari y el iPhone al añadir la versión de GitHub Pages al Dock o a la pantalla de inicio |
+| `icono.svg` | Icono de la pestaña del navegador |
+
+- **Versión de GitHub Pages:** al añadirla al Dock (*Safari → Archivo → Añadir al Dock*) o a la pantalla de inicio del iPhone (*Compartir → Añadir a pantalla de inicio*), sale el icono de la app sin hacer nada.
+  - Ojo: la app añadida puede guardar los datos aparte de los de Safari. Si no ves tus datos, pásalos con una copia de seguridad.
+- **Versión en Claude:** sale el icono de Claude, porque la página es de claude.ai y el artifact no puede cambiarlo. Se cambia a mano con `icono-mac-1024.png`:
+  - **Desde la app del Dock:** ábrela y entra en los ajustes del menú con su nombre. Allí se pulsa el icono y se elige la imagen.
+  - **Desde el Finder:** en la carpeta *Aplicaciones* de tu usuario (`~/Applications`), selecciona la app y abre *Archivo → Obtener información*. Arrastra la imagen sobre el icono pequeño de arriba a la izquierda.
+
 ## Privacidad
 
 La app maneja nombres y notas del alumnado:
