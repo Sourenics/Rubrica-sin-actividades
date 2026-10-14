@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-14 · Fecha centrada en Safari del Mac
+## 2026-10-14 · Fecha centrada en Safari del Mac ([#9](https://github.com/Sourenics/Rubrica-sin-actividades/pull/9))
 
 ### Corregido
 - **Fecha de «Hoy» en el Mac:** en Safari de escritorio, la fecha salía pegada a la izquierda del campo. Ahora sale centrada, como en el iPhone y en Chrome.
