@@ -59,14 +59,24 @@ Es la rúbrica del cuaderno que trae la app y la que se usa si no eliges otra.
 
 ## Rúbricas importadas desde Excel
 
-Además de la predeterminada, puedes usar tus propias rúbricas: se importan en *Ajustes → Unidades → Rúbricas* y se eligen al crear cada unidad.
+Además de la predeterminada, puedes usar tus propias rúbricas. Se importan en *Ajustes → Unidades → Rúbricas* y se eligen al crear cada unidad.
 
-- **Formato:** una fila por criterio y una columna por nivel. Para verlo, pulsa «Descargar plantilla»: genera un Excel con la rúbrica predeterminada ya rellena y una hoja de instrucciones.
-  - **Niveles:** la cabecera lleva el nombre y la puntuación, por ejemplo «Excelente (4)» o «Excelente» y debajo «4». Puedes usar los niveles que quieras (3, 4, 5…).
-  - **Peso:** en una columna «Peso (%)» o dentro de la celda del criterio, por ejemplo «Copia del esquema 20%». Si no hay pesos, todos los criterios pesan lo mismo; si no suman 100, se ajustan.
-  - **Atención diaria:** escribe «Sí» en la columna «Atención diaria» del criterio que se rellena solo con la atención registrada en «Hoy», como la actitud. Si no marcas ninguno, la app propone el que hable de actitud o atención.
-- **Dos idiomas:** una hoja «Castellano» y otra «Valencià», con los mismos criterios en el mismo orden. Cada una se usa para los informes en su idioma. Si solo hay una hoja, sirve para los dos.
-- **Vista previa:** antes de guardar ves el nombre, los idiomas, los niveles, los criterios con su peso y el criterio de atención diaria, y puedes cambiar el nombre o ese criterio.
+**Flujo de trabajo**
+1. Pulsa «Descargar plantilla». Genera un Excel con la rúbrica predeterminada ya rellena y una hoja de instrucciones.
+2. Adáptala a mano o con Claude (por ejemplo, en un proyecto donde guardes tus rúbricas), **manteniendo su estructura**.
+3. Impórtala con «Importar rúbrica (Excel)», revisa la vista previa y guárdala.
+4. Cualquier rúbrica guardada se puede volver a exportar en Excel con su botón «Excel».
+
+**Formato de la plantilla** (la app solo acepta este; si un archivo no lo sigue, dice qué falla):
+- **Hojas:** «Castellano» y «Valencià», con los mismos criterios y niveles en el mismo orden. Cada una se usa para los informes en su idioma. Si solo hay una, sirve para los dos idiomas. Las demás hojas, como «Instrucciones», se ignoran.
+- **Primera fila:** «Criterio | Peso (%) | Atención diaria» (en valenciano, «Criteri | Pes (%) | Atenció diària») y, desde la columna D, un nivel por columna con su puntuación entre paréntesis, por ejemplo «Excelente (4)». Puede haber tantos niveles como quieras, con un mínimo de dos.
+- **Una fila por criterio:** nombre, peso y una descripción por nivel.
+- **Peso:** si lo dejas vacío en todos los criterios, pesan lo mismo; si no suman 100, se ajustan.
+- **Atención diaria:** «Sí» en el criterio que se rellena solo con la atención registrada en «Hoy», como la actitud. Como mucho uno.
+- **De qué hoja se toman los datos:** el peso y la atención diaria salen de la hoja «Castellano».
+- **Nombre:** la rúbrica toma el nombre del archivo; se puede cambiar en la vista previa.
+
+**Cómo se usa**
 - **Nota:** cada criterio puntúa sobre el nivel más alto de su rúbrica (3 sobre 4 cuenta el 75 % de su peso).
 - **Cada unidad guarda su propia copia** de la rúbrica. Borrar una rúbrica de la biblioteca no afecta a las unidades que la usan, y una unidad que ya tiene notas no puede cambiar de rúbrica.
 - **Espacio:** cada rúbrica ocupa unos pocos KB, así que caben cientos. Las rúbricas importadas entran en la copia de seguridad.
@@ -135,7 +145,7 @@ La app maneja nombres y notas del alumnado:
 - **Fuentes:** Atkinson Hyperlegible y Bricolage Grotesque, de Google Fonts.
 - **Dónde está cada cosa en el código:**
   - La rúbrica predeterminada en castellano está en las constantes `CRIT`, `F1`, `F2` y `VOL`, y se convierte en `DEFAULT_RUBRIC`, el mismo formato que las rúbricas importadas.
-  - El importador de rúbricas es `parseRubricRows` y `readRubricFile`; la plantilla, `downloadRubric`.
+  - El importador de rúbricas es `parseRubricSheet` y `readRubricFile`; la plantilla, `downloadRubric` y `RUB_HELP`.
   - La versión en valenciano, en `VA` y `LEVELS_VA`.
   - Los textos del PDF, en `PDFT`.
   - Los datos por defecto del profesor, en `PROFILE0`.
