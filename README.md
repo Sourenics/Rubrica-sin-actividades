@@ -125,7 +125,7 @@ Los grupos de la copia sustituyen a los mismos grupos si ya existen; el resto no
 Pensada para usarse en el **PC** y en el **iPhone**:
 
 - En el móvil, los botones son grandes y los campos tienen el tamaño justo para que Safari no amplíe la página al tocarlos.
-- En el PC, el contenido se centra y la barra de navegación flota abajo.
+- En el PC, el contenido se centra y la barra de navegación flota abajo. Los márgenes llevan una línea de margen de cuaderno y dibujos tenues de Geografía e Historia, que no aparecen en el móvil.
 
 ## Privacidad
 
