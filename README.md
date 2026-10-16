@@ -191,4 +191,12 @@ Lo que ha cambiado en cada versión está en [CHANGELOG.md](CHANGELOG.md).
 
 ## Licencia
 
-[GNU GPL v3](LICENSE).
+© 2026 Sourenics. *Rúbrica del cuaderno* se publica con la licencia [Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es). El texto completo está en [LICENSE](LICENSE).
+
+- **Atribución:** hay que citar al autor como «Sourenics», con un enlace a este repositorio, e indicar si se han hecho cambios.
+- **No comercial:** se puede usar, copiar y modificar, pero no con fines comerciales. Para cualquier uso comercial hace falta el permiso del autor.
+- **Compartir igual:** las versiones modificadas tienen que publicarse con esta misma licencia.
+
+Las versiones publicadas hasta el 16 de octubre de 2026 llevaban la licencia GNU GPL v3.
+
+Las bibliotecas que usa la app mantienen sus propias licencias: SheetJS (Apache 2.0), jsPDF (MIT), y Atkinson Hyperlegible y Bricolage Grotesque (SIL Open Font License).
