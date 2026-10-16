@@ -2,7 +2,7 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
-## 2026-10-16 · Licencia CC BY-NC-SA 4.0
+## 2026-10-16 · Licencia CC BY-NC-SA 4.0 ([#12](https://github.com/Sourenics/Rubrica-sin-actividades/pull/12))
 
 ### Cambiado
 - **Licencia:** la app pasa de la GNU GPL v3 a la Creative Commons Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0).
