@@ -2,6 +2,15 @@
 
 Cambios de la app agrupados por cada fusión en `main`, que es lo que publica GitHub Pages. Lo más reciente va arriba.
 
+## 2026-10-16 · Licencia CC BY-NC-SA 4.0 ([#12](https://github.com/Sourenics/Rubrica-sin-actividades/pull/12))
+
+### Cambiado
+- **Licencia:** la app pasa de la GNU GPL v3 a la Creative Commons Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0).
+  - Hay que citar al autor como «Sourenics».
+  - No se permite el uso comercial sin su permiso.
+  - Las versiones modificadas tienen que llevar la misma licencia.
+- **Datos del profesor:** la app ya no trae ningún nombre de profesor por defecto. Se escribe en *Notas → Informes en PDF → Datos del profesor*.
+
 ## 2026-10-14 · Lista de alumnos: orden alfabético y desplegables ([#11](https://github.com/Sourenics/Rubrica-sin-actividades/pull/11))
 
 ### Añadido
